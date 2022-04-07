@@ -136,19 +136,8 @@ class show_document_window(tk.Frame):
         Label(self.canvas_srdis,textvariable=self.time).place(x=700,y=18)
         self.text_area = tk.Text(self, height=33, width=85)
         self.text_area.place(x=30, y=100)
-        file = filedialog.askopenfilename(title="Select a PDF",
-                                          filetype=(("PDF    Files", "*.pdf"), ("All Files", "*.*")))
-        if file:
-            # Open the PDF File
-            pdf_file = PyPDF2.PdfFileReader(file)
-            # Select a Page to read
-            page = pdf_file.getPage(0)
-            # Get the content of the Page
-            content = page.extractText()
-            # Add the content to TextBox
-            text.insert(1.0, content)
-        # path = 'https://empower1902.bsientropy.com/deltexmedical/Login/Login'
-        self.text_area.insert(webbrowser.open_new(path))
+        
+        
         self.get_info()
 
 
@@ -159,10 +148,13 @@ class show_document_window(tk.Frame):
 
 
     def get_info(self):
-        
         pass
-        
 
+    
+        
+    def show_pdf(self):
+        path = 'https://empower1902.bsientropy.com/deltexmedical/Login/Login'
+        self.text_area.insert(webbrowser.open_new(path))
     
 
 

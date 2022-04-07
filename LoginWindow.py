@@ -15,10 +15,12 @@ from time import gmtime, strftime
 import Login
 import Screen
 import User
+import interface
 
 UL = Login
 SC = Screen
 US = User.User()
+INT = interface.interface()
 
 
 class LoginWindow(tk.Frame):
@@ -66,12 +68,10 @@ class LoginWindow(tk.Frame):
         # password = self.password.get()
         login = UL.Login(username,password)
         user,admin = login.login_user()
-        print(f"user {user} : logged user {login.password}")
         if user:
-            print("User loggin in")
-            US.set_is_trainer(admin)
+            INT._interface([username,admin])
             
             self.control.show_frame(SC.main_screen)
         else:
-            print("user not logged in")
+       
             mb.showerror(title="User Error",message="User not logged in.")

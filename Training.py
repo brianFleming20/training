@@ -6,8 +6,9 @@ import Documents
 import DataStore
 
 
+
 DOC = Documents
-DS = DataStore
+DS = DataStore.data_store()
 
 
 class Training():
@@ -27,7 +28,6 @@ class Training():
     def get_now_time(self):
         presentime = datetime.now()
         date = presentime.strftime('%Y-%m-%d')
-        print(f"Date now is {date}")
         return date
 
 
@@ -42,16 +42,15 @@ class Training():
 
 
     def get_document(self):
-
-        return DS.data_store.get_all_documents(self)
+        return DS.get_all_documents()
 
 
     def write_documents(self, documents):
-        DS.data_store.write_documents(documents)
+        DS.write_documents(documents)
 
 
     def get_all_users(self):
-        users = DS.data_store.read_users(self)
+        users = DS.read_users_data()
        
         return users
 
@@ -73,8 +72,6 @@ class Training():
 
     def docs_trained_on(self,user):
         pass
-
-
 
     def who_is_trainer(self):
         result = []

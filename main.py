@@ -24,6 +24,7 @@ import LoginWindow as UL
 import Screen as SC
 import DisplayScreens as DSP
 import AdminUser as AU
+import NewUser as NU
 
 Training_Version = 'Deltex Medical : Training Register V 1'
 w = 1000  # window width
@@ -61,7 +62,10 @@ class WindowController(tk.Tk):
                   DSP.show_user_window,
                   DSP.show_document_window,
                   DSP.show_event_window,
-                  AU.admin_user_window
+                  AU.admin_user_window,
+                  NU.AddNewUser,
+                  NU.ShowUsers,
+                  NU.EditUser
                   ):
 
             frame = F(container, self)

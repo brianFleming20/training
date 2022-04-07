@@ -21,7 +21,7 @@ class Login():
 
     def login_user(self):
         user_obj = self.get_user()
-        user = DS.get_user_obj(user_obj.name)
+        user = DS.get_user_obj(user_obj)
         if user != False:
             for item,value in user.items():
                 if item == "pass":

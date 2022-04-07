@@ -15,7 +15,11 @@ class Document():
         self.doc_name = ""
         self.issue_number = 0.0
         self.reference_number = ""
+        self.doc_location = ""
         self.documents = []
+
+    def get_doc_obj(self):
+        return self
 
 
     def get_doc_name(self):
@@ -41,9 +45,16 @@ class Document():
     def set_reference_number(self,ref):
         self.reference_number = ref
 
+    def set_doc_location(self, location):
+        self.doc_location = location
 
-    def save_doc_obj(self, document):
-        self.documents.insert(0,document)
+
+    def get_doc_location(self):
+        return self.doc_location
+
+
+    def save_doc_obj(self):
+        self.documents.insert(0,self.get_doc_obj())
 
 
     def get_all_documents(self):

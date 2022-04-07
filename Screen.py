@@ -21,12 +21,16 @@ import Documents
 import interface
 import LoginWindow as UL
 import DataStore
+import NewUser
+
 
 DSP = DisplayScreens
 TR = Training.Training()
 DOC = Documents.Document()
 INT = interface.interface()
 DS = DataStore.data_store()
+NU = NewUser
+
 
 
 class main_screen(tk.Frame):
@@ -42,6 +46,7 @@ class main_screen(tk.Frame):
         self.base.place(x=10, y=10)
         self.serach_item = StringVar()
         self.time = StringVar()
+        self.admin = None
         self.index = -1
         self.form_data = []
     
@@ -50,7 +55,10 @@ class main_screen(tk.Frame):
 
     def refresh_window(self):
         self.time.set(TR.get_now_time())
-      
+        logged_in_user = INT.extend_interface()[0]
+
+        admins = TR.get_all_trainers()
+     
         Canvas(self,bg="#E9DAC1",width=970, height=680).place(x=10, y=10)
         self.canvas_button = Canvas(self,bg="#F7ECDE",width=120,height=630)
         self.canvas_button.place(x=840,y=10)
@@ -59,13 +67,18 @@ class main_screen(tk.Frame):
         self.canvas_lists = Canvas(self, bg="#F7ECDE", width=810,height=560)
         self.canvas_lists.place(x=10,y=80)
         Button(self.canvas_button,text="Users", width=12, command=self.display_user,bg='#54BAB9').place(x=20,y=80)
-        Button(self.canvas_button,text="Admin", width=12, command=self.admin_user,bg='#54BAB9').place(x=20,y=160)
+        self.admin = Button(self.canvas_button,text="Admin", width=12, command=self.admin_user,bg='#54BAB9')
+        self.admin.place(x=20,y=160)
         Button(self.canvas_button,text="Documents", width=12, command=self.display_documents,bg='#54BAB9').place(x=20,y=240)
         Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=320)
         Button(self.canvas_button,text="Update", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=400)
         Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
         Label(self.canvas_search, text="Training Documents").place(x=10,y=15)
         Label(self.canvas_search, text="Search").place(x=250,y=15)
+        if logged_in_user in admins:
+            self.admin.config(state=NORMAL)
+        else:
+            self.admin.config(state=DISABLED)
         search = Entry(self.canvas_search, textvariable=self.serach_item,width=25)
         search.place(x=300, y=15)
         self.items = Combobox(self.canvas_search,state="readonly",values=["Select","Person","Document","Training"])
@@ -81,7 +94,8 @@ class main_screen(tk.Frame):
         
 
     def admin_user(self):
-        pass  
+        
+        self.control.show_frame(NU.ShowUsers) 
 
 
     def selection_changed(self, event):
@@ -106,13 +120,7 @@ class main_screen(tk.Frame):
 
 
     def display_documents(self):
-        
-        
-        
         self.control.show_frame(DSP.show_document_window)
-
-
-
 
 
     def display_events(self):
