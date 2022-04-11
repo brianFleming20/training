@@ -11,7 +11,7 @@ Created on 9 March 2022
 import tkinter as tk
 import webbrowser
 from tkinter import *
-from tkinter import filedialog
+
 
 import AdminUser as AU
 import Screen as SC
@@ -22,17 +22,7 @@ TR = Training.Training()
 INT = interface.interface()
 
 
-class ShowMainWindow(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent, bg='#F7ECDE')
-        self.control = controller
-        self.canvas_btndis = Canvas(self,bg="#E9DAC1",width=120,height=630)
-        self.canvas_btndis.place(x=840,y=10)
-        self.canvas_srdis = Canvas(self,bg="#E9DAC1", width=810,height=50)
-        self.canvas_srdis.place(x=10,y=10)
-        self.canvas_back = Canvas(self, bg="#E9DAC1", width=810,height=560)
-        self.canvas_back.place(x=10,y=80)
-        pdfFileObject = open('../test.pdf','rb')
+
 
 class show_user_window(tk.Frame):
     def __init__(self, parent, controller):
@@ -55,10 +45,9 @@ class show_user_window(tk.Frame):
         self.time.set(TR.get_now_time())
         self.data.clear()
         self.data.extend(INT.extend_interface())
+       
         self.canvas_back.delete('all')
-        Button(self.canvas_btndis,text="New", width=12 ,bg='#54BAB9').place(x=20,y=80)
-        Button(self.canvas_btndis,text="Delete", width=12, bg='#54BAB9').place(x=20,y=160)
-        Button(self.canvas_btndis,text="Edit", width=12, bg='#54BAB9').place(x=20,y=240)
+      
         Button(self.canvas_btndis,text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20,y=500)
         Label(self.canvas_srdis, text="Selected User").place(x=10,y=15)
         Label(self.canvas_srdis, text="Search").place(x=250,y=15)
@@ -83,7 +72,16 @@ class show_user_window(tk.Frame):
         self.f = self.canvas_back.create_text(400,255,text=" ",font=('Helvetica 12 bold'))
         self.g = self.canvas_back.create_text(400,295,text=" ",font=('Helvetica 12 bold'))
         self.text_area = tk.Text(self, height=8, width=50)
-        self.text_area.place(x=500, y=500, anchor=CENTER)
+        self.text_area.place(x=50, y=450)
+        Label(self.canvas_back, text="Trained on ").place(x=500,y=50)
+        doc_name = Listbox(self, height=20, width=20)
+        doc_name.place(x=500, y=180)
+        doc_ref = Listbox(self, height=20, width=20)
+        doc_ref.place(x=650, y=180)
+        doc_name.insert(END, "Document Name")
+        doc_name.insert(END,"-----------------")
+        doc_ref.insert(END, "Document Ref.")
+        doc_ref.insert(END,"-----------------")
         self.transfer_info()
         
 

@@ -4,21 +4,22 @@ Creates a document object
 
 from tkinter import messagebox as mb
 import Training
-import DataStore
 
-TR = Training
-DS = DataStore.data_store()
 
+
+
+documents = []
 class Document():
 
-    def __init__(self):
-        self.doc_name = ""
-        self.issue_number = 0.0
-        self.reference_number = ""
-        self.doc_location = ""
-        self.documents = []
+    def __init__(self,name="",issue=0.0,ref="",location=""):
+        self.doc_name = name
+        self.issue_number = issue
+        self.reference_number = ref
+        self.doc_location = location
+        
 
     def get_doc_obj(self):
+        print(self)
         return self
 
 
@@ -34,39 +35,37 @@ class Document():
         return self.reference_number
 
 
-    def set_doc_name(self, name):
-        self.doc_name = name
+    # def set_doc_name(self, name):
+    #     self.doc_name = name
 
 
-    def set_issue_number(self,issue):
-        self.issue_number = issue
+    # def set_issue_number(self,issue):
+    #     self.issue_number = issue
 
 
-    def set_reference_number(self,ref):
-        self.reference_number = ref
+    # def set_reference_number(self,ref):
+    #     self.reference_number = ref
 
-    def set_doc_location(self, location):
-        self.doc_location = location
+    # def set_doc_location(self, location):
+    #     self.doc_location = location
 
 
     def get_doc_location(self):
         return self.doc_location
 
 
-    def save_doc_obj(self):
-        self.documents.insert(0,self.get_doc_obj())
+    # def save_doc_obj(self,doc_obj):
+    #     documents.insert(0,doc_obj)
 
 
-    def get_all_documents(self):
-        return self.documents
 
 
-    def get_doc_object(self):
-        return self
+    # def save_all_docs_to_file(self):
+    #     print(documents)
+    #     for doc in documents:
+            
+    #         TR.write_document(doc)
 
-
-    def save_docs_to_file(self):
-        DS.write_documents(self.get_all_documents())
 
 
     def update_doc_name(self,name):
@@ -103,16 +102,18 @@ class Document():
             return True
 
     
-    def remove_document(self, document):
-        train = TR.Training()
-        docs = []
-        docs.insert(0,train.get_document())
-        for doc in docs:
-            if doc.name == document.name:
-                docs.pop(doc)
-                train.write_documents(docs)
-                return True
-            else:
-                return False
+    # def remove_document(self, doc_obj):
+    #     docs = TR.get_documents()
+    #     if docs != False:
+    #         print(docs)
+    #         for doc in docs:
+    #             if doc == doc_obj.doc_name:
+    #                 docs.pop(doc)
+    #                 TR.write_documents(docs)
+    #                 return True
+    #             else:
+    #                 return False
+    #     else:
+    #         return False
                     
 

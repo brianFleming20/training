@@ -19,13 +19,13 @@ import interface
 
 UL = Login
 SC = Screen
-US = User.User()
+US = User
 INT = interface.interface()
 
 
 class LoginWindow(tk.Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        tk.Frame.__init__(self, parent, bg='#8D8DAA')
         self.control = controller
         self.canvas_name = Canvas()
         self.canvas_pass = Canvas()
@@ -45,6 +45,9 @@ class LoginWindow(tk.Frame):
 
         self.canvas_pass = Canvas(self,bg="#E9DAC1",width=400, height=55)
         self.canvas_pass.place(x=self.x, y=self.y2)
+
+        Label(self,text="Training Register",font=("Courier", 22, 'bold')).place(x=330,y=80)
+        Label(self,text="Please Log in",font=("Courier", 16)).place(x=380,y=180)
 
         Label(self.canvas_name, text="Username").place(x=20,y=16,width=80)
         Label(self.canvas_pass, text="Password").place(x=20,y=16,width=80)
@@ -69,7 +72,8 @@ class LoginWindow(tk.Frame):
         login = UL.Login(username,password)
         user,admin = login.login_user()
         if user:
-            INT._interface([username,admin])
+            SC.LoggedInUser.set_logged_in_user(username)
+            INT.provide_interface([username,admin])
             
             self.control.show_frame(SC.main_screen)
         else:

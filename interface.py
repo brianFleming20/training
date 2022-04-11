@@ -10,6 +10,6 @@ class interface():
         return interface_data
 
 
-    def _interface(self,attribute):
+    def provide_interface(self,attribute):
         interface_data.clear()
         interface_data.extend(attribute)

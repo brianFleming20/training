@@ -21,7 +21,7 @@ import Documents
 import interface
 import LoginWindow as UL
 import DataStore
-import NewUser
+import AdminUser
 
 
 DSP = DisplayScreens
@@ -29,9 +29,9 @@ TR = Training.Training()
 DOC = Documents.Document()
 INT = interface.interface()
 DS = DataStore.data_store()
-NU = NewUser
+AU = AdminUser
 
-
+logged_user = []
 
 class main_screen(tk.Frame):
 
@@ -47,16 +47,17 @@ class main_screen(tk.Frame):
         self.serach_item = StringVar()
         self.time = StringVar()
         self.admin = None
-        self.index = -1
+        
         self.form_data = []
     
 
 
 
     def refresh_window(self):
+        self.index = -1
         self.time.set(TR.get_now_time())
-        logged_in_user = INT.extend_interface()[0]
-
+        logged_in_user = LoggedInUser.get_logged_in_user()
+  
         admins = TR.get_all_trainers()
      
         Canvas(self,bg="#E9DAC1",width=970, height=680).place(x=10, y=10)
@@ -66,7 +67,7 @@ class main_screen(tk.Frame):
         self.canvas_search.place(x=10,y=10)
         self.canvas_lists = Canvas(self, bg="#F7ECDE", width=810,height=560)
         self.canvas_lists.place(x=10,y=80)
-        Button(self.canvas_button,text="Users", width=12, command=self.display_user,bg='#54BAB9').place(x=20,y=80)
+        Button(self.canvas_button,text="Selected user", width=12, command=self.display_user,bg='#54BAB9').place(x=20,y=80)
         self.admin = Button(self.canvas_button,text="Admin", width=12, command=self.admin_user,bg='#54BAB9')
         self.admin.place(x=20,y=160)
         Button(self.canvas_button,text="Documents", width=12, command=self.display_documents,bg='#54BAB9').place(x=20,y=240)
@@ -95,7 +96,7 @@ class main_screen(tk.Frame):
 
     def admin_user(self):
         
-        self.control.show_frame(NU.ShowUsers) 
+        self.control.show_frame(AU.ShowUsers) 
 
 
     def selection_changed(self, event):
@@ -112,10 +113,6 @@ class main_screen(tk.Frame):
         else:
             self.control.show_frame(DSP.show_user_window)
 
-
-
-    def display_add_user(self):
-        self.control.show_frame(DSP.show_add_user_window)
 
 
 
@@ -170,7 +167,7 @@ class main_screen(tk.Frame):
             note = self.doc_note.get(idx)
             self.form_data.insert(8,note)
             self.doc_note.selection_set(idx)
-            INT._interface(self.form_data)
+            INT.provide_interface(self.form_data)
             
         else:
             self.index = -1
@@ -260,5 +257,13 @@ class main_screen(tk.Frame):
                     self.doc_trainer.insert(END, value)
 
       
-       
+class LoggedInUser():
+
+    def set_logged_in_user(user):
+        logged_user.clear()
+        logged_user.insert(0,user)
+
+
+    def get_logged_in_user():
+        return logged_user[0]
     

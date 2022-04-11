@@ -2,7 +2,7 @@ import User
 import DataStore
 
 DS = DataStore.data_store()
-UR = User.User()
+UR = User
 
 
 class Login():
@@ -13,10 +13,8 @@ class Login():
 
         
     def get_user(self):
-        UR.set_name(self.name)
-        UR.set_password(self.password)
-        user_obj = UR.get_user()
-        return user_obj
+        user = UR.User(self.name,self.password)
+        return user
 
 
     def login_user(self):
@@ -38,10 +36,10 @@ class Login():
 
   
 
-    def write_user(self,trainer = False):
+    def write_user(self,trainer):
+        
+        UR.EditUser.change_level(trainer)
         user_obj = self.get_user()
-        user_obj.set_is_trainer(trainer)
-
         done = DS.write_user(user_obj)
         if done:
             print("saved")

@@ -1,6 +1,5 @@
 import json
 import os
-import pickle
 from tkinter import messagebox as mb
 
 
@@ -16,18 +15,28 @@ class data_store():
 
     def write_user(self, user):
         fullPath = os.path.abspath(self.path + '.file.user')
-        user_json = self.create_dict(user)
-        try:
-            with open(fullPath, 'r') as user_file:
-                data = json.load(user_file)
-        except FileNotFoundError:
-            with open(fullPath,'w') as user_file:
-                json.dump(user_json, user_file, indent=4)
+        if user.name == None:
+            mb.showerror(title="User Error",message="User cannot be none.")
         else:
-            data.update(user_json)
-            with open(fullPath,'w') as user_file:
-                json.dump(data, user_file, indent=4)
+            user_json = self.create_dict(user)
+            try:
+                with open(fullPath, 'r') as user_file:
+                    data = json.load(user_file)
+            except FileNotFoundError:
+                with open(fullPath,'w') as user_file:
+                    json.dump(user_json, user_file, indent=4)
+            else:
+                data.update(user_json)
+                with open(fullPath,'w') as user_file:
+                    json.dump(data, user_file, indent=4)
 
+
+    def dump_users(self,users):
+        fullPath = os.path.abspath(self.path + '.file.user')
+        with open(fullPath,'w') as user_file:
+            json.dump(users, user_file, indent=4)
+
+            
 
 
     # Read user from pickle
@@ -74,26 +83,43 @@ class data_store():
         self.write_user(loaded_users)
 
 
+
     def delete_user(self,name):
+        data_set = []
         current_users = self.get_user_obj()
-        print(current_users)
+        data_set = self.read_users_data()
         for user in current_users:
             if user.name == name:
-                print(f"found {user.name}")
+                print(f"found {user.name} ")
+                print(data_set)
 
 
 
-    def write_documents(self, documents):
-        docPath = os.path.abspath(self.path + '.file.doc')
-        with open(docPath, 'w') as docs_file:
-            pickle.dump(documents, docs_file)
 
+    def write_document(self, document):
+        docPath = os.path.abspath(self.path + '.doc.json')
+        doc_json = self.create_doc_file(document)
+        print(doc_json)
+        try:
+            with open(docPath, 'r') as doc_file:
+                data = json.load(doc_file)
+        except FileNotFoundError:
+            with open(docPath,'w') as doc_file:
+                json.dump(doc_json, doc_file, indent=4)
+        else:
+            data.update(doc_json)
+            with open(docPath,'w') as doc_file:
+                json.dump(data, doc_file, indent=4)
+
+
+  
 
 
     def get_all_documents(self):
+        docPath = os.path.abspath(self.path + '.doc.json')
         try:
-            with open('file.docs', 'wb') as docs_file:
-                docs_data = pickle.load(docs_file)
+            with open(docPath, 'r') as docs_file:
+                docs_data = json.load(docs_file)
         except FileNotFoundError:
             mb.showinfo(title="     Document Error ",message="Document not found.")
         else:
@@ -103,7 +129,8 @@ class data_store():
     def create_dict(self,user):
         new_data = {
             user.name:{
-                'pass': user.password,
+             
+                'passwd': user.password,
                 'level':user.level,
                 'trainer':user.trainer,
                 'is_trainer':user.is_trainer,
@@ -116,8 +143,19 @@ class data_store():
 
     def create_doc_file(self, doc):
         new_doc = {
+            doc.reference_number:{
             
+                "name":doc.doc_name,
+                "issue":doc.issue_number,
+                "location":doc.doc_location,
+            }
         }
+
+        return new_doc
+
+
+    def update_id_list(self):
+        pass
     
     def check_directories(self):
         '''

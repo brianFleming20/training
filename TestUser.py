@@ -1,6 +1,5 @@
 import unittest
 import User
-import Login
 
 
 
@@ -10,80 +9,16 @@ UR = User
 
 
 
+
 class UserTests(unittest.TestCase):
 
     def setUp(self):
-        self.user = UR.User()
-        this_user = self.user.get_user()
-        self.change_user = UR.EditUser(this_user)
-        self.delete_user = UR.DeleteUser(this_user)
- 
-    
+        user = UR.User("Brian","mogo",3,"Lee",True)
+        self.this_user = user.get_user()
+        self.edit_user = UR.EditUser(self.this_user)
+        self.added_user = UR.User("Jack","password",2)
+        self.delete_user = UR.DeleteUser(self.added_user)
 
-    # Test no username  
-    def test_get_user(self):
-        print("Test get username")
-
-        expected = "Brian"
-
-        self.user.set_name("Brian")
-
-        result = self.user.get_name()
-
-        self.assertEqual(expected, result)
-
-
-    def test_get_password(self):
-        print("Test get password")
-
-        expected = "mogo"
-
-        self.user.set_password("mogo")
-
-        result = self.user.get_password()
-
-        self.assertEqual(expected, result)
-
-
-    def test_get_level(self):
-        print("Test get level")
-
-        expected = 3
-
-        self.user.set_training_level(3)
-
-        result = self.user.get_training_level()
-
-        self.assertEqual(expected, result)
-
-    
-    def test_get_trainer(self):
-        print("Test get trainer")
-
-        expected = "Lee"
-
-        self.user.set_trainer("Lee")
-
-        result = self.user.get_trainer()
-
-        self.assertEqual(expected, result)
-
-
-
-   
-
-
-
-    def test_is_trainer(self):
-        print("Test is trainer")
-
-        expected = True
-
-        self.user.set_is_trainer(True)
-
-        result = self.user.get_is_trainer()
-
-        self.assertEqual(expected, result)
 
 
     def test_update_username(self):
@@ -91,11 +26,11 @@ class UserTests(unittest.TestCase):
     
         expected = "Clare"
 
-        self.user.set_name("Brian")
+        user = self.edit_user
 
-        self.change_user.change_name("Clare")
+        user.change_name("Clare")
 
-        result = self.user.get_name()
+        result = self.this_user.name
 
         self.assertEqual(expected, result)
 
@@ -105,11 +40,11 @@ class UserTests(unittest.TestCase):
 
         expected = "the other"
 
-        self.user.set_password("password")
+        user = self.this_user
 
-        self.change_user.change_password("the other")
+        self.edit_user.change_password("the other")
 
-        result = self.user.get_password()
+        result = user.password
 
         self.assertEqual(expected, result)
 
@@ -119,17 +54,13 @@ class UserTests(unittest.TestCase):
 
         expected = 4
 
-        self.user.set_training_level(2)
+        user = self.this_user
 
-        self.change_user.change_level(4)
+        self.edit_user.change_level(4)
 
-        result = self.user.get_training_level()
+        result = user.level
 
         self.assertEqual(expected, result)
-
-
-    def test_add_new_doc(self):
-        print("Test adding new document to user")
 
        
 
@@ -139,11 +70,11 @@ class UserTests(unittest.TestCase):
 
         expected = "Jon"
 
-        self.user.set_trainer("Lee")
+        user = self.this_user
 
-        self.change_user.change_trainer("Jon")
+        self.edit_user.change_trainer("Jon")
 
-        result = self.user.get_trainer()
+        result = user.trainer
 
         self.assertEqual(expected, result)
 
@@ -153,17 +84,15 @@ class UserTests(unittest.TestCase):
 
         expected = None
 
-        self.user.set_name("Jon")
-        self.user.set_password("password")
-        self.user.set_is_trainer(True)
-        self.user.set_trainer("None")
+        user = self.added_user
    
 
-        self.delete_user.delete_user("Jon")
+        deleted = self.delete_user.delete_user("Jack")
 
-        result = self.user.get_name()
+        result = user.name
 
         self.assertEqual(expected, result)
+        self.assertEqual(deleted,True)
 
 
 

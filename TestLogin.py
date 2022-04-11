@@ -1,5 +1,5 @@
 import unittest
-
+import Training
 import Login
 import User
 import LoginWindow
@@ -7,9 +7,9 @@ import tkinter as tk
 
 
 UL = Login
-US = User.User()
+UR = User
 LW = LoginWindow
-
+TR = Training.Training()
 
 
 
@@ -18,26 +18,11 @@ class LoginTests(unittest.TestCase):
    
     def setUp(self):
 
-        US.set_name("Brian")
-        US.set_password("something")
-        US.set_is_trainer(False)
-        US.set_trainer("Lee")
-        US.set_training_level(3)
-        US.save_user()
-       
-        US.set_name("Lee")
-        US.set_password("password")
-        US.set_is_trainer(True)
-        US.set_trainer("Alex")
-        US.set_training_level(1)
-        US.save_user()
-     
-        US.set_name("Jon")
-        US.set_password("else")
-        US.set_is_trainer(False)
-        US.set_trainer("Lee")
-        US.set_training_level(3)
-        US.save_user()
+        self.user1 = UR.User("Brian","something",3,"Lee",False)
+
+        self.user2 = UR.User("Lee","password",1,"Alex",True)
+    
+        self.user3 =UR.User("Jon","else",3,"Lee",False)
         
         self.user = UL.Login("Lee","password") 
         self.newuser = UL.Login("Brian","something")
@@ -53,14 +38,15 @@ class LoginTests(unittest.TestCase):
 
         expected1 = "Lee"
         expected2 = "Brian"
-        ########################################
+        ##########################################
+        # Does this user object get retrived from
+        # the training class
+        ##########################################
 
-        user1 = self.user.get_user()
         
-        result1 = user1.name
-        admin = user1.is_trainer
+        user = TR.get_user("Brian")
+        admin = user.is_trainer
 
-        self.assertEqual(expected1, result1)
         self.assertEqual(admin, False)
 
         #########################################

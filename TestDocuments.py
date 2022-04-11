@@ -2,21 +2,22 @@ import unittest
 
 import Documents
 
-DOC = Documents.Document()
+DOC = Documents
 
 
 class DocsTests(unittest.TestCase):
 
-   
+    def setUp(self):
+        self.doc = DOC.Document()
 
     def test_add_document(self):
         print("Test adding a document")
-
         doc_name = "Spring tube assembly"
 
-        DOC.set_doc_name(doc_name)
+        doc = DOC.Document(name=doc_name)
 
-        result = DOC.get_doc_name()
+        result = self.doc.get_doc_name()
+        print(f"result = {doc.doc_name}")
 
         self.assertEqual(doc_name,result)
 
@@ -26,9 +27,9 @@ class DocsTests(unittest.TestCase):
 
         issue_num = 1.0
 
-        DOC.set_issue_number(issue_num)
+        DOC.Document(issue=issue_num)
 
-        result = DOC.get_issue()
+        result = self.doc.get_issue()
 
         self.assertEqual(issue_num,result)
 
@@ -38,9 +39,9 @@ class DocsTests(unittest.TestCase):
 
         ref_num = "9070-1234"
 
-        DOC.set_reference_number(ref_num)
+        DOC.Document(ref=ref_num)
 
-        result = DOC.get_reference_number()
+        result = self.doc.get_reference_number()
 
         self.assertEqual(ref_num,result)
 
@@ -50,13 +51,13 @@ class DocsTests(unittest.TestCase):
 
         old_doc_name = "Spring tube assembly"
 
-        DOC.set_doc_name(old_doc_name)
+        DOC.Document(name=old_doc_name)
 
         new_doc_name = "Spring Tubing Assembly"
 
-        expected = DOC.update_doc_name(new_doc_name)
+        expected = self.doc.update_doc_name(new_doc_name)
 
-        result = DOC.get_doc_name()
+        result = self.doc.get_doc_name()
 
         self.assertEqual(new_doc_name,result)
 
@@ -70,13 +71,13 @@ class DocsTests(unittest.TestCase):
 
         old_issue_number = 1.0
 
-        DOC.set_issue_number(old_issue_number)
+        DOC.Document(issue=old_issue_number)
 
         new_issue_number = 2.1
 
-        expected = DOC.update_issue_number(new_issue_number)
+        expected = self.doc.update_issue_number(new_issue_number)
 
-        result = DOC.get_issue()
+        result = self.doc.get_issue()
 
         self.assertEqual(new_issue_number, result)
 
@@ -90,13 +91,13 @@ class DocsTests(unittest.TestCase):
 
         old_ref_number = "9070-1234"
 
-        DOC.set_reference_number(old_ref_number)
+        DOC.Document(ref=old_ref_number)
 
         new_ref_number = "9070-1245"
 
-        expected = DOC.update_ref_number(new_ref_number)
+        expected = self.doc.update_ref_number(new_ref_number)
 
-        result = DOC.get_reference_number()
+        result = self.doc.get_reference_number()
 
         self.assertEqual(new_ref_number, result)
 
@@ -104,23 +105,58 @@ class DocsTests(unittest.TestCase):
 
         self.assertIsNot(old_ref_number,result)
 
-
+   
  
     def test_remove_document(self):
 
         print("Test remove a document")
 
-        doc_name = "Spring tube assembly"
-        ref_num = "9070-1234"
-        issue_num = 1.0
+        doc_name1 = "Spring tube assembly"
+        ref_num1 = "9070-1234"
+        issue_num1 = 1.0
+        location1 = "some-location"
 
-        DOC.set_doc_name(doc_name)
-        DOC.set_issue_number(issue_num)
-        DOC.set_reference_number(ref_num)
+        doc_name2 = "Spring tubeing"
+        ref_num2 = "9070-4321"
+        issue_num2 = 12.0
+        location2 = "other-location"
 
-        doc_obj = DOC.get_doc_object()
+        doc_name3 = "Monitors"
+        ref_num3 = "9070-9812"
+        issue_num3 = 4.0
+        location3 = "again-location"
 
-        result = DOC.remove_document(doc_obj)
+        # DOC.set_doc_name(doc_name1)
+        # DOC.set_issue_number(issue_num1)
+        # DOC.set_reference_number(ref_num1)
+        # DOC.set_doc_location(location1)
+        DOC.Document(name=doc_name1,issue=issue_num1,ref=ref_num1,location=location1)
+
+        doc_obj1 = self.doc.get_doc_object()
+        self.doc.update_doc_file(doc_obj1)
+
+        # DOC.set_doc_name(doc_name2)
+        # DOC.set_issue_number(issue_num2)
+        # DOC.set_reference_number(ref_num2)
+        # DOC.set_doc_location(location2)
+        DOC.Document(name=doc_name2,issue=issue_num2,ref=ref_num2,location=location2)
+
+        doc_obj2 = self.doc.get_doc_object()
+        self.doc.update_doc_file(doc_obj2)
+
+        # DOC.set_doc_name(doc_name3)
+        # DOC.set_issue_number(issue_num3)
+        # DOC.set_reference_number(ref_num3)
+        # DOC.set_doc_location(location3)
+        DOC.Document(name=doc_name3,issue=issue_num3,ref=ref_num3,location=location3)
+
+        doc_obj3 = self.doc.get_doc_object()
+        self.doc.update_doc_file(doc_obj3)
+
+
+     
+
+        result = self.doc.remove_document(doc_obj1)
 
         self.assertEqual(result, True)
 
