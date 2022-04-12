@@ -15,6 +15,7 @@ TR = Training.Training()
 INT = interface.interface()
 UR = User
 
+
 class AddNewUser(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -44,7 +45,7 @@ class AddNewUser(tk.Frame):
         self.time.set(TR.get_now_time())
         self.data.clear()
         self.canvas_back.delete('all')
-        Button(self.canvas_btndis,text="Edit User", command=self.edit_user, width=12 ,bg='#54BAB9').place(x=20,y=80)
+ 
         Button(self.canvas_btndis,text="Show Users", command=self.show_users, width=12, bg='#54BAB9').place(x=20,y=160)
         Button(self.canvas_btndis,text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20,y=500)
         Label(self.canvas_srdis, text="New User").place(x=10,y=15)
@@ -65,7 +66,7 @@ class AddNewUser(tk.Frame):
         Button(self.canvas_back, text="Add User", command=self.add_user(name,password,conf_password,compency),width=12 ,bg='#54BAB9',).place(x=680,y=500)
 
 
-        self.checkbutton = Checkbutton(text="   Trainer    ", 
+        self.checkbutton = Checkbutton(self.canvas_back,text="   Trainer    ", 
                                   variable=self.admin_state,command=self.update_overwrite, font=("Courier",10))
                                   
         self.admin_state.get()
@@ -93,8 +94,7 @@ class AddNewUser(tk.Frame):
         self.control.show_frame(ShowUsers)
 
 
-    def edit_user(self):
-        self.control.show_frame(EditUser)
+ 
 
 
     # def add_document(self):
@@ -106,12 +106,19 @@ class AddNewUser(tk.Frame):
         
 
     def add_user(self,name,password,conf_pass,comp):
-        USER = UR.User
+        if self.create_user(name,password,conf_pass,comp):
+            self.control.show_frame(ShowUsers)
+            
+        else:
+            mb.showerror(title="User Error",message="User not created.")
+            return False
+
+
+    def create_user(self,name,password,conf_pass,comp):
         if password == conf_pass:
             user = UR.User(name,password,level=comp,trainer=self.admin)
-            USER.save_user(user)
+            SU.save_user(user)
             return True
-            
         else:
             mb.showerror(title="User Error",message="Your passwords don't match.")
             return False
@@ -134,9 +141,11 @@ class ShowUsers(tk.Frame):
         self.time = StringVar()
         self.doc_id = StringVar()
         self.data = []
+        
 
 
     def refresh_window(self):
+        self.index = -1
         self.time.set(TR.get_now_time())
         self.data.clear()
         self.data.extend(INT.extend_interface())
@@ -158,7 +167,8 @@ class ShowUsers(tk.Frame):
 
         for no in TR.get_all_users():
             self.users.insert(END, no)
-
+      
+           
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
@@ -169,7 +179,16 @@ class ShowUsers(tk.Frame):
 
 
     def edit_user(self):
-        self.control.show_frame(EditUser)
+        try:
+            self.index = int(self.users.curselection()[0])
+        except IndexError:
+            mb.showerror(title="Selection Error",message="Please select a row.")
+            self.refresh_window()
+        else:
+            data_user = self.users.get(self.index)
+        
+            INT.provide_interface(data_user)
+            self.control.show_frame(EditUser)
 
     def delete_user(self):
         pass
@@ -220,7 +239,7 @@ class EditUser(tk.Frame):
         password = Entry(self.canvas_back, textvariable=self.passw,width=25).place(x=210, y=140)
         conf_password = Entry(self.canvas_back, textvariable=self.conf_pass,width=25).place(x=210, y=180)
         compency = Entry(self.canvas_back, textvariable=self.comp,width=15).place(x=210, y=220)
-
+        self.name.set(self.data)
         Button(self.canvas_back, text="Change Name", command=self.change_name(name), width=14).place(x=400,y=100)
         Button(self.canvas_back, text="Update Password", command=self.change_password(password,conf_password), width=14).place(x=400,y=180)
         Button(self.canvas_back, text="Change Level", command=self.change_level(compency), width=14).place(x=400,y=220)

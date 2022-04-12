@@ -16,7 +16,7 @@ class data_store():
     def write_user(self, user):
         fullPath = os.path.abspath(self.path + '.file.user')
         if user.name == None:
-            mb.showerror(title="User Error",message="User cannot be none.")
+            mb.showerror(title="Save User Error",message="User cannot be none.")
         else:
             user_json = self.create_dict(user)
             try:
@@ -59,6 +59,7 @@ class data_store():
             self.write_user(usr_obj)
         else:
             for usr,value in users.items():
+         
                 if usr == usr_obj.name:      
                     return value
             else:
@@ -99,7 +100,7 @@ class data_store():
     def write_document(self, document):
         docPath = os.path.abspath(self.path + '.doc.json')
         doc_json = self.create_doc_file(document)
-        print(doc_json)
+      
         try:
             with open(docPath, 'r') as doc_file:
                 data = json.load(doc_file)
@@ -112,7 +113,11 @@ class data_store():
                 json.dump(data, doc_file, indent=4)
 
 
-  
+    def dump_documents(self,docs):
+        fullPath = os.path.abspath(self.path + '.doc.json')
+
+        with open(fullPath,'w') as user_file:
+            json.dump(docs, user_file, indent=4)
 
 
     def get_all_documents(self):
@@ -144,13 +149,11 @@ class data_store():
     def create_doc_file(self, doc):
         new_doc = {
             doc.reference_number:{
-            
                 "name":doc.doc_name,
                 "issue":doc.issue_number,
                 "location":doc.doc_location,
             }
         }
-
         return new_doc
 
 

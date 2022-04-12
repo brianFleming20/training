@@ -15,17 +15,8 @@ class User():
         self.level = level
         self.trainer = train
         self.is_trainer = trainer
-     
+    
 
-
-    def get_user(self):
-        return self
-
-
-
-    def save_user(self):
-        new_user = self.get_user()
-        DS.write_user(new_user)
 
 
 
@@ -58,7 +49,8 @@ class EditUser(User):
     def change_trainer(self, trainer):
         self.user.trainer = trainer
 
-
+    def save_user(self,user):
+        DS.write_user(user)
    
 
 class DeleteUser(User):
@@ -76,8 +68,4 @@ class DeleteUser(User):
         else:
             return False     
 
-
-
-
-    
 

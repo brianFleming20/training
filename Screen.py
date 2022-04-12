@@ -20,7 +20,7 @@ import Training
 import Documents
 import interface
 import LoginWindow as UL
-import DataStore
+
 import AdminUser
 
 
@@ -28,7 +28,7 @@ DSP = DisplayScreens
 TR = Training.Training()
 DOC = Documents.Document()
 INT = interface.interface()
-DS = DataStore.data_store()
+
 AU = AdminUser
 
 logged_user = []
@@ -117,6 +117,8 @@ class main_screen(tk.Frame):
 
 
     def display_documents(self):
+        docs = TR.get_documents()
+        INT.provide_interface(docs)
         self.control.show_frame(DSP.show_document_window)
 
 
@@ -175,13 +177,14 @@ class main_screen(tk.Frame):
         
       
     def show_list_data(self):
+        docs_data = TR.get_documents()
 
         self.doc_no = Listbox(self.canvas_lists,exportselection=False)
         self.doc_no.place(x=5, y=25)
         self.doc_no.config(height=32, width=15, bg="#E9DAC1")
         
 
-        for no in range(1000,7000,300):
+        for no in docs_data.keys():
             self.doc_no.insert(END, no)
 
         self.doc_name = Listbox(self.canvas_lists,exportselection=False)
@@ -189,15 +192,19 @@ class main_screen(tk.Frame):
         self.doc_name.config(height=32, width=20, bg="#E9DAC1")
        
 
-        for no in range(1,25,1):
-            self.doc_name.insert(END, no)
+        for doc_id,doc_data in docs_data.items():
+            for item,data in doc_data.items():
+                if item == "name":
+                    self.doc_name.insert(END, data)
 
         self.doc_issue = Listbox(self.canvas_lists,exportselection=False)
         self.doc_issue.place(x=225, y=25)
         self.doc_issue.config(height=32, width=10, bg="#E9DAC1")
 
-        for no in range(1,25,1):
-            self.doc_issue.insert(END, no)
+        for doc_id,doc_data in docs_data.items():
+            for item,data in doc_data.items():
+                if item == "issue":
+                    self.doc_issue.insert(END, data)
        
 
         self.doc_users = Listbox(self.canvas_lists,exportselection=False)
@@ -210,8 +217,6 @@ class main_screen(tk.Frame):
         self.doc_train.place(x=385, y=25)
         self.doc_train.config(height=32, width=12, bg="#E9DAC1")
 
-        for no in range(1,25,2):
-            self.doc_train.insert(END, no)
      
 
         self.doc_level = Listbox(self.canvas_lists,exportselection=False)
@@ -222,7 +227,11 @@ class main_screen(tk.Frame):
         self.doc_expire = Listbox(self.canvas_lists,exportselection=False)
         self.doc_expire.place(x=515, y=25)
         self.doc_expire.config(height=32, width=10, bg="#E9DAC1")
-        
+
+        for doc_id,doc_data in docs_data.items():
+            for item,data in doc_data.items():
+                if item == "is_trainer":
+                    self.doc_train.insert(END, data)
 
         for no in range(1,130,5):
             self.doc_expire.insert(END, no)

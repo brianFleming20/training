@@ -22,7 +22,7 @@ class Login():
         user = DS.get_user_obj(user_obj)
         if user != False:
             for item,value in user.items():
-                if item == "pass":
+                if item == "passwd":
                     password = value
                 if item == "is_trainer":
                     admin = value
