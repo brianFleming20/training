@@ -20,7 +20,7 @@ import Training
 import Documents
 import interface
 import LoginWindow as UL
-
+import time
 import AdminUser
 
 
@@ -32,7 +32,7 @@ INT = interface.interface()
 AU = AdminUser
 
 logged_user = []
-
+TIME_TO_WAIT = 5000 # in milliseconds 
 class main_screen(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -47,7 +47,7 @@ class main_screen(tk.Frame):
         self.serach_item = StringVar()
         self.time = StringVar()
         self.admin = None
-        
+        self.show = None
         self.form_data = []
     
 
@@ -72,7 +72,7 @@ class main_screen(tk.Frame):
         self.admin.place(x=20,y=160)
         Button(self.canvas_button,text="Documents", width=12, command=self.display_documents,bg='#54BAB9').place(x=20,y=240)
         Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=320)
-        Button(self.canvas_button,text="Update", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=400)
+        Button(self.canvas_button,text="Update", width=12, command=self.display_update,bg='#54BAB9').place(x=20,y=400)
         Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
         Label(self.canvas_search, text="Training Documents").place(x=10,y=15)
         Label(self.canvas_search, text="Search").place(x=250,y=15)
@@ -123,7 +123,17 @@ class main_screen(tk.Frame):
 
 
     def display_events(self):
+        
         self.control.show_frame(DSP.show_event_window)
+
+
+    def display_update(self):
+        canvas_text = Canvas(self.canvas_search,bg="#eae9e9",width=200, height=80)
+        canvas_text.place(x=200, y=10)
+        Label(canvas_text, text="Updating system for any changes...", font=("Courier", 12)).place(x=150,y=40, anchor=N)
+        time.sleep(3)
+        canvas_text.delete('all')
+        self.control.show_frame(main_screen)
 
 
     def log_out(self):

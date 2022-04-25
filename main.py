@@ -64,7 +64,8 @@ class WindowController(tk.Tk):
                   DSP.show_event_window,
                   AU.AddNewUser,
                   AU.ShowUsers,
-                  AU.EditUser
+                  AU.EditUser,
+                  DSP.addNewDocument
                   ):
 
             frame = F(container, self)

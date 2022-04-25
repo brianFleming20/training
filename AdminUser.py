@@ -117,7 +117,7 @@ class AddNewUser(tk.Frame):
     def create_user(self,name,password,conf_pass,comp):
         if password == conf_pass:
             user = UR.User(name,password,level=comp,trainer=self.admin)
-            SU.save_user(user)
+            TR.save_user(user)
             return True
         else:
             mb.showerror(title="User Error",message="Your passwords don't match.")
