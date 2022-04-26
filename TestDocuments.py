@@ -1,9 +1,10 @@
 import unittest
 
 import Documents
+import Training
 
 DOC = Documents
-
+TR = Training.Training()
 
 class DocsTests(unittest.TestCase):
 
@@ -67,14 +68,14 @@ class DocsTests(unittest.TestCase):
 
         
 
-        DOC.Document.insert_a_document(self,self.doc1)
-        DOC.Document.insert_a_document(self,self.doc2)
-        DOC.Document.insert_a_document(self,self.doc3)
+        TR.add_document(self.doc1)
+        TR.add_document(self.doc2)
+        TR.add_document(self.doc3)
 
-        all_docs = DOC.Document.get_documents(self)
+        all_docs = TR.get_documents()
 
-        for adoc in all_docs:
-            result_docs.insert(0,adoc)
+        for a_doc in all_docs:
+            result_docs.insert(0,a_doc)
 
            
 
@@ -90,7 +91,7 @@ class DocsTests(unittest.TestCase):
         print("Update a document name")
 
         doc1 = DOC.MakeDoc("Spring Tubing",10,"9070-1234","the_location_here")
-        DOC.Document.insert_a_document(self,doc1)
+        TR.add_document(doc1)
 
         new_doc_name = "Spring Tubing Assembly"
 
@@ -106,7 +107,7 @@ class DocsTests(unittest.TestCase):
         print("Update document issue number")
 
         doc2 = DOC.MakeDoc("Spring Tube Assembly",8,"9070-8723","another_location")
-        DOC.Document.insert_a_document(self,doc2)
+        TR.add_document(doc2)
 
         new_issue_number = 8.1
 
@@ -121,7 +122,7 @@ class DocsTests(unittest.TestCase):
         print("Update reference number")
 
         doc3 = DOC.MakeDoc(name="Printing",issue=2,ref="3000-0123",location="Location_Location")
-        DOC.Document.insert_a_document(self,doc3)
+        TR.add_document(doc3)
 
         new_ref_number = "9070-1245"
 
@@ -152,15 +153,15 @@ class DocsTests(unittest.TestCase):
         location3 = "again-location"
 
         doc1 = DOC.MakeDoc(name=doc_name1,issue=issue_num1,ref=ref_num1,location=location1)
-        DOC.Document.insert_a_document(self,doc1)
+        TR.add_document(doc1)
  
         doc2 = DOC.MakeDoc(name=doc_name2,issue=issue_num2,ref=ref_num2,location=location2)
-        DOC.Document.insert_a_document(self,doc2)
+        TR.add_document(doc2)
 
         doc3 = DOC.MakeDoc(name=doc_name3,issue=issue_num3,ref=ref_num3,location=location3)
-        DOC.Document.insert_a_document(self,doc3)
+        TR.add_document(doc3)
 
-        result = DOC.Document.remove_document(self,doc2)
+        result = TR.remove_document(doc2)
 
         self.assertEqual(result, True)
 

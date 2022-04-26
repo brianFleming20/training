@@ -69,7 +69,6 @@ class data_store():
     def check_user_in_system(self,user,loaded_file):
         if type(loaded_file) is list:
             for a_user in loaded_file:
-                print(a_user.name)
                 if a_user.name == user.name:
                     mb.showinfo(title="     User ",message="User found.")
                     return False
