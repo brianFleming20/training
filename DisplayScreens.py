@@ -12,7 +12,6 @@ import tkinter as tk
 import webbrowser
 from tkinter import *
 
-
 import AdminUser as AU
 import Documents as DOC
 import interface
@@ -37,7 +36,6 @@ class show_user_window(tk.Frame):
         self.time = StringVar()
         self.doc_id = StringVar()
         self.data = []
-
 
     def refresh_window(self):
         self.time.set(TR.get_now_time())
@@ -93,8 +91,6 @@ class show_user_window(tk.Frame):
         self.doc_issue.insert(END, "----------------")
         self.transfer_info()
 
-
-
     def transfer_info(self):
         self.canvas_back.itemconfigure(self.usr, text=self.data[3])
 
@@ -123,16 +119,17 @@ class show_document_window(tk.Frame):
         self.canvas_back.place(x=10, y=80)
         self.serach_item = StringVar()
         self.time = StringVar()
-        self.text_area = tk.Text(self, height=10, width=15)
-        self.text_area.place(x=650, y=120)
+        self.user_trained_on_doc = ""
+        self.form_data = []
         self.data = []
-
+        self.doc_location = ""
 
     def refresh_window(self):
         # text = Text(self, width=80, height=30)
         self.time.set(TR.get_now_time())
         self.data.clear()
-        self.data.extend(INT.extend_interface())
+        self.data = TR.get_documents()
+        self.index = -1
         self.canvas_back.delete('all')
         Button(self.canvas_btndis, text="New", command=self.add_new_document,
                width=12, bg='#54BAB9').place(x=20, y=80)
@@ -150,45 +147,79 @@ class show_document_window(tk.Frame):
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
 
         Label(self.canvas_back, text="Trained on ").place(x=200, y=50)
-        self.doc_name = Listbox(self.canvas_back, height=20, width=20)
+        self.doc_name = Listbox(self.canvas_back, height=20, width=20,exportselection=False)
         self.doc_name.place(x=180, y=150)
-        self.doc_ref = Listbox(self.canvas_back, height=20, width=20)
+        self.doc_ref = Listbox(self.canvas_back, height=20, width=20,exportselection=False)
         self.doc_ref.place(x=315, y=150)
-        self.doc_issue = Listbox(self.canvas_back, height=20, width=10)
-        self.doc_issue.place(x=480, y=150)
+        self.doc_issue = Listbox(self.canvas_back, height=20, width=10,exportselection=False)
+        self.doc_issue.place(x=450, y=150)
+        self.doc_loc_tab = Listbox(self.canvas_back, height=20, width=20,exportselection=False)
+        self.doc_loc_tab.place(x=530,y=150)
         self.doc_name.insert(END, "Document Name")
         self.doc_name.insert(END, "-----------------")
         self.doc_ref.insert(END, "Document Ref.")
         self.doc_ref.insert(END, "-----------------")
         self.doc_issue.insert(END, "Issue")
         self.doc_issue.insert(END, "----------------")
+        self.doc_loc_tab.insert(END,"Document Location")
+        self.doc_loc_tab.insert(END, "-----------------")
 
         Button(self.canvas_back, text="Read", command=self.show_pdf,
-               width=10, bg='#54BAB9').place(x=600, y=480)
-        print(self.data)
-        for item in self.data:
-            self.doc_ref.insert(END, item)
+               width=10, bg='#54BAB9').place(x=620, y=480)
 
+        for ref,body in self.data.items():
+            self.doc_ref.insert(END, ref)
+            for item,data in body.items():
+                if item == "name":
+                    self.doc_name.insert(END,data)
+                if item == "issue":
+                    self.doc_issue.insert(END,data)
+                if item == "location":
+                    self.doc_loc_tab.insert(END,data)
         self.doc_issue.insert(END, "")
         self.doc_name.insert(END, "")
-
-        self.get_info()
-
+        self.doc_name.bind('<<ListboxSelect>>', self.onselect)
 
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
 
-    def get_info(self):
-        pass
 
     def add_new_document(self):
         self.control.show_frame(addNewDocument)
 
     def show_pdf(self):
+        print(self.doc_location)
         path = "https://empower1902.bsientropy.com/DeltexMedical/Document/Permalink/PRC-000649"
         webbrowser.open_new(path)
         # entropy permalink address for each document
+        # show that user has trained on a document from document reference no
+
+
+    def onselect(self,event):
+        w = event.widget
+        self.form_data.clear()
+        if self.index == -1:
+            idx = int(self.doc_name.curselection()[0])
+            self.index = idx
+            name = self.doc_name.get(idx)
+            self.form_data.insert(0, name)
+            self.doc_name.selection_set(idx)
+            num = self.doc_ref.get(idx)
+            self.form_data.insert(0, num)
+            self.doc_ref.selection_set(idx)
+            issue = self.doc_issue.get(idx)
+            self.form_data.insert(0, issue)
+            self.doc_issue.selection_set(idx)
+            location = self.doc_loc_tab.get(idx)
+            self.form_data.insert(0, location)
+            self.doc_loc_tab.selection_set(idx)
+            print(f"data selected is {name} : {num} : {issue} : {location}")
+            self.doc_location = location
+            self.user_trained_on_doc = self.doc_ref
+        else:
+            self.index = -1
+            self.refresh_window()
 
 
 class show_event_window(tk.Frame):
@@ -239,6 +270,7 @@ class addNewDocument(tk.Frame):
         self.canvas_srdis.place(x=10, y=10)
         self.canvas_back = Canvas(self, bg="#E9DAC1", width=810, height=560)
         self.canvas_back.place(x=10, y=80)
+
         self.name = StringVar()
         self.doc_reference = StringVar()
         self.doc_issue = IntVar()
@@ -262,17 +294,21 @@ class addNewDocument(tk.Frame):
         Label(self.canvas_back, text="Document Location Address",
               bg="#E9DAC1").place(x=50, y=220)
 
-        doc_name = Entry(self.canvas_back, textvariable=self.name,
-                         width=30).place(x=210, y=100)
-        doc_ref = Entry(
-            self.canvas_back, textvariable=self.doc_reference, width=30).place(x=210, y=140)
-        doc_issue = Entry(
-            self.canvas_back, textvariable=self.doc_issue, width=30).place(x=210, y=180)
-        doc_location = Entry(
-            self.canvas_back, textvariable=self.doc_location, width=40).place(x=210, y=220)
+        self.doc_name = Entry(self.canvas_back, textvariable=self.name, width=30)
+        self.doc_name.place(x=210, y=100)
+        self.doc_ref = Entry(
+            self.canvas_back, textvariable=self.doc_reference, width=30)
+        self.doc_ref.place(x=210, y=140)
+        self.doc_issue = Entry(
+            self.canvas_back, textvariable=self.doc_issue, width=30)
+        self.doc_issue.place(x=210, y=180)
+        self.doc_location = Entry(
+            self.canvas_back, textvariable=self.doc_location, width=40)
+        self.doc_location.place(x=210, y=220)
 
-        Button(self.canvas_back, text="Add Document", width=12, command=self.add_new_document(
-            doc_name, doc_ref, doc_issue, doc_location), bg='#54BAB9',).place(x=680, y=500)
+        Button(self.canvas_back, text="Add Document", width=12,
+               command=self.add_new_document,
+               bg='#54BAB9', ).place(x=680, y=500)
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
@@ -280,8 +316,12 @@ class addNewDocument(tk.Frame):
     def documents(self):
         self.control.show_frame(show_document_window)
 
-    def add_new_document(self, name, ref, issue, location):
-        document = DOC.MakeDoc(name=name, issue=issue,
-                               ref=ref, location=location)
+    def add_new_document(self):
+        document = DOC.MakeDoc(name=self.name.get(), issue=self.doc_issue.get(),
+                               ref=self.doc_reference.get(), location=self.doc_location.get())
         TR.add_document(document)
-        TR.write_document(document)
+        self.name.set("")
+        self.doc_reference.set("")
+        self.doc_issue.set("")
+        self.doc_location.set("")
+        self.control.show_frame(show_document_window)

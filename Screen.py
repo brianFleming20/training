@@ -118,7 +118,6 @@ class main_screen(tk.Frame):
 
     def display_documents(self):
         docs = TR.get_documents()
-        INT.provide_interface(docs)
         self.control.show_frame(DSP.show_document_window)
 
 

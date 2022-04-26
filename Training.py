@@ -56,14 +56,9 @@ class Training():
 
     def get_documents(self):
         docs = DS.get_all_documents()
-        if docs != None:
-            return docs
-        else:
-            return False
+        return docs
 
 
-    def write_document(self, document):
-        DS.write_document(document)
 
 
     def get_all_users(self):
@@ -117,20 +112,20 @@ class Training():
 
     def add_document(self,doc):
         documents.insert(0,doc)
-
+        DS.write_document(doc)
 
     def get_local_docs(self):
         return documents
 
 
-    def remove_document(self, doc_obj):
-        for document in documents:
-            print(document.reference_number)
-            if doc_obj.reference_number == document.reference_number:
-                documents.remove(document)
-                self.overwrite_docs(documents)
-                return True
-            else:
+    def remove_document(self, ref):
+        documents = self.get_documents()
+        print(documents.keys())
+        if ref in documents.keys():
+            documents.pop(ref)
+            DS.dump_documents(documents)
+            return True
+        else:
                 mb.showerror(title="Reference Error",message="The old reference number not found.")
                 return False
 

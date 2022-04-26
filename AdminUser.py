@@ -58,17 +58,17 @@ class AddNewUser(tk.Frame):
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50,y=180)
         Label(self.canvas_back, text="Competency level ", bg="#E9DAC1").place(x=50,y=220)
        
-        name = Entry(self.canvas_back, textvariable=self.name,width=25).place(x=210, y=100)
-        password = Entry(self.canvas_back, textvariable=self.passw,width=25).place(x=210, y=140)
-        conf_password = Entry(self.canvas_back, textvariable=self.conf_pass,width=25).place(x=210, y=180)
-        compency = Entry(self.canvas_back, textvariable=self.comp,width=15).place(x=210, y=220)
-       
+        name = Entry(self.canvas_back, textvariable=self.name,width=25)
+        name.place(x=210, y=100)
+        password = Entry(self.canvas_back, textvariable=self.passw,width=25)
+        password.place(x=210, y=140)
+        conf_password = Entry(self.canvas_back, textvariable=self.conf_pass,width=25)
+        conf_password.place(x=210, y=180)
+        compency = Entry(self.canvas_back, textvariable=self.comp,width=15)
+        compency.place(x=210, y=220)
         Button(self.canvas_back, text="Add User", command=self.add_user(name,password,conf_password,compency),width=12 ,bg='#54BAB9',).place(x=680,y=500)
-
-
         self.checkbutton = Checkbutton(self.canvas_back,text="   Trainer    ", 
                                   variable=self.admin_state,command=self.update_overwrite, font=("Courier",10))
-                                  
         self.admin_state.get()
         self.checkbutton.place(x=80, y=520)
 

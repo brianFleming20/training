@@ -80,7 +80,7 @@ class Document():
 
 class MakeDoc():
 
-    def __init__(self,name="",issue=0.0,ref="",location=""):
+    def __init__(self,name="",issue=0,ref="",location=""):
         self.doc_name = name
         self.issue_number = issue
         self.reference_number = ref

@@ -18,7 +18,7 @@ class data_store():
         if user.name == None:
             mb.showerror(title="Save User Error",message="User cannot be none.")
         else:
-            user_json = self.create_dict(user)
+            user_json = self.create_user_dict(user)
             try:
                 with open(fullPath, 'r') as user_file:
                     data = json.load(user_file)
@@ -130,7 +130,7 @@ class data_store():
             return docs_data
 
 
-    def create_dict(self,user):
+    def create_user_dict(self,user):
         new_data = {
             user.name:{
              

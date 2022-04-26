@@ -64,24 +64,16 @@ class DocsTests(unittest.TestCase):
     def test_get_all_documents(self):
         print("Test get all documents")
 
-        result_docs = []
+        result_docs = TR.get_documents()
 
-        
+        result = len(result_docs)
 
-        TR.add_document(self.doc1)
-        TR.add_document(self.doc2)
-        TR.add_document(self.doc3)
+        self.assertGreater(result,0)
 
-        all_docs = TR.get_documents()
+        for a_key,a_doc in result_docs.items():
+            self.assertIsNot(a_key,None)
+            self.assertIsNot(a_doc,None)
 
-        for a_doc in all_docs:
-            result_docs.insert(0,a_doc)
-
-           
-
-        self.assertEqual(result_docs[0],self.doc1)
-        self.assertEqual(result_docs[1],self.doc2)
-        self.assertEqual(result_docs[2],self.doc3)
       
 
 
@@ -161,10 +153,17 @@ class DocsTests(unittest.TestCase):
         doc3 = DOC.MakeDoc(name=doc_name3,issue=issue_num3,ref=ref_num3,location=location3)
         TR.add_document(doc3)
 
-        result = TR.remove_document(doc2)
+        test = TR.remove_document(doc2.reference_number)
 
-        self.assertEqual(result, True)
+        docs = TR.get_documents()
 
+        if doc2.reference_number in docs.keys():
+            result = True
+        else:
+            result = False
+
+        self.assertEqual(test, True)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
