@@ -2,19 +2,14 @@ import unittest
 import User
 
 
-
-
 UR = User
-
-
-
 
 
 class UserTests(unittest.TestCase):
 
     def setUp(self):
         user = UR.User("Brian","mogo",3,"Lee",True)
-        self.this_user = user.get_user()
+        self.this_user = user
         self.edit_user = UR.EditUser(self.this_user)
         self.added_user = UR.User("Jack","password",2)
         self.delete_user = UR.DeleteUser(self.added_user)
@@ -93,6 +88,12 @@ class UserTests(unittest.TestCase):
 
         self.assertEqual(expected, result)
         self.assertEqual(deleted,True)
+
+
+
+
+
+
 
 
 

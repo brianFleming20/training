@@ -146,7 +146,7 @@ class ShowUsers(tk.Frame):
 
     def refresh_window(self):
         self.index = -1
-        self.time.set(TR.get_now_time())
+        self.time.set(TR.get_date_now())
         self.data.clear()
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
@@ -162,7 +162,7 @@ class ShowUsers(tk.Frame):
         Label(self.canvas_lists, text="Trained Users").place(x=20, y=18)
         self.users = Listbox(self.canvas_lists,exportselection=False)
         self.users.place(x=20, y=45)
-        self.users.config(height=20, width=40, bg="#E9DAC1")
+        self.users.config(height=20, width=20, bg="#E9DAC1")
         
 
         for no in TR.get_all_users():
@@ -217,7 +217,7 @@ class EditUser(tk.Frame):
 
 
     def refresh_window(self):
-        self.time.set(TR.get_now_time())
+        self.time.set(TR.get_date_now())
         self.data.clear()
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')

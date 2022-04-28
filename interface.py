@@ -2,6 +2,8 @@
 Fake interface class creates an object then retreves that object attributes
 '''
 
+
+
 interface_data = []
 
 class interface():

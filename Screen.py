@@ -55,7 +55,7 @@ class main_screen(tk.Frame):
 
     def refresh_window(self):
         self.index = -1
-        self.time.set(TR.get_now_time())
+        self.time.set(TR.get_date_now())
         logged_in_user = LoggedInUser.get_logged_in_user()
   
         admins = TR.get_all_trainers()
@@ -118,11 +118,11 @@ class main_screen(tk.Frame):
 
     def display_documents(self):
         docs = TR.get_documents()
+        INT.provide_interface([LoggedInUser.get_logged_in_user()])
         self.control.show_frame(DSP.show_document_window)
 
 
     def display_events(self):
-        
         self.control.show_frame(DSP.show_event_window)
 
 
@@ -150,7 +150,6 @@ class main_screen(tk.Frame):
         self.form_data.clear()
         if self.index == -1:
             idx = int(self.doc_no.curselection()[0])
-            
             self.index = idx
             num = self.doc_no.get(idx)
             self.form_data.insert(0,num)
@@ -179,85 +178,48 @@ class main_screen(tk.Frame):
             self.form_data.insert(8,note)
             self.doc_note.selection_set(idx)
             INT.provide_interface(self.form_data)
-            
         else:
             self.index = -1
             self.show_list_data()
         
       
     def show_list_data(self):
-        docs_data = TR.get_documents()
-
         self.doc_no = Listbox(self.canvas_lists,exportselection=False)
         self.doc_no.place(x=5, y=25)
         self.doc_no.config(height=32, width=15, bg="#E9DAC1")
-        
-
-        for no in docs_data.keys():
-            self.doc_no.insert(END, no)
 
         self.doc_name = Listbox(self.canvas_lists,exportselection=False)
         self.doc_name.place(x=100, y=25)
         self.doc_name.config(height=32, width=20, bg="#E9DAC1")
-       
-
-        for doc_id,doc_data in docs_data.items():
-            for item,data in doc_data.items():
-                if item == "name":
-                    self.doc_name.insert(END, data)
 
         self.doc_issue = Listbox(self.canvas_lists,exportselection=False)
         self.doc_issue.place(x=225, y=25)
         self.doc_issue.config(height=32, width=10, bg="#E9DAC1")
 
-        for doc_id,doc_data in docs_data.items():
-            for item,data in doc_data.items():
-                if item == "issue":
-                    self.doc_issue.insert(END, data)
-       
-
         self.doc_users = Listbox(self.canvas_lists,exportselection=False)
         self.doc_users.place(x=290, y=25)
         self.doc_users.config(height=32, width=15, bg="#E9DAC1")
-        
-
 
         self.doc_train = Listbox(self.canvas_lists,exportselection=False)
         self.doc_train.place(x=385, y=25)
         self.doc_train.config(height=32, width=12, bg="#E9DAC1")
 
-     
-
         self.doc_level = Listbox(self.canvas_lists,exportselection=False)
         self.doc_level.place(x=462, y=25)
         self.doc_level.config(height=32, width=8, bg="#E9DAC1")
-    
 
         self.doc_expire = Listbox(self.canvas_lists,exportselection=False)
         self.doc_expire.place(x=515, y=25)
         self.doc_expire.config(height=32, width=10, bg="#E9DAC1")
 
-        for doc_id,doc_data in docs_data.items():
-            for item,data in doc_data.items():
-                if item == "is_trainer":
-                    self.doc_train.insert(END, data)
-
-        for no in range(1,130,5):
-            self.doc_expire.insert(END, no)
-
         self.doc_trainer = Listbox(self.canvas_lists,exportselection=False)
         self.doc_trainer.place(x=580, y=25)
-        self.doc_trainer.config(height=32, width=15, bg="#E9DAC1")
-        
+        self.doc_trainer.config(height=32, width=12, bg="#E9DAC1")
 
         self.doc_note = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_note.place(x=675, y=25)
-        self.doc_note.config(height=32, width=22, bg="#E9DAC1")
-     
+        self.doc_note.place(x=658, y=25)
+        self.doc_note.config(height=32, width=24, bg="#E9DAC1")
 
-        for no in range(1,130,5):
-            self.doc_note.insert(END, no)
-       
         self.fill_users_lists()
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
      
@@ -265,14 +227,22 @@ class main_screen(tk.Frame):
 
     def fill_users_lists(self):
         users = TR.get_all_users()
-        for no in users:
-            self.doc_users.insert(END, no)
-            user_data = TR.get_user(no)
-            for item,value in user_data.items():
-                if item == "level":
-                    self.doc_level.insert(END, value)
-                if item == "trainer":
-                    self.doc_trainer.insert(END, value)
+        training_events = TR.get_all_training()
+        for user,event in training_events.items():
+            if user in users:
+                for ref,items in event.items():
+                    self.doc_no.insert(END, ref)
+                    self.doc_train.insert(END, items['trained_on'])
+                    self.doc_expire.insert(END, items['review_date'])
+                    self.doc_note.insert(END, items['note'])
+                    self.doc_name.insert(END, items['name'])
+                    item = TR.get_a_document(ref)
+                    self.doc_issue.insert(END, item['issue'])
+                    user_data = TR.get_user(user)
+                    self.doc_users.insert(END, user)
+                    self.doc_level.insert(END, user_data['level'])
+                    self.doc_trainer.insert(END, user_data['trainer'])
+
 
       
 class LoggedInUser():
