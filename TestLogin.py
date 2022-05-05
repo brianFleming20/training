@@ -34,7 +34,7 @@ class LoginTests(unittest.TestCase):
         
 
     def test_auser_obj(self):
-        print("Test user object")
+        print("\nTest user object")
 
         expected1 = "Lee"
         expected2 = "Brian"
@@ -45,13 +45,13 @@ class LoginTests(unittest.TestCase):
 
         
         user = TR.get_user("Brian")
-        admin = user.is_trainer
+        admin = user['is_trainer']
 
-        self.assertEqual(admin, False)
+        self.assertEqual(admin, True)
 
         #########################################
 
-        self.newuser.write_user()
+        self.newuser.write_user(user)
 
         user2 = self.newuser.get_user()
         
@@ -62,7 +62,7 @@ class LoginTests(unittest.TestCase):
 
 
     def test_buser_login(self):
-        print("Test user login")
+        print("\nTest user login")
 
         expected = True
 
@@ -73,7 +73,7 @@ class LoginTests(unittest.TestCase):
 
 
     def test_wrong_password(self):
-        print("Test wrong password")
+        print("\nTest wrong password")
 
         expected = False
         result,admin = self.wrong.login_user()
@@ -82,7 +82,7 @@ class LoginTests(unittest.TestCase):
 
 
     def test_login_unknown_user(self):
-        print("LOggin in unknown user")
+        print("\nLoggin in unknown user")
 
         expected = False
 
@@ -92,17 +92,19 @@ class LoginTests(unittest.TestCase):
 
 
     def test_login_is_trainer(self):
-        print("Log in name and is trainer")
+        print("\nLog in name and is trainer")
 
-        expected = True
+        expected = False
 
         user,result = self.user.login_user()
+
+        print(f"user {user} : result {result}")
 
         self.assertEqual(result, expected)
 
 
     def test_login_window(self):
-        print("Test user login from window")
+        print("\nTest user login from window")
 
         self.control = tk
         LW.LoginWindow.user_login(self)

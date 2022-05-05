@@ -1,47 +1,47 @@
 import unittest
-import User
+from tkinter import StringVar
+import cryptocode
 
+import User
+import Training
+import DataStore
+import AdminUser
 
 UR = User
+TR = Training.Training()
+DS = DataStore.data_store()
+AU = AdminUser
 
+ENTRY = "ByH1KHdo7y30I6aN"
 
 class UserTests(unittest.TestCase):
 
+
     def setUp(self):
-        user = UR.User("Brian","mogo",3,"Lee",True)
+        user = UR.User("Brian","the other",3,"Lee",True)
         self.this_user = user
         self.edit_user = UR.EditUser(self.this_user)
         self.added_user = UR.User("Jack","password",2)
         self.delete_user = UR.DeleteUser(self.added_user)
-
-
-
-    def test_update_username(self):
-        print("Test change username")
-    
-        expected = "Clare"
-
-        user = self.edit_user
-
-        user.change_name("Clare")
-
-        result = self.this_user.name
-
-        self.assertEqual(expected, result)
-
+        self.passw = StringVar()
+        self.conf_pass = StringVar()
 
     def test_update_password(self):
         print("Test change password")
+        
+        expected = "password"
 
-        expected = "the other"
+        TR.save_user(self.this_user)
 
-        user = self.this_user
+        AU.EditUser.set_for_test(self,"password",3,"Lee")
 
-        self.edit_user.change_password("the other")
+        AU.EditUser.change_password(self)
 
-        result = user.password
+        user = TR.get_user('Brian')
 
-        self.assertEqual(expected, result)
+        result = cryptocode.decrypt(user.password, ENTRY)
+
+        self.assertEqual(result,expected)
 
 
     def test_update_level(self):

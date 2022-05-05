@@ -9,25 +9,24 @@ DS = DataStore.data_store()
 
 class User():
 
-    def __init__(self, name,password,level=0,train="",trainer=False):
+    def __init__(self, name,password,level=0.0,train="",trainer=False, email="", employee=""):
         self.name = name
         self.password = password
         self.level = level
         self.trainer = train
         self.is_trainer = trainer
-    
+        self.email = email
+        self.employee = employee
 
-
-
-
-    def show_user_details(self):
-        print(f"User name {self.name} : is a trainer {self.is_trainer} : User Level {self.level} : Is trainer on {self.documents} : by {self.trainer}")
 
 
 class EditUser(User):
 
     def __init__(self, User):
         self.user = User
+
+    def get_user(self):
+        return self.user
 
 
     def change_name(self, new_name):
@@ -49,6 +48,9 @@ class EditUser(User):
     def change_trainer(self, trainer):
         self.user.trainer = trainer
 
+    def change_email(self, email):
+        self.email = email
+
     def save_user(self,user):
         DS.write_user(user)
    
@@ -63,7 +65,10 @@ class DeleteUser(User):
         if self.user.name == name:
             self.user.name = None
             self.user.password = None
-            self.user.documents = None
+            self.user.email = None
+            self.user.level = 0
+            self.user.trainer = None
+            self.user.employee = None
             return True
         else:
             return False     

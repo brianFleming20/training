@@ -65,7 +65,7 @@ class LoginWindow(tk.Frame):
 
     def user_login(self):
         
-        username = "Linn"
+        username = "Brian Fleming"
         password = "password"
         # username = self.username.get()
         # password = self.password.get()

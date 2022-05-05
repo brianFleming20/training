@@ -7,34 +7,33 @@ Created on 9 March 2022
 
 
 '''
-
-from asyncio.windows_events import NULL
-from msilib.schema import ComboBox
+import datetime
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as mb
-from time import gmtime, strftime
+from datetime import datetime, timedelta
 from tkinter.ttk import Combobox
 import DisplayScreens
 import Training
 import Documents
 import interface
 import LoginWindow as UL
-import time
 import AdminUser
-
+import Email
+import AccessDataBase
 
 DSP = DisplayScreens
 TR = Training.Training()
 DOC = Documents.Document()
 INT = interface.interface()
-
+EM = Email.send_emails()
 AU = AdminUser
+ADD = AccessDataBase.GetExternatData()
 
 logged_user = []
-TIME_TO_WAIT = 5000 # in milliseconds 
-class main_screen(tk.Frame):
+TIME_TO_WAIT = 5000 # in milliseconds
 
+class main_screen(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
         self.items = None
@@ -49,15 +48,11 @@ class main_screen(tk.Frame):
         self.admin = None
         self.show = None
         self.form_data = []
-    
-
-
 
     def refresh_window(self):
         self.index = -1
         self.time.set(TR.get_date_now())
         logged_in_user = LoggedInUser.get_logged_in_user()
-  
         admins = TR.get_all_trainers()
      
         Canvas(self,bg="#E9DAC1",width=970, height=680).place(x=10, y=10)
@@ -74,14 +69,16 @@ class main_screen(tk.Frame):
         Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=320)
         Button(self.canvas_button,text="Update", width=12, command=self.display_update,bg='#54BAB9').place(x=20,y=400)
         Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
-        Label(self.canvas_search, text="Training Documents").place(x=10,y=15)
-        Label(self.canvas_search, text="Search").place(x=250,y=15)
+        Label(self.canvas_search, text="Logged in -").place(x=10,y=15)
+
+        Label(self.canvas_search, text="Search").place(x=300,y=15)
         if logged_in_user in admins:
             self.admin.config(state=NORMAL)
         else:
             self.admin.config(state=DISABLED)
+        Label(self.canvas_search, text=logged_in_user).place(x=80,y=15)
         search = Entry(self.canvas_search, textvariable=self.serach_item,width=25)
-        search.place(x=300, y=15)
+        search.place(x=350, y=15)
         self.items = Combobox(self.canvas_search,state="readonly",values=["Select","Person","Document","Training"])
         self.items.bind("<<ComboboxSelected>>", self.selection_changed)
         self.items.place(x=530, y=20)
@@ -127,11 +124,26 @@ class main_screen(tk.Frame):
 
 
     def display_update(self):
-        canvas_text = Canvas(self.canvas_search,bg="#eae9e9",width=200, height=80)
-        canvas_text.place(x=200, y=10)
-        Label(canvas_text, text="Updating system for any changes...", font=("Courier", 12)).place(x=150,y=40, anchor=N)
-        time.sleep(3)
-        canvas_text.delete('all')
+        # win = tk.Tk()
+        # w = 400  # width for the Tk root
+        # h = 250  # height for the Tk root
+        # ws = win.winfo_screenwidth()  # width of the screen
+        # hs = win.winfo_screenheight()  # height of the screen
+        ADD.get_data()
+        # # calculate x and y coordinates for the Tk root window
+        # x = (ws / 2) - (w / 2)
+        # y = (hs / 2) - (h / 2)
+        # # set the dimensions of the screen
+        # # and where it is placed
+        # win.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        # # Set the geometry of tkinter frame
+        # win.geometry("350x220")
+        # # Initialize a Label widget
+        # Label(win, text="Updating system for any changes...",
+        #       font=('Helvetica 12 bold')).pack(pady=20)
+        # win.overrideredirect(True)
+        # # Automatically close the window after 3 seconds
+        # win.after(1000, lambda: win.destroy())
         self.control.show_frame(main_screen)
 
 
@@ -226,22 +238,32 @@ class main_screen(tk.Frame):
     
 
     def fill_users_lists(self):
+        date = datetime.now() + timedelta(days=4)
+        # check to match days difference only using split()
+        time_left = str(date - datetime.now())[:2]
         users = TR.get_all_users()
         training_events = TR.get_all_training()
-        for user,event in training_events.items():
-            if user in users:
-                for ref,items in event.items():
-                    self.doc_no.insert(END, ref)
-                    self.doc_train.insert(END, items['trained_on'])
-                    self.doc_expire.insert(END, items['review_date'])
-                    self.doc_note.insert(END, items['note'])
-                    self.doc_name.insert(END, items['name'])
-                    item = TR.get_a_document(ref)
-                    self.doc_issue.insert(END, item['issue'])
-                    user_data = TR.get_user(user)
-                    self.doc_users.insert(END, user)
-                    self.doc_level.insert(END, user_data['level'])
-                    self.doc_trainer.insert(END, user_data['trainer'])
+        try:
+            for user,event in training_events.items():
+                if user in users:
+                    for ref,items in event.items():
+                        self.doc_no.insert(END, ref)
+                        self.doc_train.insert(END, items['trained_on'])
+                        self.doc_expire.insert(END, items['review_date'])
+                        self.doc_note.insert(END, items['note'])
+                        self.doc_name.insert(END, items['name'])
+                        item = TR.get_a_document(ref)
+                        self.doc_issue.insert(END, item['issue'])
+                        user_data = TR.get_user(user)
+                        self.doc_users.insert(END, user)
+                        self.doc_level.insert(END, user_data['level'])
+                        self.doc_trainer.insert(END, user_data['trainer'])
+                        due = items['review_date'][:2]
+                        if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
+                            EM.notify_training(user,ref,1)
+                            EM.send_copy_to_trainer(user,ref)
+        except:
+            pass
 
 
       

@@ -24,6 +24,7 @@ import LoginWindow as UL
 import Screen as SC
 import DisplayScreens as DSP
 import AdminUser as AU
+import Email as EM
 
 
 Training_Version = 'Deltex Medical : Training Register V 1'
@@ -65,7 +66,8 @@ class WindowController(tk.Tk):
                   AU.AddNewUser,
                   AU.ShowUsers,
                   AU.EditUser,
-                  DSP.addNewDocument
+                  AU.addNewDocument,
+                  AU.editDocument
                   ):
 
             frame = F(container, self)
@@ -75,7 +77,7 @@ class WindowController(tk.Tk):
             
 
             frame.grid(row=0, column=0, sticky="nsew")
-            # self.attributes('-fullscreen', True)
+
             
             
 

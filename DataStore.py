@@ -171,6 +171,7 @@ class data_store():
                 'level': user.level,
                 'trainer': user.trainer,
                 'is_trainer': user.is_trainer,
+                'email': user.email,
             }
         }
 
@@ -193,6 +194,7 @@ class data_store():
                     "name": record.document_name,
                     "trained_on": record.trained_on,
                     "review_date": record.review_date,
+                    "entered_by": record.logger,
                     "note": record.notes,
                 },
             }
