@@ -7,7 +7,7 @@ import DataStore
 DS = DataStore.data_store()
 
 
-class User():
+class User:
 
     def __init__(self, name,password,level=0.0,train="",trainer=False, email="", employee=""):
         self.name = name
@@ -22,7 +22,8 @@ class User():
 
 class EditUser(User):
 
-    def __init__(self, User):
+    def __init__(self, User, name, password):
+        super().__init__(name, password)
         self.user = User
 
     def get_user(self):
@@ -57,7 +58,8 @@ class EditUser(User):
 
 class DeleteUser(User):
 
-    def __init__(self, User):
+    def __init__(self, User, name, password):
+        super().__init__(name, password)
         self.user = User
 
 

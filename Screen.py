@@ -28,7 +28,8 @@ DOC = Documents.Document()
 INT = interface.interface()
 EM = Email.send_emails()
 AU = AdminUser
-ADD = AccessDataBase.GetExternatData()
+ADD = AccessDataBase.GetExternalData()
+
 
 logged_user = []
 TIME_TO_WAIT = 5000 # in milliseconds
@@ -274,6 +275,6 @@ class LoggedInUser():
         logged_user.insert(0,user)
 
 
-    def get_logged_in_user():
+    def get_logged_in_user(self):
         return logged_user[0]
     

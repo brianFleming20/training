@@ -325,6 +325,7 @@ class EditUser(tk.Frame):
         update_user.is_trainer = self.admin
         update_user.password = create_password
         update_user.email = self.email.get()
+        TR.update_password(self.name.get(),create_password)
         return update_user
 
     def change_password(self):

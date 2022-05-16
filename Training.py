@@ -6,10 +6,12 @@ from tkinter import messagebox as mb
 import DataStore
 import User
 import Login
+import AccessDataBase
 
 DS = DataStore.data_store()
 UR = User
 LGI = Login
+
 
 
 class Training:
@@ -134,6 +136,9 @@ class Training:
 
     def get_blank_user(self):
         return UR.User(name="", password="")
+
+    def update_password(self,name,password):
+        LGI.Login.save_data(name,password)
 
 class CreateTraining():
 
