@@ -6,15 +6,16 @@ from tkinter import messagebox as mb
 import DataStore
 import User
 import Login
-import AccessDataBase
 
 DS = DataStore.data_store()
 UR = User
 LGI = Login
 
 
-
 class Training:
+
+    def __init__(self):
+        self.key = ""
 
     def get_date_now(self):
         presentime = datetime.now()
@@ -26,13 +27,23 @@ class Training:
         dt = dt.replace(year=dt.year + 1)
         return dt.strftime('%d-%m-%y')
 
-    # def check_expire_dates(self, name):
-    #     for event in training_events:
-    #         print(event)
-
     def get_documents(self):
         docs = DS.get_all_documents()
         return docs
+
+    def set_encrypt_key(self, key):
+        self.key = key
+
+    def get_encrypt_key(self):
+        return self.key
+
+    def get_user_password(self, name):
+        user_obj = DS.get_login_data()
+        password = False
+        for user in user_obj:
+            if name == user['Name']:
+                password = user['Password']
+        return password
 
     def get_a_document(self, doc_ref):
         documents = self.get_documents()
@@ -52,32 +63,26 @@ class Training:
                 return data
 
     def get_logged_in_user(self):
-        return LGI.LI_user
+        return LGI.LI_user[0]
+
+    def get_user_admin(self):
+        return LGI.LI_user[1]
 
     def save_user(self, user):
         DS.write_user(user)
 
-    def add_training_record(self, training_obj):
-        DS.add_training_record(training_obj)
+    def save_user_login(self,user, password, admin):
+        DS.write_user_admin(user.name, password, admin)
 
     def register_trained(self, document, user):
-        training = None
         all_docs = self.get_documents()
-        training_records = self.get_all_training()
         for doc, item in all_docs.items():
             if doc == document:
                 training = CreateTraining(username=user, doc_ref=doc, doc_name=item['name'],
                                           train_date=self.get_date_now(), review=self.get_review_date(),
                                           logger="System")
-            else:
-                print("record failed")
-        if user in training_records:
-            self.add_to_user_training(training)
-        else:
-            self.add_training_record(training)
+                DS.add_training_to_user(training)
 
-    def add_to_user_training(self, training_obj):
-        DS.add_training_to_user(training_obj)
 
     def who_is_trainer(self):
         result = []
@@ -123,8 +128,9 @@ class Training:
         if name in users.keys():
             user_set = self.get_all_users()
             user_set.pop(name)
-
+            DS.login_delete_user(name)
             DS.dump_users(user_set)
+            return True
         else:
             return False
 
@@ -135,10 +141,11 @@ class Training:
         self.add_document(doc)
 
     def get_blank_user(self):
-        return UR.User(name="", password="")
+        return UR.User(name="")
 
     def update_password(self,name,password):
-        LGI.Login.save_data(name,password)
+        admin = DS.get_user_admin_status(name)
+        DS.update_user(name,password,admin)
 
 class CreateTraining():
 

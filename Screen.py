@@ -12,7 +12,6 @@ import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as mb
 from datetime import datetime, timedelta
-from tkinter.ttk import Combobox
 import DisplayScreens
 import Training
 import Documents
@@ -32,7 +31,6 @@ ADD = AccessDataBase.GetExternalData()
 
 
 logged_user = []
-TIME_TO_WAIT = 5000 # in milliseconds
 
 class main_screen(tk.Frame):
     def __init__(self, parent, controller):
@@ -53,9 +51,7 @@ class main_screen(tk.Frame):
     def refresh_window(self):
         self.index = -1
         self.time.set(TR.get_date_now())
-        logged_in_user = LoggedInUser.get_logged_in_user()
-        admins = TR.get_all_trainers()
-     
+        logged_in_user = TR.get_logged_in_user()
         Canvas(self,bg="#E9DAC1",width=970, height=680).place(x=10, y=10)
         self.canvas_button = Canvas(self,bg="#F7ECDE",width=120,height=630)
         self.canvas_button.place(x=840,y=10)
@@ -72,25 +68,15 @@ class main_screen(tk.Frame):
         Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
         Label(self.canvas_search, text="Logged in -").place(x=10,y=15)
 
-        Label(self.canvas_search, text="Search").place(x=300,y=15)
-        if logged_in_user in admins:
+        admin = TR.get_user_admin()
+        if admin:
             self.admin.config(state=NORMAL)
         else:
             self.admin.config(state=DISABLED)
         Label(self.canvas_search, text=logged_in_user).place(x=80,y=15)
-        search = Entry(self.canvas_search, textvariable=self.serach_item,width=25)
-        search.place(x=350, y=15)
-        self.items = Combobox(self.canvas_search,state="readonly",values=["Select","Person","Document","Training"])
-        self.items.bind("<<ComboboxSelected>>", self.selection_changed)
-        self.items.place(x=530, y=20)
-        self.items.current(0)
         Label(self.canvas_search,textvariable=self.time).place(x=700,y=18)
         Label(self.canvas_lists, text="  Document No.       Document Name                Issue               Users           Date Trained       Level       Expire Date        Trainer                   Notes").place(x=5,y=5)
-      
-        # while self.index == -1:
         self.show_list_data()
-       
-        
 
     def admin_user(self):
         
@@ -116,7 +102,7 @@ class main_screen(tk.Frame):
 
     def display_documents(self):
         docs = TR.get_documents()
-        INT.provide_interface([LoggedInUser.get_logged_in_user()])
+        INT.provide_interface(TR.get_logged_in_user())
         self.control.show_frame(DSP.show_document_window)
 
 
@@ -125,26 +111,8 @@ class main_screen(tk.Frame):
 
 
     def display_update(self):
-        # win = tk.Tk()
-        # w = 400  # width for the Tk root
-        # h = 250  # height for the Tk root
-        # ws = win.winfo_screenwidth()  # width of the screen
-        # hs = win.winfo_screenheight()  # height of the screen
+
         ADD.get_data()
-        # # calculate x and y coordinates for the Tk root window
-        # x = (ws / 2) - (w / 2)
-        # y = (hs / 2) - (h / 2)
-        # # set the dimensions of the screen
-        # # and where it is placed
-        # win.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        # # Set the geometry of tkinter frame
-        # win.geometry("350x220")
-        # # Initialize a Label widget
-        # Label(win, text="Updating system for any changes...",
-        #       font=('Helvetica 12 bold')).pack(pady=20)
-        # win.overrideredirect(True)
-        # # Automatically close the window after 3 seconds
-        # win.after(1000, lambda: win.destroy())
         self.control.show_frame(main_screen)
 
 
@@ -235,6 +203,7 @@ class main_screen(tk.Frame):
 
         self.fill_users_lists()
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
+        self.doc_no.bind("<MouseWheel>", self.OnMouseWheel)
      
     
 
@@ -266,14 +235,22 @@ class main_screen(tk.Frame):
         except:
             pass
 
+    def OnMouseWheel(self, event):
+        self.doc_no.yview("scroll", event.delta, "units")
+        self.doc_issue.yview("scroll", event.delta, "units")
+        self.doc_name.yview("scroll", event.delta, "units")
+        self.doc_users.yview("scroll", event.delta, "units")
+        self.doc_train.yview("scroll", event.delta, "units")
+        self.doc_trainer.yview("scroll", event.delta, "units")
+        self.doc_level.yview("scroll", event.delta, "units")
+        self.doc_expire.yview("scroll", event.delta, "units")
+        self.doc_note.yview("scroll", event.delta, "units")
+        return "break"
 
-      
 class LoggedInUser():
-
     def set_logged_in_user(user):
         logged_user.clear()
         logged_user.insert(0,user)
-
 
     def get_logged_in_user(self):
         return logged_user[0]

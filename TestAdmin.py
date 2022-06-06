@@ -28,20 +28,6 @@ class AdminTests(unittest.TestCase):
 
         self.assertEqual(result,self.name)
 
-    def test_change_name(self):
-        print("Test change name")
-
-        name = "Linn"
-        result = None
-
-        TR.change_name("Lee",name)
-
-        users = TR.get_all_users()
-        if name in users.keys():
-            result = name
-
-        self.assertEqual(result,name)
-
 
 
 

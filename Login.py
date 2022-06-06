@@ -1,9 +1,6 @@
 import User
 import DataStore
-import cryptocode
-import AccessDataBase
-import pandas as pd
-import os
+import onetimepad
 from tkinter import messagebox as mb
 
 DS = DataStore.data_store()
@@ -11,79 +8,41 @@ UR = User
 
 
 ENTRY = "ByH1KHdo7y30I6aN"
-
 LI_user = []
+
 class Login():
 
     def __init__(self,username,password):
         self.name = username
         self.password = password
-
-        
-    def get_user(self):
-        user = UR.User(self.name,self.password)
-        return user
+        self.login_user()
 
     def get_logged_in_user(self):
-        return LI_user
-
+        if LI_user:
+            return LI_user[0]
+        else:
+            return False
 
     def login_user(self):
-        # login_data = LOG.get_login_data()
-        user_obj = self.get_user()
-        user = DS.get_user_obj(user_obj)
-        if user != False:
-            for item,value in user.items():
-                if item == "passwd":
-                    password = value
-                if item == "is_trainer":
-                    admin = value
-            plain_password = cryptocode.decrypt(password, ENTRY)
-            #plain_password = password
-            if plain_password == user_obj.password:
-                self.write_user(user_obj)
-                return True,admin
-            else:
-                return False,False
-        else:
-            return False,False
+        self.reset_user()
+        user_data = DS.get_login_data()
+        for name in user_data:
+            if name["Name"] == self.name:
+                plain_password = onetimepad.decrypt(name['Password'],ENTRY)
+                if plain_password == self.password:
+                    self.write_user(name['Name'], name['admin'])
+                    return True
+                else:
+                    mb.showerror(title="Log in error",message="Login username or password incorrect.")
+                    self.reset_user()
+                    return False
 
-    def write_user(self,user):
+    def write_user(self,user,admin):
         LI_user.append(user)
+        LI_user.append(admin)
 
-    def get_login_data(self):
-        path = os.path.join("C:\\Users", os.getenv('username'),
-                            "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
-        raw_path = os.path.join(path, "Login.csv")
-        try:
-            data = pd.read_csv(raw_path)
-        except FileNotFoundError:
-            title_names = ["Name", "Password"]
-            create = pd.DataFrame(columns=title_names)
-            create.to_csv(raw_path, index=False)
-        else:
-            output_data = data.to_dict(orient="records")
-            print(output_data)
+    def reset_user(self):
+        LI_user.clear()
 
-    def save_data(self, name, password):
-        print(f"user {name} : password {password}")
-        path = os.path.join("C:\\Users", os.getenv('username'),
-                            "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
-        raw_path = os.path.join(path, "Login.csv")
-        users = pd.read_csv(raw_path)
-        try:
-            print(users[name])
-            if users[name] == name:
-                print("ok")
-        except:
-            print("no")
-        insert_data = { name, password}
-        #users = users.concat(insert_data)
-        try:
-            insert_data.to_csv(raw_path, mode='a', header=False)
-        except:
-            mb.showerror(title="File error",message="File is open, \nclose file and try again...")
-        # if users not None:
-        #     for user,item in users.items():
-        #         print(user)
-        # check for user and append csv file
+
+

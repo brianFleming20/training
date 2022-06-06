@@ -11,7 +11,6 @@ Created on 9 March 2022
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as mb
-from time import gmtime, strftime
 import Login
 import Screen
 import User
@@ -54,7 +53,7 @@ class LoginWindow(tk.Frame):
       
         name = Entry(self.canvas_name, textvariable=self.username,width=30)
         name.place(x=150, y=16)
-        password = Entry(self.canvas_pass, textvariable=self.password,width=30)
+        password = Entry(self.canvas_pass, textvariable=self.password, show="*",width=30)
         password.place(x=150, y=16)
         
         Button(self,text="Log in", width=30, command=self.user_login,bg='#54BAB9').place(x=600,y=500)
@@ -64,18 +63,14 @@ class LoginWindow(tk.Frame):
         
 
     def user_login(self):
-        
-        # username = "Brian Fleming"
-        # password = "password"
-        username = self.username.get()
-        password = self.password.get()
+        username = "Brian Fleming"
+        password = "password"
+        # username = self.username.get()
+        # password = self.password.get()
         login = UL.Login(username,password)
-        user,admin = login.login_user()
+        user = login.get_logged_in_user()
         if user:
-            SC.LoggedInUser.set_logged_in_user(username)
-            INT.provide_interface([username,admin])
-            
+            INT.provide_interface([username])
+            self.username.set("")
+            self.password.set("")
             self.control.show_frame(SC.main_screen)
-        else:
-       
-            mb.showerror(title="User Error",message="User not logged in.")

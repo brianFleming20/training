@@ -4,19 +4,20 @@ Creates a new user for the training records system
 
 import tkinter as tk
 from tkinter import *
-from tkinter import filedialog
 from tkinter import messagebox as mb
 import Training
 import interface
 import Screen as SC
 import User
 import Documents
-import cryptocode
+import AccessDataBase
+import onetimepad
 
 TR = Training.Training()
 INT = interface.interface()
 UR = User
 DOC = Documents
+AS = AccessDataBase.GetExternalData()
 ENTRY = "ByH1KHdo7y30I6aN"
 
 class AddNewUser(tk.Frame):
@@ -24,7 +25,6 @@ class AddNewUser(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
         self.control = controller
-
         self.canvas_btndis = Canvas(self, bg="#E9DAC1", width=120, height=630)
         self.canvas_btndis.place(x=840, y=10)
         self.canvas_srdis = Canvas(self, bg="#E9DAC1", width=810, height=50)
@@ -42,12 +42,15 @@ class AddNewUser(tk.Frame):
         self.email = StringVar()
         self.data = []
         self.admin = False
+        self.administrator = False
+        self.administrator_state = IntVar()
         self.admin_state = IntVar()
 
     def refresh_window(self):
         self.time.set(TR.get_date_now())
         self.data.clear()
         self.canvas_back.delete('all')
+        self.logged_in = TR.get_user(TR.get_logged_in_user())
 
         Button(self.canvas_btndis, text="Show Users", command=self.show_users, width=12, bg='#54BAB9').place(x=20,
                                                                                                              y=160)
@@ -71,7 +74,7 @@ class AddNewUser(tk.Frame):
         conf_password.place(x=210, y=180)
         competency = Entry(self.canvas_back, textvariable=self.comp, width=15)
         competency.place(x=210, y=220)
-        email = Entry(self.canvas_back, textvariable=self.email, width=20)
+        email = Entry(self.canvas_back, textvariable=self.email, width=30)
         email.place(x=210, y=260)
 
         self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
@@ -81,17 +84,31 @@ class AddNewUser(tk.Frame):
         btn5 = Button(self.canvas_back, text="Add User", command=self.add_user, width=12, bg='#54BAB9')
         btn5.place(x=680, y=500)
 
+        if self.logged_in['is_trainer'] == True:
+            self.adminbutton = Checkbutton(self.canvas_back, text="   Admin    ",
+                                           variable=self.administrator_state, command=self.update_admin,
+                                           font=("Courier", 10))
+            self.administrator_state.get()
+            self.adminbutton.place(x=80, y=480)
+
     def set_admin_state(self, state):
         self.admin_state.set(state)
-
+    # this represents the user as a trainer
     def update_overwrite(self):
         if not self.admin:
             self.admin = True
         else:
             self.admin = False
 
+    # this represents as an administrator
     def get_admin(self):
         return self.admin
+
+    def update_admin(self):
+        if not self.administrator:
+            self.administrator = 1
+        else:
+            self.administrator = 0
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
@@ -106,21 +123,23 @@ class AddNewUser(tk.Frame):
     #     self.document.set(filename)
 
     def add_user(self):
-        create_password = cryptocode.encrypt(self.passw.get(), ENTRY)
-        print(create_password)
+        password = self.passw.get()
+        create_password = onetimepad.encrypt(password, ENTRY)
         if self.name.get() == "" or self.passw.get() == "" or self.comp.get() == 0 or self.email.get() == "":
             mb.showerror(title="Entry Error", message="Some of the fields are empty, \ntry again.")
-        # else:
-        #     if self.create_user(self.name.get(), self.passw.get(), self.conf_pass.get(), self.comp.get(), self.email.get()):
-        #         self.control.show_frame(ShowUsers)
-        #     else:
-        #         mb.showerror(title="User Error", message="User not created.")
-        #         return False
+        else:
+            if self.create_user(self.name.get(), self.passw.get(),self.conf_pass.get(), self.comp.get(),
+                                self.email.get(),self.administrator,create_password):
+                self.control.show_frame(ShowUsers)
+            else:
+                mb.showerror(title="User Error", message="User not created.")
+                return False
 
-    def create_user(self, name, password, conf_pass, comp, email):
+    def create_user(self, name, password, conf_pass, comp, email,admin,create_password):
         if password == conf_pass:
-            user = UR.User(name=name, password=password, level=comp, trainer=self.admin, email=email)
+            user = UR.User(name=name, level=comp, trainer=self.admin, email=email)
             TR.save_user(user)
+            TR.save_user_login(user,create_password,admin)
             return True
         else:
             mb.showerror(title="User Error", message="Your passwords don't match.")
@@ -153,7 +172,7 @@ class ShowUsers(tk.Frame):
         self.canvas_back.delete('all')
         Button(self.canvas_btndis, text="New User", command=self.add_new_user, width=12, bg='#54BAB9').place(x=20, y=80)
         Button(self.canvas_btndis, text="Edit User", command=self.edit_user, width=12, bg='#54BAB9').place(x=20, y=160)
-        Button(self.canvas_btndis, text="Delete User", command=self.delete_user, width=12, bg='#54BAB9').place(x=20,
+        Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9').place(x=20,
                                                                                                                y=240)
         Button(self.canvas_btndis, text="Add Document", command=self.add_document, width=12, bg='#54BAB9').place(x=20,
                                                                                                                  y=320)
@@ -210,8 +229,14 @@ class ShowUsers(tk.Frame):
             self.control.show_frame(EditUser)
 
     def delete_user(self):
-        pass
-
+        self.index = int(self.users.curselection()[0])
+        user = self.users.get(self.index)
+        AS.user_left(user)
+        result = TR.delete_user(user)
+        if result:
+            self.control.show_frame(ShowUsers)
+        else:
+            mb.showerror(title="Selection Error", message="Please select a row.")
 
 class EditUser(tk.Frame):
     def __init__(self, parent, controller):
@@ -248,7 +273,6 @@ class EditUser(tk.Frame):
         Button(self.canvas_btndis, text="Add User", command=self.add_user, width=12, bg='#54BAB9').place(x=20, y=160)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Edit User").place(x=10, y=15)
-        Label(self.canvas_srdis, text="Search").place(x=250, y=15)
         search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
         search.place(x=300, y=15)
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
@@ -277,25 +301,27 @@ class EditUser(tk.Frame):
         self.checkbutton.place(x=80, y=520)
         user = TR.get_user(self.name.get())
         self.admin_state.set(user['is_trainer'])
-        password = cryptocode.decrypt(user['passwd'], ENTRY)
-        try:
-            self.passw.set(password)
-            self.conf_pass.set(password)
-            self.comp.set(user['level'])
-            self.trainer.set(user['trainer'])
-            self.email.set(user['email'])
-        except:
+
+        user_password = TR.get_user_password(self.name.get())
+        if user_password:
+            try:
+                self.comp.set(user['level'])
+                self.trainer.set(user['trainer'])
+                self.email.set(user['email'])
+            except:
+               pass
+        else:
             mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries,"
                                                      "\nPlease complete..")
-        btn2 = Button(self.canvas_back, text="Update Password", command=self.change_password, width=14)
-        btn2.place(x=400, y=180)
-        btn3 = Button(self.canvas_back, text="Change Level", command=self.change_level, width=14)
-        btn3.place(x=400, y=220)
-        btn4 = Button(self.canvas_back, text="Change Email", command=self.change_email, width=14)
-        btn4.place(x=400, y=260)
-        btn5 = Button(self.canvas_back, text="Change trainer", command=self.change_trainer, width=14)
-        btn5.place(x=400, y=300)
-        btn6 = Button(self.canvas_back, text="Set trainer", command=self.change_trainer, width=14)
+        # btn2 = Button(self.canvas_back, text="Update Password", command=self.change_password, width=14)
+        # btn2.place(x=400, y=180)
+        # btn3 = Button(self.canvas_back, text="Change Level", command=self.change_level, width=14)
+        # btn3.place(x=400, y=220)
+        # btn4 = Button(self.canvas_back, text="Change Email", command=self.change_email, width=14)
+        # btn4.place(x=400, y=260)
+        # btn5 = Button(self.canvas_back, text="Change trainer", command=self.change_trainer, width=14)
+        # btn5.place(x=400, y=300)
+        btn6 = Button(self.canvas_back, text="Update user", command=self.update, width=14)
         btn6.place(x=400, y=520)
 
     def return_to_home(self):
@@ -317,37 +343,37 @@ class EditUser(tk.Frame):
         return self.admin
 
     def update_user(self):
-        create_password = cryptocode.encrypt(self.passw.get(), ENTRY)
-        update_user = TR.get_blank_user()
-        update_user.name = self.name.get()
-        update_user.level = self.comp.get()
-        update_user.trainer = self.trainer.get()
-        update_user.is_trainer = self.admin
-        update_user.password = create_password
-        update_user.email = self.email.get()
-        TR.update_password(self.name.get(),create_password)
-        return update_user
-
-    def change_password(self):
         password = self.passw.get()
         confirm_pass = self.conf_pass.get()
+
         if password == confirm_pass:
-            update_user = self.update_user()
-            TR.save_user(update_user)
+            create_password = onetimepad.encrypt(password, ENTRY)
+            update_user = TR.get_blank_user()
+            update_user.name = self.name.get()
+            update_user.level = self.comp.get()
+            update_user.trainer = self.trainer.get()
+            update_user.is_trainer = self.admin
+            update_user.password = create_password
+            update_user.email = self.email.get()
+            TR.update_password(update_user.name,create_password)
+            return update_user
         else:
             mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
 
-    def change_level(self):
-        update_user = self.update_user()
-        TR.save_user(update_user)
+    # def change_password(self):
+    #     password = self.passw.get()
+    #     confirm_pass = self.conf_pass.get()
+    #     if password == confirm_pass:
+    #         update_user = self.update_user()
+    #         TR.save_user(update_user)
+    #     else:
+    #         mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
 
-    def change_email(self):
+    def update(self):
         update_user = self.update_user()
         TR.save_user(update_user)
+        self.control.show_frame(ShowUsers)
 
-    def change_trainer(self):
-        update_user = self.update_user()
-        TR.save_user(update_user)
 
     def set_for_test(self,password,level,trainer):
         self.passw.set(password)

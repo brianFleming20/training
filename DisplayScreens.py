@@ -59,13 +59,13 @@ class show_user_window(tk.Frame):
         Label(self.canvas_back, text="Trained By ",
               bg="#E9DAC1").place(x=50, y=170)
         Label(self.canvas_back, text="Trained On Date",
-              bg="#E9DAC1").place(x=50, y=210)
+              bg="#E9DAC1").place(x=50, y=200)
         Label(self.canvas_back, text="Training Exrires",
-              bg="#E9DAC1").place(x=50, y=250)
+              bg="#E9DAC1").place(x=50, y=240)
         Label(self.canvas_back, text="Competence Level",
-              bg="#E9DAC1").place(x=50, y=290)
+              bg="#E9DAC1").place(x=50, y=280)
         Label(self.canvas_back, text="Email address",
-              bg="#E9DAC1").place(x=50, y=330)
+              bg="#E9DAC1").place(x=50, y=320)
         Label(self.canvas_back, text="Notes", bg="#E9DAC1").place(x=50, y=370)
 
         self.usr = self.canvas_back.create_text(
@@ -79,7 +79,7 @@ class show_user_window(tk.Frame):
         self.comp = self.canvas_back.create_text(
             400, 290, text=" ", font=('Helvetica 12 bold'))
         self.email = self.canvas_back.create_text(
-            400, 330, text=" ", font=('Helvetica 12 bold'))
+            330, 330, text=" ", font=('Helvetica 12 bold'))
 
         self.text_area = tk.Text(self, height=8, width=50)
         self.text_area.place(x=50, y=480)
@@ -106,6 +106,7 @@ class show_user_window(tk.Frame):
         for user, data in training.items():
             for ref, values in data.items():
                 if user == self.data[3]:
+                    user_info = TR.get_user(user)
                     self.doc_ref.insert(END, ref)
                     doc_data = TR.get_a_document(ref)
                     try:
@@ -114,7 +115,7 @@ class show_user_window(tk.Frame):
                         self.text_area.insert('1.0', self.data[8])
                         self.doc_name.insert(END, values['name'])
                         self.doc_issue.insert(END, doc_data['issue'])
-                        self.canvas_back.itemconfigure(self.email, text=values['email'])
+                        self.canvas_back.itemconfigure(self.email, text=user_info['email'])
                     except:
                         mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries..")
 
@@ -125,6 +126,8 @@ class show_user_window(tk.Frame):
 class show_document_window(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.index = -1
+        self.doc_selected = None
         self.control = controller
         self.canvas_btndis = Canvas(self, bg="#E9DAC1", width=120, height=630)
         self.canvas_btndis.place(x=840, y=10)
@@ -147,7 +150,7 @@ class show_document_window(tk.Frame):
         self.index = -1
         self.canvas_back.delete('all')
 
-        self.user.set(TR.get_logged_in_user()[0].name)
+        self.user.set(TR.get_logged_in_user())
 
         Button(self.canvas_btndis, text="Main", width=12,
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
@@ -178,6 +181,8 @@ class show_document_window(tk.Frame):
 
         Button(self.canvas_back, text="Read", command=self.training,
                width=10, bg='#54BAB9').place(x=620, y=480)
+        self.doc_name.bind("<MouseWheel>", self.OnMouseWheel)
+        self.doc_ref.bind("<MouseWheel>", self.OnMouseWheel)
 
         for ref, body in self.data.items():
             self.doc_ref.insert(END, ref)
@@ -187,17 +192,27 @@ class show_document_window(tk.Frame):
 
         self.doc_issue.insert(END, "")
         self.doc_name.insert(END, "")
-        self.doc_name.bind('<<ListboxSelect>>', self.onselect)
+        self.doc_ref.bind('<<ListboxSelect>>', self.onselect)
+
+    def OnMouseWheel(self, event):
+        self.doc_ref.yview("scroll", event.delta, "units")
+        self.doc_issue.yview("scroll", event.delta, "units")
+        self.doc_name.yview("scroll", event.delta, "units")
+        # this prevents default bindings from firing, which
+        # would end up scrolling the widget twice
+        return "break"
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
 
     def training(self):
-        logged_in_user = INT.extend_interface()[0]
+        logged_in_user = TR.get_logged_in_user()
         if self.index == -1:
             mb.showerror(title="Document selection error", message="Please select a document")
         else:
-            path = "https://empower1902.bsientropy.com/DeltexMedical/Document/Permalink/PRC-000649"
+            doc = TR.get_a_document(self.doc_selected)
+            path = doc['location']
+            # path = "https://empower1902.bsientropy.com/DeltexMedical/Document/Permalink/PRC-000649"
             webbrowser.open_new(path)
             # entropy permalink address for each document
             # show that user has trained on a document from document reference no
@@ -208,7 +223,7 @@ class show_document_window(tk.Frame):
         w = event.widget
         self.form_data.clear()
         if self.index == -1:
-            idx = int(self.doc_name.curselection()[0])
+            idx = int(self.doc_ref.curselection()[0])
             self.index = idx
             name = self.doc_name.get(idx)
             self.form_data.insert(0, name)

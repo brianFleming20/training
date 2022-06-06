@@ -2,6 +2,7 @@ import unittest
 import Training
 import Documents
 import User
+import Login
 import DataStore
 
 TR = Training.Training()
@@ -9,6 +10,7 @@ TE = Training
 DOC = Documents.Document()
 USER = User
 DS = DataStore.data_store()
+LG = Login
 
 
 class TrainingTests(unittest.TestCase):
@@ -20,8 +22,8 @@ class TrainingTests(unittest.TestCase):
         self.expires_on = None
         self.review_date = None
         self.username = None
-        self.a_user = USER.User(name="Brian", password="password", level=3, train="Lee", trainer=False)
-        self.b_user = USER.User(name="Hendryk", password="Haha", level=2, train="Lee", trainer=True)
+        self.a_user = USER.User(name="Brian", level=3, train="Lee", trainer=False)
+        self.b_user = USER.User(name="Hendryk", level=2, train="Lee", trainer=True)
 
     def test_time_now(self):
         print("Show time now")
@@ -45,7 +47,7 @@ class TrainingTests(unittest.TestCase):
     def test_get_all_trainers(self):
         print("Get all trainers")
 
-        expected = ["Linn", "Alan"]
+        expected = ['Sonia Martin', 'Roger', 'Alan', 'Jon']
 
         result = TR.get_all_trainers()
 
@@ -54,7 +56,7 @@ class TrainingTests(unittest.TestCase):
     def test_get_all_trained_at_level(self):
         print("get all that are trained at a level")
 
-        expected = 3
+        expected = 25
         users = TR.get_all_at_level(3)
 
         result = len(users)
@@ -64,7 +66,7 @@ class TrainingTests(unittest.TestCase):
     def test_who_is_trainer(self):
         print("Get all trainers")
 
-        expected = ["Lee", "Alex"]
+        expected = ['Sonia Martin', 'Roger', 'Alan', 'Jon']
 
         result = TR.who_is_trainer()
 
@@ -104,22 +106,24 @@ class TrainingTests(unittest.TestCase):
         doc_ref = []
         # create user
         user = self.a_user
-
         note = "Training note for the user"
-
         username = user.name
-
         # create document use doc already in the system file
+        # get all documents on file
         docs = TR.get_documents()
+        #
         for ref, doc in docs.items():
-            print(ref)
+            # add to local array
             doc_ref.append(ref)
 
         train_date = TR.get_date_now()
         review_date = TR.get_review_date()
+        # name of training document
         name = "Stores"
-
-        print(user.trainer)
+        monitors = "Monitors"
+        monitor = "Monitor"
+        QA = "QA"
+        sp = "Spring Tube Assembly"
 
         # create training event
         training_record1 = TE.CreateTraining(username, name, doc_ref[4], train_date, review_date, note)
@@ -129,15 +133,13 @@ class TrainingTests(unittest.TestCase):
 
         # check training event
         training = TR.get_all_training()
-
-
+        # sort through the training records
         for a_user, event in training.items():
-
+            # sort through all the training events of a user
             for doc, item in event.items():
+                # separate out each training data
+                self.assertIn(item['name'],[name,monitor,monitors,QA,sp,""])
 
-                for a, b in item.items():
-                    print(a)
-                    print(b)
 
     # add a new training document a user
     def test_zadd_new_training_doc_to_user(self):
@@ -160,8 +162,6 @@ class TrainingTests(unittest.TestCase):
         review_date = TR.get_review_date()
         name = "Monitor"
 
-        print(user.trainer)
-
         # create training event
         training_record2 = TE.CreateTraining(username, name, doc_ref[1], train_date, review_date, note)
 
@@ -182,6 +182,29 @@ class TrainingTests(unittest.TestCase):
         print("Test all document expire dates for user")
 
         user = "Lin"
+
+    def test_get_user_password(self):
+        print("Get user password")
+
+        name = "Brian Fleming"
+        data = DS.get_login_data()
+        for user in data:
+            if user['Name'] == name:
+                expected = user['Password']
+
+        password = TR.get_user_password(name)
+
+        self.assertEqual(expected, password)
+
+    def test_get_loggin_user(self):
+        print("Get logged in user")
+
+        login_user = LG.Login("Brian", "")
+
+        user = TR.get_logged_in_user()
+
+        print(user)
+
 
 
 if __name__ == '__main__':

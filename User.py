@@ -9,14 +9,14 @@ DS = DataStore.data_store()
 
 class User:
 
-    def __init__(self, name,password,level=0.0,train="",trainer=False, email="", employee=""):
+    def __init__(self, name,level=0.0,train="",trainer=True, email="", employee=""):
         self.name = name
-        self.password = password
         self.level = level
         self.trainer = train
         self.is_trainer = trainer
         self.email = email
         self.employee = employee
+
 
 
 
@@ -74,5 +74,6 @@ class DeleteUser(User):
             return True
         else:
             return False     
+
 
 

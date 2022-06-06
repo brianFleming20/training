@@ -9,7 +9,8 @@ Naming convention
 - Local functions = prefixed with _, _ for spaces, no capitals : _a_local_function
 
 
-to do:
+on conversion to exe use auto-py-2-exe
+include the email template files and the onetimepad library from venv/lib/site-packages/onetimepad.py
 
 
 #         s = ttk.Separator(self.root, orient=VERTICAL)
@@ -18,14 +19,10 @@ to do:
 '''
 
 import tkinter as tk
-from tkinter import *
-
 import LoginWindow as UL
 import Screen as SC
 import DisplayScreens as DSP
 import AdminUser as AU
-import Email as EM
-
 
 Training_Version = 'Deltex Medical : Training Register V 1'
 w = 1000  # window width
