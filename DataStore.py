@@ -2,8 +2,10 @@ import json
 import os
 from tkinter import messagebox as mb
 import pandas as pd
+import onetimepad
+import csv
 
-
+KEY = "ByH1KHdo7y30I6aN"
 class data_store():
 
     def __init__(self):
@@ -40,7 +42,7 @@ class data_store():
             json.dump(users, user_file, indent=4)
 
     def read_users_data(self):
-        fullPath = os.path.abspath(self.path + '.file.user')
+        fullPath = os.path.abspath(self.json_path + '.file.user')
         try:
             with open(fullPath, 'r') as load_user_file:
                 load_data = json.load(load_user_file)
@@ -81,9 +83,8 @@ class data_store():
         else:
             return False
 
-
     def write_document(self, document):
-        docPath = os.path.abspath(self.path + '.doc.json')
+        docPath = os.path.abspath(self.json_path + '.doc.json')
         doc_json = self.create_doc_file(document)
         try:
             with open(docPath, 'r') as doc_file:
@@ -102,7 +103,7 @@ class data_store():
             json.dump(docs, user_file, indent=4)
 
     def get_all_documents(self):
-        docPath = os.path.abspath(self.path + '.doc.json')
+        docPath = os.path.abspath(self.json_path + '.doc.json')
         try:
             with open(docPath, 'r') as docs_file:
                 docs_data = json.load(docs_file)
@@ -112,11 +113,14 @@ class data_store():
             return docs_data
 
     def add_training_record(self, training_obj):
-        trainPath = os.path.abspath(self.path + '.train.json')
+        trainPath = os.path.abspath(self.json_path + '.train.json')
         train_json = self.create_training_file(training_obj)
         try:
             with open(trainPath, 'r') as doc_file:
                 data = json.load(doc_file)
+                if training_obj.username in data:
+                    self.add_training_to_user(training_obj)
+                    return True
         except FileNotFoundError:
             with open(trainPath, 'w') as doc_file:
                 json.dump(train_json, doc_file, indent=4)
@@ -124,49 +128,48 @@ class data_store():
             data.update(train_json)
             with open(trainPath, 'w') as doc_file:
                 json.dump(data, doc_file, indent=4)
-            self.add_training_to_file(training_obj)
-
+            self.add_training_to_user(training_obj)
 
     def dump_training_data(self, data):
-        trainPath = os.path.abspath(self.path + '.train.json')
+        trainPath = os.path.abspath(self.json_path + '.train.json')
         with open(trainPath, 'w') as train_file:
             json.dump(data, train_file, indent=4)
 
     def get_all_training(self):
-        trainPath = os.path.abspath(self.path + '.train.json')
+        trainPath = os.path.abspath(self.json_path + '.train.json')
         try:
             with open(trainPath, 'r') as train_file:
                 train_data = json.load(train_file)
         except FileNotFoundError:
-            pass
+            mb.showinfo(title="     Training Error ", message="Training not found.")
         else:
             return train_data
 
-
     def add_training_to_user(self, training_obj):
-        trainPath = os.path.abspath(self.path + '.train.json')
-        the_values = self.create_new_doc_items(training_obj)
+        train_path = os.path.abspath(self.json_path + '.train.json')
+        the_values = self.create_new_train_items(training_obj)
         if training_obj.username in self.get_all_training():
-            with open(trainPath, 'r') as train_file:
+            with open(train_path, 'r') as train_file:
                 train_data = json.load(train_file)
                 for the_user in train_data:
                     if training_obj.username == the_user:
                         for key,val in the_values.items():
                             train_data[the_user][key] = val
                             self.dump_training_data(train_data)
-                            self.add_training_to_file(training_obj)
 
+    def update_training_file(self, training_file, doc_ref):
+        print(training_file)
+        result = self.add_training_to_file(training_file,doc_ref)
+        return result
 
     def create_user_dict(self, user):
         new_data = {
             user.name: {
-                'level': user.level,
                 'trainer': user.trainer,
                 'is_trainer': user.is_trainer,
                 'email': user.email,
             }
         }
-
         return new_data
 
     def create_doc_file(self, doc):
@@ -174,7 +177,6 @@ class data_store():
             doc.reference_number: {
                 "name": doc.doc_name,
                 "issue": doc.issue_number,
-                "location": doc.doc_location,
             }
         }
         return new_doc
@@ -187,50 +189,32 @@ class data_store():
                     "trained_on": record.trained_on,
                     "review_date": record.review_date,
                     "entered_by": record.logger,
+                    "level": record.level,
                     "note": record.notes,
                 },
             }
         }
         return new_record
 
-    def create_new_doc_items(self, record):
+    def create_new_train_items(self, record):
         new_doc = {
             record.document_ref: {
                 "name": record.document_name,
                 "trained_on": record.trained_on,
                 "review_date": record.review_date,
+                "level": record.level,
                 "note": record.notes,
             },
         }
         return new_doc
 
-    def add_training_to_file(self, training_obj):
-        comp = None
-        empty = ""
-        issue = ""
-        trainer = ""
-        doc_data = self.get_all_documents()
-        file_loc = f"{training_obj.document_ref}.csv"
-        for doc, item in doc_data.items():
-            if file_loc == doc:
-                issue = item['issue']
-        for user, data in self.read_users_data().items():
-            if user == training_obj.username:
-                comp = data['level']
-                trainer = data['trainer']
-        training_data = [issue,training_obj.username, comp, trainer, training_obj.trained_on, empty,
-                         training_obj.logger,training_obj.review_date,empty,empty]
-        raw_path = os.path.join(self.data_path, file_loc)
-        fake_path = "data.csv"
-        data = pd.read_csv(raw_path)
-        data_lists = data.values.tolist()
-        if data_lists is None:
-            mb.showinfo(title="    Saving document Error ", message="Document empty.")
-        else:
-            data_lists.append(training_data)
-            df = pd.DataFrame(data_lists)
-            # df.to_csv(fake_path, index=False)
-
+    def add_training_to_file(self, training_data, ref):
+        file_loc = f"{ref}.csv"
+        raw_path = os.path.join(self.path, file_loc)
+        with open(raw_path, 'a', newline='') as file:
+            writer = csv.writer(file, delimiter=',')
+            writer.writerow(training_data)
+            return True
 
     def get_login_data(self):
         raw_path = os.path.join(self.path, "Login.csv")
@@ -245,50 +229,46 @@ class data_store():
             return output_data
 
     def save_data(self, name, password, admin):
-        raw_path = os.path.join(self.data_path, "Login.csv")
+        raw_path = os.path.join(self.path, "Login.csv")
         data = pd.read_csv(raw_path)
         output_data = data.to_dict(orient="records")
+        encrypt = onetimepad.encrypt(password,KEY)
+        encrypt2 = onetimepad.encrypt(encrypt,KEY)
         for user in output_data:
             if user["Name"] == name:
+                print(f"{user['Name']}")
                 return False
-            else:
-                new_data = {
-                            "Name": name,
-                            "Password": password,
-                            "admin": admin,
-                        }
-                output_data.insert(0, new_data)
-                df = pd.DataFrame(output_data)
-                df.to_csv(raw_path, index=False)
-                return True
+
+        print("new person")
+        new_data = {
+            "Name": name,
+            "Password": encrypt2,
+            "admin": admin,
+            }
+        output_data.insert(0, new_data)
+        df = pd.DataFrame(output_data)
+        df.to_csv(raw_path, index=False)
+        return True
 
     def login_delete_user(self, name):
-        raw_path = os.path.join(self.data_path, "Login.csv")
+        raw_path = os.path.join(self.path, "Login.csv")
         data = pd.read_csv(raw_path)
-        data.drop_duplicates(inplace=True)
-        output_data = data.to_dict(orient="records")
-        for user in output_data:
-            if user["Name"] == name:
-                output_data.remove(user)
-                df = pd.DataFrame(output_data)
-                df.to_csv(raw_path, index=False)
-                return True
-            else:
-                return False
+        indexNames = data[data['Name'] == name].index
+        data.drop(indexNames, inplace=True)
+        data.to_csv(raw_path, index=False)
+        return True
 
 
     def update_user(self, name, password, admin):
-        raw_path = os.path.join(self.data_path, "Login.csv")
+        raw_path = os.path.join(self.path, "Login.csv")
         data = pd.read_csv(raw_path)
-        output_data = data.to_dict(orient="records")
-        self.login_delete_user(name)
-        self.save_data(name,password,admin)
-        for user in output_data:
-            if user['Name'] == name:
-                if user['Password'] == password:
-                    return False
-                else:
-                    return True
+        encrypt_password = onetimepad.encrypt(password, KEY)
+        encrypt2 = onetimepad.encrypt(encrypt_password, KEY)
+        data.loc[data['Name'] == name, 'Password'] = encrypt2
+        data.loc[data['Name'] == name, 'admin'] = admin
+        return encrypt2
+
+
 
     def check_directories(self):
         '''
@@ -311,15 +291,16 @@ class data_store():
                 print("Successfully created the directory %s" % self.path)
 
     def reset_files(self):
-        train_path = os.path.abspath(self.path + '.train.json')
-        doc_path = os.path.abspath(self.path + '.doc.json')
+        pass
+        # train_path = os.path.abspath(self.path + '.train.json')
+        # doc_path = os.path.abspath(self.path + '.doc.json')
         # if os.path.exists(doc_path):
         #     os.remove(doc_path)
         # if os.path.exists(train_path):
         #     os.remove(train_path)
 
     def get_user_admin_status(self, name):
-        raw_path = os.path.join(self.data_path, "Login.csv")
+        raw_path = os.path.join(self.path, "Login.csv")
         data = pd.read_csv(raw_path)
         output_data = data.to_dict(orient="records")
         for item in output_data:

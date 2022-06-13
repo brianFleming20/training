@@ -23,7 +23,7 @@ import AccessDataBase
 
 DSP = DisplayScreens
 TR = Training.Training()
-DOC = Documents.Document()
+DOC = Documents
 INT = interface.interface()
 EM = Email.send_emails()
 AU = AdminUser
@@ -47,6 +47,7 @@ class main_screen(tk.Frame):
         self.admin = None
         self.show = None
         self.form_data = []
+        self.search_item = StringVar()
 
     def refresh_window(self):
         self.index = -1
@@ -62,9 +63,13 @@ class main_screen(tk.Frame):
         Button(self.canvas_button,text="Selected user", width=12, command=self.display_user,bg='#54BAB9').place(x=20,y=80)
         self.admin = Button(self.canvas_button,text="Admin", width=12, command=self.admin_user,bg='#54BAB9')
         self.admin.place(x=20,y=160)
-        Button(self.canvas_button,text="Documents", width=12, command=self.display_documents,bg='#54BAB9').place(x=20,y=240)
-        Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=320)
-        Button(self.canvas_button,text="Update", width=12, command=self.display_update,bg='#54BAB9').place(x=20,y=400)
+        Label(self.canvas_search, text="Search").place(x=250, y=15)
+        search = Entry(self.canvas_search,textvariable=self.search_item, width=25)
+        search.place(x=300, y=15)
+        btn = Button(self.canvas_search, text="Search", command=self.search_data, width=8, bg='#54BAB9')
+        btn.place(x=500, y=15)
+        Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=240)
+        Button(self.canvas_button,text="Update", width=12, command=self.display_update,bg='#54BAB9').place(x=20,y=320)
         Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
         Label(self.canvas_search, text="Logged in -").place(x=10,y=15)
 
@@ -80,7 +85,11 @@ class main_screen(tk.Frame):
 
     def admin_user(self):
         
-        self.control.show_frame(AU.ShowUsers) 
+        self.control.show_frame(AU.ShowUsers)
+
+    def search_data(self):
+        print(self.search_item.get())
+
 
 
     def selection_changed(self, event):
@@ -98,21 +107,13 @@ class main_screen(tk.Frame):
             self.control.show_frame(DSP.show_user_window)
 
 
-
-
-    def display_documents(self):
-        docs = TR.get_documents()
-        INT.provide_interface(TR.get_logged_in_user())
-        self.control.show_frame(DSP.show_document_window)
-
-
     def display_events(self):
         self.control.show_frame(DSP.show_event_window)
 
 
     def display_update(self):
 
-        ADD.get_data()
+        ADD.get_user_info()
         self.control.show_frame(main_screen)
 
 
@@ -156,16 +157,19 @@ class main_screen(tk.Frame):
             self.form_data.insert(7,trainer)
             self.doc_trainer.selection_set(idx)
             note = self.doc_note.get(idx)
+            if note == "Expired":
+                self.doc_no.config( bg="#F24C4C")
             self.form_data.insert(8,note)
             self.doc_note.selection_set(idx)
             INT.provide_interface(self.form_data)
+
         else:
             self.index = -1
             self.show_list_data()
         
       
     def show_list_data(self):
-        self.doc_no = Listbox(self.canvas_lists,exportselection=False)
+        self.doc_no = Listbox(self.canvas_lists ,exportselection=False)
         self.doc_no.place(x=5, y=25)
         self.doc_no.config(height=32, width=15, bg="#E9DAC1")
 
@@ -203,6 +207,8 @@ class main_screen(tk.Frame):
 
         self.fill_users_lists()
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
+        self.doc_users.bind('<<ListboxSelect>>', self.onselect)
+        self.doc_name.bind('<<ListboxSelect>>', self.onselect)
         self.doc_no.bind("<MouseWheel>", self.OnMouseWheel)
      
     
@@ -213,27 +219,26 @@ class main_screen(tk.Frame):
         time_left = str(date - datetime.now())[:2]
         users = TR.get_all_users()
         training_events = TR.get_all_training()
-        try:
-            for user,event in training_events.items():
-                if user in users:
-                    for ref,items in event.items():
-                        self.doc_no.insert(END, ref)
-                        self.doc_train.insert(END, items['trained_on'])
-                        self.doc_expire.insert(END, items['review_date'])
-                        self.doc_note.insert(END, items['note'])
-                        self.doc_name.insert(END, items['name'])
-                        item = TR.get_a_document(ref)
-                        self.doc_issue.insert(END, item['issue'])
-                        user_data = TR.get_user(user)
-                        self.doc_users.insert(END, user)
-                        self.doc_level.insert(END, user_data['level'])
-                        self.doc_trainer.insert(END, user_data['trainer'])
-                        due = items['review_date'][:2]
-                        if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
-                            EM.notify_training(user,ref,1)
-                            EM.send_copy_to_trainer(user,ref)
-        except:
-            pass
+        for user,event in training_events.items():
+            if user in users:
+                for ref,items in event.items():
+                    self.doc_no.insert(END, ref)
+                    self.doc_train.insert(END, items['trained_on'])
+                    self.doc_expire.insert(END, items['review_date'])
+                    self.doc_note.insert(END, items['note'])
+                    self.doc_name.insert(END, items['name'])
+                    item = TR.get_a_document(ref)
+                    self.doc_issue.insert(END, item['issue'])
+                    user_data = TR.get_user(user)
+                    self.doc_users.insert(END, user)
+                    self.doc_level.insert(END, items['level'])
+                    self.doc_trainer.insert(END, user_data['trainer'])
+                    due = items['review_date']
+                    # if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
+                    #     EM.notify_training(user,ref,1)
+                    #     EM.send_copy_to_trainer(user,ref)
+       # except:
+            #pass
 
     def OnMouseWheel(self, event):
         self.doc_no.yview("scroll", event.delta, "units")

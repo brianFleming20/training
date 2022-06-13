@@ -5,6 +5,7 @@ Creates a new user for the training records system
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as mb
+from tkinter.ttk import Combobox
 import Training
 import interface
 import Screen as SC
@@ -20,10 +21,14 @@ DOC = Documents
 AS = AccessDataBase.GetExternalData()
 ENTRY = "ByH1KHdo7y30I6aN"
 
+
 class AddNewUser(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.adminbutton = None
+        self.checkbutton = None
+        self.logged_in = None
         self.control = controller
         self.canvas_btndis = Canvas(self, bg="#E9DAC1", width=120, height=630)
         self.canvas_btndis.place(x=840, y=10)
@@ -51,7 +56,6 @@ class AddNewUser(tk.Frame):
         self.data.clear()
         self.canvas_back.delete('all')
         self.logged_in = TR.get_user(TR.get_logged_in_user())
-
         Button(self.canvas_btndis, text="Show Users", command=self.show_users, width=12, bg='#54BAB9').place(x=20,
                                                                                                              y=160)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
@@ -63,8 +67,7 @@ class AddNewUser(tk.Frame):
         Label(self.canvas_back, text="Name ", bg="#E9DAC1").place(x=50, y=100)
         Label(self.canvas_back, text="New Password ", bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50, y=180)
-        Label(self.canvas_back, text="Competency level ", bg="#E9DAC1").place(x=50, y=220)
-        Label(self.canvas_back, text="Email address", bg="#E9DAC1").place(x=50, y=260)
+        Label(self.canvas_back, text="Email address", width=30,bg="#E9DAC1").place(x=50, y=220)
 
         name = Entry(self.canvas_back, textvariable=self.name, width=25)
         name.place(x=210, y=100)
@@ -72,8 +75,6 @@ class AddNewUser(tk.Frame):
         password.place(x=210, y=140)
         conf_password = Entry(self.canvas_back, textvariable=self.conf_pass, width=25)
         conf_password.place(x=210, y=180)
-        competency = Entry(self.canvas_back, textvariable=self.comp, width=15)
-        competency.place(x=210, y=220)
         email = Entry(self.canvas_back, textvariable=self.email, width=30)
         email.place(x=210, y=260)
 
@@ -84,7 +85,7 @@ class AddNewUser(tk.Frame):
         btn5 = Button(self.canvas_back, text="Add User", command=self.add_user, width=12, bg='#54BAB9')
         btn5.place(x=680, y=500)
 
-        if self.logged_in['is_trainer'] == True:
+        if self.logged_in['is_trainer']:
             self.adminbutton = Checkbutton(self.canvas_back, text="   Admin    ",
                                            variable=self.administrator_state, command=self.update_admin,
                                            font=("Courier", 10))
@@ -93,6 +94,7 @@ class AddNewUser(tk.Frame):
 
     def set_admin_state(self, state):
         self.admin_state.set(state)
+
     # this represents the user as a trainer
     def update_overwrite(self):
         if not self.admin:
@@ -117,29 +119,30 @@ class AddNewUser(tk.Frame):
         self.control.show_frame(ShowUsers)
 
     # def add_document(self):
-    #     filename = filedialog.askopenfilename(initialdir="./Downloads", 
-    #     title="Select Document",filetypes = (("pdf files","*.pdf"),("word files","*.docx"))) 
+    #     filename = filedialog.askopenfilename(initialdir="./Downloads",
+    #     title="Select Document",filetypes = (("pdf files","*.pdf"),("word files","*.docx")))
     #     print(filename)
     #     self.document.set(filename)
 
     def add_user(self):
-        password = self.passw.get()
-        create_password = onetimepad.encrypt(password, ENTRY)
-        if self.name.get() == "" or self.passw.get() == "" or self.comp.get() == 0 or self.email.get() == "":
+        create_password = onetimepad.encrypt(self.passw.get(), ENTRY)
+        encrypt_password = onetimepad.encrypt(create_password, ENTRY)
+        if self.name.get() == "" or self.passw.get() == "" or self.email.get() == "":
             mb.showerror(title="Entry Error", message="Some of the fields are empty, \ntry again.")
         else:
-            if self.create_user(self.name.get(), self.passw.get(),self.conf_pass.get(), self.comp.get(),
-                                self.email.get(),self.administrator,create_password):
+            if self.create_user(self.name.get(), self.passw.get(), self.conf_pass.get(),
+                                self.email.get(), self.admin, encrypt_password,
+                                TR.get_logged_in_user(), self.administrator):
                 self.control.show_frame(ShowUsers)
             else:
                 mb.showerror(title="User Error", message="User not created.")
                 return False
 
-    def create_user(self, name, password, conf_pass, comp, email,admin,create_password):
+    def create_user(self, name, password, conf_pass, email, admin,encrypt, trainer, administrator):
         if password == conf_pass:
-            user = UR.User(name=name, level=comp, trainer=self.admin, email=email)
+            user = UR.User(name=name, trainer=trainer,is_trainer=admin, email=email)
             TR.save_user(user)
-            TR.save_user_login(user,create_password,admin)
+            TR.save_user_login(user, encrypt, administrator)
             return True
         else:
             mb.showerror(title="User Error", message="Your passwords don't match.")
@@ -170,15 +173,17 @@ class ShowUsers(tk.Frame):
         self.data.clear()
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
-        Button(self.canvas_btndis, text="New User", command=self.add_new_user, width=12, bg='#54BAB9').place(x=20, y=80)
-        Button(self.canvas_btndis, text="Edit User", command=self.edit_user, width=12, bg='#54BAB9').place(x=20, y=160)
+        Button(self.canvas_btndis, text="New User", command=self.add_new_user, width=12, bg='#54BAB9').place(x=20, y=70)
+        Button(self.canvas_btndis, text="Edit User", command=self.edit_user, width=12, bg='#54BAB9').place(x=20, y=150)
         Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9').place(x=20,
-                                                                                                               y=240)
+                                                                                                               y=220)
         Button(self.canvas_btndis, text="Add Document", command=self.add_document, width=12, bg='#54BAB9').place(x=20,
-                                                                                                                 y=320)
+                                                                                                                 y=300)
         Button(self.canvas_btndis, text="Edit Document", command=self.edit_doc, width=12, bg='#54BAB9').place(x=20,
-                                                                                                              y=400)
-        Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
+                                                                                                              y=380)
+        Button(self.canvas_btndis, text="Record Training", command=self.training, width=12, bg='#54BAB9').place(x=20,
+                                                                                                                y=460)
+        Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=550)
         Label(self.canvas_srdis, text="New User").place(x=10, y=15)
         Label(self.canvas_srdis, text="Search").place(x=250, y=15)
         search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
@@ -209,6 +214,9 @@ class ShowUsers(tk.Frame):
     def add_document(self):
         self.control.show_frame(addNewDocument)
 
+    def training(self):
+        self.control.show_frame(RecordTraining)
+
     def edit_doc(self, event):
         # show doc details for edit
         idx = int(self.documents.curselection()[0])
@@ -231,16 +239,18 @@ class ShowUsers(tk.Frame):
     def delete_user(self):
         self.index = int(self.users.curselection()[0])
         user = self.users.get(self.index)
-        AS.user_left(user)
+        # AS.user_left(user) use in training
         result = TR.delete_user(user)
         if result:
             self.control.show_frame(ShowUsers)
         else:
             mb.showerror(title="Selection Error", message="Please select a row.")
 
+
 class EditUser(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.checkbutton = None
         self.admin_state = BooleanVar()
         self.control = controller
 
@@ -309,18 +319,10 @@ class EditUser(tk.Frame):
                 self.trainer.set(user['trainer'])
                 self.email.set(user['email'])
             except:
-               pass
+                pass
         else:
             mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries,"
                                                      "\nPlease complete..")
-        # btn2 = Button(self.canvas_back, text="Update Password", command=self.change_password, width=14)
-        # btn2.place(x=400, y=180)
-        # btn3 = Button(self.canvas_back, text="Change Level", command=self.change_level, width=14)
-        # btn3.place(x=400, y=220)
-        # btn4 = Button(self.canvas_back, text="Change Email", command=self.change_email, width=14)
-        # btn4.place(x=400, y=260)
-        # btn5 = Button(self.canvas_back, text="Change trainer", command=self.change_trainer, width=14)
-        # btn5.place(x=400, y=300)
         btn6 = Button(self.canvas_back, text="Update user", command=self.update, width=14)
         btn6.place(x=400, y=520)
 
@@ -344,18 +346,17 @@ class EditUser(tk.Frame):
 
     def update_user(self):
         password = self.passw.get()
-        confirm_pass = self.conf_pass.get()
-
-        if password == confirm_pass:
+        if password == self.conf_pass.get():
             create_password = onetimepad.encrypt(password, ENTRY)
+            encrypt_password = onetimepad.encrypt(create_password, ENTRY)
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
             update_user.level = self.comp.get()
             update_user.trainer = self.trainer.get()
             update_user.is_trainer = self.admin
-            update_user.password = create_password
+            update_user.password = encrypt_password
             update_user.email = self.email.get()
-            TR.update_password(update_user.name,create_password)
+            TR.update_password(update_user.name, encrypt_password)
             return update_user
         else:
             mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
@@ -374,8 +375,7 @@ class EditUser(tk.Frame):
         TR.save_user(update_user)
         self.control.show_frame(ShowUsers)
 
-
-    def set_for_test(self,password,level,trainer):
+    def set_for_test(self, password, level, trainer):
         self.passw.set(password)
         self.conf_pass.set(password)
         self.comp.set(level)
@@ -414,8 +414,6 @@ class addNewDocument(tk.Frame):
               bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Document Issue No.",
               bg="#E9DAC1").place(x=50, y=180)
-        Label(self.canvas_back, text="Document Location Address",
-              bg="#E9DAC1").place(x=50, y=220)
 
         self.doc_name = Entry(self.canvas_back, textvariable=self.name, width=30)
         self.doc_name.place(x=210, y=100)
@@ -425,9 +423,6 @@ class addNewDocument(tk.Frame):
         self.doc_iss = Entry(
             self.canvas_back, textvariable=self.doc_issue, width=30)
         self.doc_iss.place(x=210, y=180)
-        self.doc_location = Entry(
-            self.canvas_back, textvariable=self.doc_location, width=40)
-        self.doc_location.place(x=210, y=220)
 
         Button(self.canvas_back, text="Add Document", width=12,
                command=self.add_new_document,
@@ -440,16 +435,14 @@ class addNewDocument(tk.Frame):
         self.refresh_window()
 
     def add_new_document(self):
-        if self.name.get() == "" or self.doc_issue.get() == "" or self.doc_reference.get() == "" or self.doc_location.get() == "":
+        if self.name.get() == "" or self.doc_issue.get() == "" or self.doc_reference.get() == "":
             mb.showerror(title="Entry Error", message="Some of your inputs are empty, \ntry again.")
         else:
-            document = DOC.MakeDoc(name=self.name.get(), issue=self.doc_issue.get(),
-                               ref=self.doc_reference.get(), location=self.doc_location.get())
+            document = DOC.MakeDoc(name=self.name.get(), issue=self.doc_issue.get(), ref=self.doc_reference.get())
             TR.add_document(document)
             self.name.set("")
             self.doc_reference.set("")
-            self.doc_issue.set("")
-            self.doc_location.set("")
+            self.doc_issue.set(0)
             self.refresh_window()
 
 
@@ -507,6 +500,104 @@ class editDocument(tk.Frame):
         self.control.show_frame(ShowUsers)
 
     def save(self):
-        doc = DOC.MakeDoc(name=self.name.get(), ref=self.ref.get(), issue=self.issue.get(), location=self.location.get())
+        doc = DOC.MakeDoc(name=self.name.get(), ref=self.ref.get(), issue=self.issue.get())
         TR.update_document(doc)
         self.control.show_frame(ShowUsers)
+
+
+class RecordTraining(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.control = controller
+        self.canvas_btndis = Canvas(self, bg="#E9DAC1", width=120, height=630)
+        self.canvas_btndis.place(x=840, y=10)
+        self.canvas_srdis = Canvas(self, bg="#E9DAC1", width=810, height=50)
+        self.canvas_srdis.place(x=10, y=10)
+        self.canvas_back = Canvas(self, bg="#E9DAC1", width=810, height=560)
+        self.canvas_back.place(x=10, y=80)
+        self.time = StringVar()
+        self.name = StringVar()
+        self.doc_reference = StringVar()
+        self.training_date = StringVar()
+        self.level = StringVar()
+        self.doc_name = StringVar()
+        self.doc_issue = IntVar()
+        self.trainer = StringVar()
+        self.cb = None
+        self.finish = False
+        self.note = ""
+        self.data = ("0", "1", "2", "3", "4")
+
+    def refresh_window(self):
+        self.time.set(TR.get_date_now())
+        Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
+        Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
+        Label(self.canvas_srdis, text="Record Training").place(x=10, y=15)
+        Label(self.canvas_back, text="Trainer", bg="#E9DAC1").place(x=50, y=40)
+        Label(self.canvas_back, textvariable=self.trainer, bg="#E9DAC1").place(x=100, y=40)
+        Label(self.canvas_back, text="Name", bg="#E9DAC1").place(x=50, y=80)
+        Label(self.canvas_back, text="Document Reference No.", bg="#E9DAC1").place(x=350, y=80)
+        Label(self.canvas_back, text="Training Level", bg="#E9DAC1").place(x=50, y=150)
+        Label(self.canvas_back, text="Date Trained", bg="#E9DAC1").place(x=50, y=230)
+        Label(self.canvas_back, text="Training Note", bg="#E9DAC1").place(x=50, y=300)
+        Label(self.canvas_back, text="Document Name", bg="#E9DAC1").place(x=350, y=150)
+        Label(self.canvas_back, text="Issue Number", bg="#E9DAC1").place(x=350, y=230)
+
+        Entry(self.canvas_back, textvariable=self.name, width=30).place(x=50, y=100)
+        Entry(self.canvas_back, textvariable=self.doc_reference, width=25).place(x=350, y=100)
+        Entry(self.canvas_back, textvariable=self.training_date, width=30).place(x=50, y=250)
+        Label(self.canvas_back, textvariable=self.doc_name, bg="#E9DAC1").place(x=350, y=170)
+        Label(self.canvas_back, textvariable=self.doc_issue, bg="#E9DAC1").place(x=350, y=250)
+        self.doc_name.set("Doc name")
+        self.doc_issue.set(0)
+        self.trainer.set("current user")
+
+        self.cb = Combobox(self.canvas_back, values=self.data)
+        self.cb.place(x=50, y=170)
+        self.cb.current(0)
+        self.trainer.set(TR.get_logged_in_user())
+        self.note = tk.Text(self.canvas_back, height=8, width=35)
+        self.note.place(x=50, y=320)
+        self.training_date.set(TR.get_date_now())
+        self.fill_form()
+
+    def show_train_button(self):
+        Button(self.canvas_back, text="Register Training", width=20, command=self.register_training,
+               bg='#54BAB9').place(x=400, y=500)
+
+    def fill_form(self):
+        if not self.finish:
+            self.control.after(1000, func=self.check_data)
+
+    def return_to_home(self):
+        self.control.show_frame(SC.main_screen)
+
+    def register_training(self):
+        value = self.cb.get()
+        if TR.register_trained(self.doc_reference, self.name.get(), value, self.note.get('1.0', END)):
+            mb.showinfo(title="Training Info", message="Training registered to system.")
+        else:
+            mb.showerror(title="Training Info", message="Something went wrong \n Training not registered to system.")
+
+    def check_data(self):
+        doc = TR.get_a_document(self.doc_reference.get())
+        training_data = TR.get_training_record(self.name.get(), self.doc_reference.get())
+        if not doc:
+            pass
+        else:
+            self.doc_name.set(doc['name'])
+            self.doc_issue.set(doc['issue'])
+
+        if not training_data:
+            pass
+        else:
+            self.cb.current(training_data['level'])
+            self.finish = True
+        if self.name.get() in TR.get_all_users():
+            if self.doc_issue.get() > 0:
+                self.show_train_button()
+        Tk.update(self)
+        self.fill_form()
+
+    def set_up_for_test(self, cb):
+        self.cb.set(cb)

@@ -9,13 +9,12 @@ DS = DataStore.data_store()
 
 class User:
 
-    def __init__(self, name,level=0.0,train="",trainer=True, email="", employee=""):
+    def __init__(self, name,trainer,is_trainer=True, email=""):
         self.name = name
-        self.level = level
-        self.trainer = train
-        self.is_trainer = trainer
+        self.trainer = trainer
+        self.is_trainer = is_trainer
         self.email = email
-        self.employee = employee
+
 
 
 

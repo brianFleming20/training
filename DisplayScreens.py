@@ -18,6 +18,7 @@ import Screen as SC
 import Training
 import Email
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 
 TR = Training.Training()
 TE = Training
@@ -135,13 +136,14 @@ class show_document_window(tk.Frame):
         self.canvas_srdis.place(x=10, y=10)
         self.canvas_back = Canvas(self, bg="#E9DAC1", width=810, height=560)
         self.canvas_back.place(x=10, y=80)
-        self.serach_item = StringVar()
+        self.search_item = StringVar()
         self.user = StringVar()
         self.time = StringVar()
         self.user_trained_on_doc = ""
         self.form_data = []
         self.data = []
         self.doc_location = ""
+
 
     def refresh_window(self):
         self.time.set(TR.get_date_now())
@@ -156,9 +158,10 @@ class show_document_window(tk.Frame):
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Train on a document").place(x=10, y=15)
         Label(self.canvas_srdis, text="Search").place(x=250, y=15)
-        search = Entry(self.canvas_srdis,
-                       textvariable=self.serach_item, width=25)
+        search = Entry(self.canvas_srdis, textvariable=self.search_item, width=25)
         search.place(x=300, y=15)
+        btn = Button(self.canvas_srdis,text="Search", command=self.search_data,width=10, bg='#54BAB9')
+        btn.place(x=400,y=15)
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
         Label(self.canvas_back, textvariable=self.user).place(x=180, y=40)
         Label(self.canvas_back, text="Training required ").place(x=180, y=70)
@@ -176,8 +179,7 @@ class show_document_window(tk.Frame):
         self.doc_ref.insert(END, "-----------------")
         self.doc_issue.insert(END, "Issue")
         self.doc_issue.insert(END, "----------------")
-        self.doc_loc_tab.insert(END, "Document Location")
-        self.doc_loc_tab.insert(END, "-----------------")
+
 
         Button(self.canvas_back, text="Read", command=self.training,
                width=10, bg='#54BAB9').place(x=620, y=480)
@@ -211,13 +213,17 @@ class show_document_window(tk.Frame):
             mb.showerror(title="Document selection error", message="Please select a document")
         else:
             doc = TR.get_a_document(self.doc_selected)
-            path = doc['location']
-            # path = "https://empower1902.bsientropy.com/DeltexMedical/Document/Permalink/PRC-000649"
+            # path = doc['location']
+            path = "https://empower1902.bsientropy.com/DeltexMedical/Document/Permalink/PRC-000649"
             webbrowser.open_new(path)
+
             # entropy permalink address for each document
             # show that user has trained on a document from document reference no
-            TR.register_trained(self.doc_selected, logged_in_user)
+            # TR.register_trained(self.doc_selected, logged_in_user)
             self.refresh_window()
+
+    def search_data(self):
+        print(self.search_item)
 
     def onselect(self, event):
         w = event.widget

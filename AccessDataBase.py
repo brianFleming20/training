@@ -18,7 +18,9 @@ class GetExternalData:
         # self.path = os.path.join("C:\\Users", os.getenv('username'),
         #                          "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
         self.path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
+        self.path_doc_names = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training", "")
         self.is_trainer = False
+        self.doc_names = None
 
     def get_data(self, file):
         raw_path = os.path.join(self.path, file)
@@ -38,18 +40,14 @@ class GetExternalData:
             data.set_axis(header8, axis='columns', inplace=True)
         data = data.fillna(0)
 
-        return data, file[:9]
+        return data, file[:-4]
 
         # search via logger for full list of users and documents
 
-    def search_data(self, data, doc_ref, admin):
-        name_idx = 0
+    def search_data(self, data, doc_ref):
         all_names = data["Trainee"].to_list()
-        all_names = list(dict.fromkeys(all_names))
-        name_len = len(all_names)
-        user_login = TR.get_logged_in_user()
-        while name_idx < name_len:
-            user_data = data[data.Trainee == all_names[name_idx]]
+        for name in all_names:
+            user_data = data[data.Trainee == name]
             for index, row in user_data.iterrows():
                 try:
                     status = row.Status
@@ -57,40 +55,26 @@ class GetExternalData:
                     status = None
                 if row.Trainer:
                     self.is_trainer = True
-                user = US.User(row.Trainee, row.Level, row.Trainer, self.is_trainer, "No notes yet", status)
-                training = CT.CreateTraining(row.Trainee, "", doc_ref, row.Date_Trained, row.Review_date, row.Logged_by)
-                document = MD.MakeDoc("none", row.Issue, doc_ref)
-                if admin:
-                    print(f"user = {user.name} : ")
-                    DS.write_user(user)
-                    DS.add_training_record(training)
-                    DS.write_document(document)
-                if user_login == row.Trainee or user_login == row.Trainer:
-                    print(f"user = {user} : training = {training} : doc = {document}")
-                    DS.write_user(user)
-                    DS.add_training_record(training)
-                    DS.write_document(document)
-                # else:
-                #     print(f"user = {user} : training = {training} : doc = {document}")
-                #     DS.write_user(user)
-                #     DS.add_training_record(training)
-                #     DS.write_document(document)
-            name_idx += 1
 
-    # def user_left(self, name):
-    #     if name in DS.read_users_data():
-    #         data = self.get_data()
-    #         print(f" data {data}")
-    #
-    #         return True
-    #     else:
-    #         return False
+                doc_name_data = self.doc_names.loc[self.doc_names['Document No.'] == doc_ref]
+                # print(doc_name_data['Document Description'].to_string(index=False))
+                doc_name = doc_name_data['Document Description'].to_string(index=False)
+                user = US.User(row.Trainee, row.Trainer, self.is_trainer, "No email yet")
+                DS.write_user(user)
+                document = MD.MakeDoc(doc_name, row.Issue, doc_ref)
+                DS.write_document(document)
+                training = CT.CreateTraining(username=row.Trainee, doc_name=doc_name, doc_ref=doc_ref,
+                                             train_date=row.Date_Trained, review=row.Review_date,
+                                             logger=row.Logged_by, level=row.Level, note=status)
+                DS.add_training_record(training)
 
     def get_user_info(self):
-        admin = TR.get_user_admin()
+        raw_path = os.path.join(self.path_doc_names, "TrainingDocs.csv")
+        self.doc_names = pd.read_csv(raw_path)
+
         for files in os.listdir(self.path):
             data, file = self.get_data(files)
             if files[:5] == "Login":
                 pass
             else:
-                self.search_data(data, file, admin)
+                self.search_data(data, file)

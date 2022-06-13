@@ -28,7 +28,8 @@ class Login():
         user_data = DS.get_login_data()
         for name in user_data:
             if name["Name"] == self.name:
-                plain_password = onetimepad.decrypt(name['Password'],ENTRY)
+                encrypt_password = onetimepad.decrypt(name['Password'],ENTRY)
+                plain_password = onetimepad.decrypt(encrypt_password,ENTRY)
                 if plain_password == self.password:
                     self.write_user(name['Name'], name['admin'])
                     return True

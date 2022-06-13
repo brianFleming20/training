@@ -4,66 +4,36 @@ import Training
 
 
 AU = AdminUser
+AUT = AdminUser
 TR = Training.Training()
 
 
 class AdminTests(unittest.TestCase):
 
-    def setUp(self):
-        self.admin = False
-        self.name = "Alan"
-        self.password = "letmein"
-        self.conf_pass = "letmein"
-        self.level = 1
-
-
     def test_add_user(self):
         print("Test add new user")
-        
 
-        AU.AddNewUser.add_user(self,self.name,self.password,self.conf_pass,self.level)
-        users = TR.get_all_users()
-        if self.name in users.keys():
-            result = self.name
+        name = "Alan"
+        password = "letmein"
+        conf_pass = "letmein"
+        email = "my new email"
+        encrypt = "testtesttest"
+        admin = True
+        trainer = "Lee"
+        administrator = 1
 
-        self.assertEqual(result,self.name)
+        result = AU.AddNewUser.create_user(AU,name,password,conf_pass,email, admin,encrypt, trainer, administrator)
+
+        self.assertEqual(result, True)
+
+    def test_record_training(self):
+        print("Record new training")
+        root = AUT.RecordTraining()
+        AU.RecordTraining.set_up_for_test(AU, 3)
+
+        AU.RecordTraining.register_training(AU)
 
 
-
-
-    def test_change_password(self):
-        print("Test change password")
-
-
-
-
-
-    def test_change_level(self):
-        print("Test change level")
-
-
-    def test_delete_user(self):
-        print("Delete a user")
-
-        users = TR.get_all_users()
-        print(users)
-
-        name = "Lee"
-
-        deleted = TR.delete_user(name)
-
-        new_users = TR.get_all_users()
-
-        TR.save_all_users(new_users)
-
-        if name in new_users.keys():
-            result = True
-        else:
-            result = False
-
-        self.assertEqual(result,deleted)
-
-    
 
 
 if __name__ == '__main__':

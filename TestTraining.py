@@ -7,7 +7,7 @@ import DataStore
 
 TR = Training.Training()
 TE = Training
-DOC = Documents.Document()
+DOC = Documents
 USER = User
 DS = DataStore.data_store()
 LG = Login
@@ -16,14 +16,8 @@ LG = Login
 class TrainingTests(unittest.TestCase):
 
     def setUp(self):
-        self.document_ref = None
-        self.trainer = "Lee"
-        self.notes = []
-        self.expires_on = None
-        self.review_date = None
-        self.username = None
-        self.a_user = USER.User(name="Brian", level=3, train="Lee", trainer=False)
-        self.b_user = USER.User(name="Hendryk", level=2, train="Lee", trainer=True)
+        self.a_user = USER.User(name="Brian", train="Lee", trainer=False)
+        self.b_user = USER.User(name="Hendryk", train="Lee", trainer=True)
 
     def test_time_now(self):
         print("Show time now")
@@ -44,166 +38,122 @@ class TrainingTests(unittest.TestCase):
 
         self.assertGreater(result, 0)
 
-    def test_get_all_trainers(self):
-        print("Get all trainers")
+    def test_get_review_data(self):
+        print("Get a review date")
 
-        expected = ['Sonia Martin', 'Roger', 'Alan', 'Jon']
+        review = TR.get_review_date()
 
-        result = TR.get_all_trainers()
+        print(review)
 
-        self.assertEqual(expected, result)
+    def test_get_documents(self):
+        print("Get all documents")
 
-    def test_get_all_trained_at_level(self):
-        print("get all that are trained at a level")
+        docs = TR.get_documents()
+        result = len(docs)
 
-        expected = 25
-        users = TR.get_all_at_level(3)
+        self.assertGreater(result, 0)
 
-        result = len(users)
+    def test_get_a_document(self):
+        print("Get a document")
+
+        document_ref = "9070-1203"
+        expected = 27
+
+        doc = TR.get_a_document(document_ref)
+        result = doc['issue']
 
         self.assertEqual(result, expected)
 
-    def test_who_is_trainer(self):
-        print("Get all trainers")
-
-        expected = ['Sonia Martin', 'Roger', 'Alan', 'Jon']
-
-        result = TR.who_is_trainer()
-
-        self.assertTrue(expected, result)
-
-    def test_get_all_documents(self):
-        print("Get all documents")
-
-    def test_get_user_info(self):
-        print("Test get user info")
+    def test_get_users(self):
+        print("Get all users")
 
         users = TR.get_all_users()
-        for user, values in users.items():
-            expected = values
+        result = len(users)
 
-            user_info = TR.get_user(user)
-
-            for (k, v), (k1, v1) in zip(expected.items(), user_info.items()):
-                self.assertEqual(v, v1)
-
-    def test_save_user(self):
-        print("Test save user to file")
-
-        expected = "Lin"
-
-        TR.save_user(self.a_user)
-
-        users = DS.read_users_data()
-
-        if expected in users:
-            result = True
-
-        self.assertEqual(result, True)
-
-    def test_doc_trained_on_user(self):
-        print("Test adding a training record")
-        doc_ref = []
-        # create user
-        user = self.a_user
-        note = "Training note for the user"
-        username = user.name
-        # create document use doc already in the system file
-        # get all documents on file
-        docs = TR.get_documents()
-        #
-        for ref, doc in docs.items():
-            # add to local array
-            doc_ref.append(ref)
-
-        train_date = TR.get_date_now()
-        review_date = TR.get_review_date()
-        # name of training document
-        name = "Stores"
-        monitors = "Monitors"
-        monitor = "Monitor"
-        QA = "QA"
-        sp = "Spring Tube Assembly"
-
-        # create training event
-        training_record1 = TE.CreateTraining(username, name, doc_ref[4], train_date, review_date, note)
-
-        # record training event
-        TR.add_training_record(training_record1)
-
-        # check training event
-        training = TR.get_all_training()
-        # sort through the training records
-        for a_user, event in training.items():
-            # sort through all the training events of a user
-            for doc, item in event.items():
-                # separate out each training data
-                self.assertIn(item['name'],[name,monitor,monitors,QA,sp,""])
+        self.assertGreater(result, 0)
 
 
-    # add a new training document a user
-    def test_zadd_new_training_doc_to_user(self):
-        print("Test adding a new document to a user for training")
-
-        doc_ref = []
-        # create user
-        user = self.b_user
-
-        note = "This is a good room"
-
-        username = user.name
-
-        # create document use doc already in the system file
-        docs = TR.get_documents()
-        for ref, doc in docs.items():
-            doc_ref.append(ref)
-
-        train_date = TR.get_date_now()
-        review_date = TR.get_review_date()
-        name = "Monitor"
-
-        # create training event
-        training_record2 = TE.CreateTraining(username, name, doc_ref[1], train_date, review_date, note)
-
-        # record training event
-        TR.add_to_user_training(training_record2)
-
-        # check training event
-        training = TR.get_all_training()
-
-        # for a_user, event in training.items():
-        #     for doc, item in event.items():
-        #         for a, b in item.items():
-        #             print(a)
-        #             print(b)
-
-
-    def test_check_expire_dates(self):
-        print("Test all document expire dates for user")
-
-        user = "Lin"
-
-    def test_get_user_password(self):
-        print("Get user password")
-
-        name = "Brian Fleming"
-        data = DS.get_login_data()
-        for user in data:
-            if user['Name'] == name:
-                expected = user['Password']
-
-        password = TR.get_user_password(name)
-
-        self.assertEqual(expected, password)
-
-    def test_get_loggin_user(self):
+    def test_logged_in_user(self):
         print("Get logged in user")
 
-        login_user = LG.Login("Brian", "")
+        name = "Brian Fleming"
+        password = "password"
+        admin = 1
+        LG.Login(name,password)
 
-        user = TR.get_logged_in_user()
+        result = TR.get_logged_in_user()
 
-        print(user)
+        self.assertEqual(result, name)
+
+        result1 = TR.get_user_admin()
+
+        self.assertEqual(result1, admin)
+
+    def test_save_user(self):
+        print("Save a user to file")
+
+        TR.save_user(self.b_user)
+
+        name = "Hendryk"
+        expected = "Lee"
+
+        user = TR.get_user(name)
+        result = user['trainer']
+
+        self.assertEqual(result, expected)
+
+    def test_save_login(self):
+        print("Save a user login data")
+
+        name = "Lee"
+        password = "your password"
+        admin = 1
+        user = USER.User(name="Lee", train="Lee", trainer=True)
+
+        TR.save_user_login(user,password,admin)
+
+        LG.Login(name,password)
+        result = TR.get_logged_in_user()
+
+        self.assertEqual(result, name)
+
+    def test_all_training(self):
+        print("Get all training")
+
+        expected = 0
+
+        training = TR.get_all_training()
+        result = len(training)
+
+        self.assertGreater(result, expected)
+
+    def test_add_training(self):
+        print("Resister a training record")
+
+        expected = True
+        document = "9070-1203"
+        user = "Brian Fleming"
+        level = 3
+        password = "password"
+        LG.Login(user, password)
+
+        result = TR.register_trained(document, user, level, "Note")
+
+        self.assertEqual(result, expected)
+
+    def test_get_training(self):
+        print("Get a training record")
+        name = "Brian Fleming"
+        doc_ref = "9070-1203"
+
+        expected = 3
+
+        data = TR.get_training_record(name, doc_ref)
+        result = data['level']
+
+        self.assertEqual(result, expected)
+
+
 
 
 

@@ -58,13 +58,13 @@ class WindowController(tk.Tk):
         for F in (UL.LoginWindow,
                   SC.main_screen,
                   DSP.show_user_window,
-                  DSP.show_document_window,
                   DSP.show_event_window,
                   AU.AddNewUser,
                   AU.ShowUsers,
                   AU.EditUser,
                   AU.addNewDocument,
-                  AU.editDocument
+                  AU.editDocument,
+                  AU.RecordTraining
                   ):
 
             frame = F(container, self)

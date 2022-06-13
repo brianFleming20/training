@@ -2,9 +2,16 @@ import unittest
 import DataStore
 import onetimepad
 import Training
+import Login
+import Documents
+import User
 
 DS = DataStore.data_store()
-TR = Training
+TR = Training.Training()
+LG = Login
+MD = Documents
+U = User
+
 
 KEY = "ByH1KHdo7y30I6aN"
 class DatastoreTests(unittest.TestCase):
@@ -12,7 +19,7 @@ class DatastoreTests(unittest.TestCase):
     def test_get_user_admin(self):
         print("Test user admin status")
         name = "Brian Fleming"
-        expected = "1"
+        expected = 1
 
         result = DS.get_user_admin_status(name)
 
@@ -25,11 +32,9 @@ class DatastoreTests(unittest.TestCase):
         password = "password"
         admin = 1
 
-        cipher = onetimepad.encrypt(password, KEY)
+        expected = False
 
-        expected = True
-
-        result = DS.save_data(name,cipher,admin)
+        result = DS.save_data(name,password,admin)
 
         self.assertEqual(result,expected)
 
@@ -39,14 +44,17 @@ class DatastoreTests(unittest.TestCase):
         name = "Brian Fleming"
         password = "password"
 
+        LG.Login(name,password)
+
         result = DS.get_login_data()
 
 
         for item in result:
             if item['Name'] == name:
                 pw = item['Password']
-                plain_text = onetimepad.decrypt(pw,KEY)
-                self.assertEqual((plain_text,password))
+                decrypt = onetimepad.decrypt(pw,KEY)
+                plain_text = onetimepad.decrypt(decrypt,KEY)
+                self.assertEqual(plain_text,password)
 
 
     def test_1_insert_user(self):
@@ -78,21 +86,29 @@ class DatastoreTests(unittest.TestCase):
     def test_4_update_user(self):
         print("Test update password")
         name = "Brian Fleming"
+        password = "my password"
         admin = 1
-        sec_password = onetimepad.encrypt("password", ENTRY)
+        pw = DS.update_user(name, password, admin)
+        decrypt = onetimepad.decrypt(pw,KEY)
+        print(decrypt)
+        result = onetimepad.decrypt(decrypt,KEY)
+        print(result)
 
-        result = DS.update_user(name, sec_password, admin)
-
-        self.assertEqual(result, True)
+        self.assertEqual(result, password)
 
     def test_send_data_to_file(self):
         print("Send data to csv file")
 
-        training = TR.CreateTraining(username="Brian Fleming", doc_ref="3000-0002", doc_name="Printing",
-                                  train_date="18/5/2022", review="18/5/2023",
-                                  logger="System")
+        document = MD.MakeDoc("Printing",1,"9050-1212","no location yet")
+        user = U.User("Brian Fleming",2.0,"Hendryk",False,"my-email@gmail.com","none")
+        #
+        # TR.register_trained(document,user)
 
-        DS.add_training_to_file(training)
+        training_to_file = [document.issue_number, user.name, user.level, user.trainer, TR.get_date_now(),
+                            TR.get_review_date(), "System", TR.get_date_now(), "no status"]
+
+        DS.update_training_file(training_to_file, document.reference_number)
+
 
 
 
