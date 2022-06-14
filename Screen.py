@@ -276,9 +276,7 @@ class main_screen(tk.Frame):
                     self.doc_trainer.insert(END, user_data['trainer'])
                     due = items['review_date']
                     # If the review date is less than today's date, send and email
-                    if TR.get_email_date(due):
-                        EM.notify_training(user,ref)
-                        EM.send_copy_to_trainer(user,ref)
+
 
     def fill_docs_list(self, doc):
         training_events = TR.get_all_training()
@@ -297,9 +295,10 @@ class main_screen(tk.Frame):
                     self.doc_level.insert(END, items['level'])
                     self.doc_trainer.insert(END, user_data['trainer'])
                     due = items['review_date']
-                    # if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
-                    #     EM.notify_training(user,ref,1)
-                    #     EM.send_copy_to_trainer(user,ref)
+                    # if TR.get_email_date(due):
+                    #
+                    #     EM.notify_training(user, ref)
+                    #     EM.send_copy_to_trainer(user, ref)
 
 
 
@@ -313,7 +312,7 @@ class main_screen(tk.Frame):
         self.doc_level.yview("scroll", event.delta, "units")
         self.doc_expire.yview("scroll", event.delta, "units")
         self.doc_note.yview("scroll", event.delta, "units")
-        #return "break"
+        return "break"
 
 class LoggedInUser():
     def set_logged_in_user(user):

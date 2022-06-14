@@ -300,8 +300,9 @@ class show_event_window(tk.Frame):
             return False
 
     def generate_email(self, name, ref):
-        EM.notify_training(name,ref)
-        EM.send_copy_to_trainer(name,ref)
+        mb.showinfo(title="Email", message="Email function disabled..")
+        # EM.notify_training(name,ref)
+        # EM.send_copy_to_trainer(name,ref)
 
 
     def return_to_home(self):
