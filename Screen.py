@@ -35,6 +35,7 @@ logged_user = []
 class main_screen(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.document_name = None
         self.items = None
         self.canvas_lists = None
         self.canvas_search = None
@@ -43,11 +44,15 @@ class main_screen(tk.Frame):
         self.base = Canvas(self,bg="#FBF8F1",width=980, height=680)
         self.base.place(x=10, y=10)
         self.serach_item = StringVar()
+        self.search_doc = StringVar()
         self.time = StringVar()
         self.admin = None
         self.show = None
         self.form_data = []
         self.search_item = StringVar()
+        self.search_document = StringVar()
+        self.search_name = ""
+        self.finish = False
 
     def refresh_window(self):
         self.index = -1
@@ -60,37 +65,80 @@ class main_screen(tk.Frame):
         self.canvas_search.place(x=10,y=10)
         self.canvas_lists = Canvas(self, bg="#F7ECDE", width=810,height=560)
         self.canvas_lists.place(x=10,y=80)
+        self.canvas_top = Canvas(self, bg="#C2DED1", width=810, height=240)
+        self.canvas_top.place(x=10, y=80)
         Button(self.canvas_button,text="Selected user", width=12, command=self.display_user,bg='#54BAB9').place(x=20,y=80)
         self.admin = Button(self.canvas_button,text="Admin", width=12, command=self.admin_user,bg='#54BAB9')
         self.admin.place(x=20,y=160)
-        Label(self.canvas_search, text="Search").place(x=250, y=15)
-        search = Entry(self.canvas_search,textvariable=self.search_item, width=25)
-        search.place(x=300, y=15)
-        btn = Button(self.canvas_search, text="Search", command=self.search_data, width=8, bg='#54BAB9')
-        btn.place(x=500, y=15)
-        Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=240)
-        Button(self.canvas_button,text="Update", width=12, command=self.display_update,bg='#54BAB9').place(x=20,y=320)
-        Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
-        Label(self.canvas_search, text="Logged in -").place(x=10,y=15)
 
+        Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=240)
+
+        Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
+        Label(self.canvas_search, text="Logged in -", bg="#F7ECDE").place(x=10,y=15)
+        Label(self.canvas_top, text="Search", font=("Courier", 16), bg="#C2DED1").place(x=350, y=15)
+        Label(self.canvas_top, text="Name", bg="#C2DED1").place(x=30, y=80)
+        try:
+            names = TR.get_all_users()
+            self.search_item.set("Choose")
+            search_name = OptionMenu(self.canvas_top, self.search_item, *names)
+            search_name.place(x=80, y=80)
+        except:
+            pass
+        Label(self.canvas_top, text="Document Number", bg="#C2DED1").place(x=270, y=80)
+        Label(self.canvas_top, text="Document Name", bg="#C2DED1").place(x=270, y=120)
+        self.document_name = Label(self.canvas_top, textvariable=self.search_document, bg="#C2DED1")
+        self.document_name.place(x=390, y=120)
+        search_doc = Entry(self.canvas_top, textvariable=self.search_doc, width=25)
+        search_doc.place(x=390, y=80)
+        btn = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
+        btn.place(x=630, y=180)
+        self.search_document.set("----------------")
         admin = TR.get_user_admin()
         if admin:
             self.admin.config(state=NORMAL)
         else:
             self.admin.config(state=DISABLED)
-        Label(self.canvas_search, text=logged_in_user).place(x=80,y=15)
-        Label(self.canvas_search,textvariable=self.time).place(x=700,y=18)
-        Label(self.canvas_lists, text="  Document No.       Document Name                Issue               Users           Date Trained       Level       Expire Date        Trainer                   Notes").place(x=5,y=5)
+        Label(self.canvas_search, text=logged_in_user, bg="#F7ECDE").place(x=80,y=15)
+        Label(self.canvas_search, text="Date", bg="#F7ECDE").place(x=640, y=18)
+        Label(self.canvas_search,textvariable=self.time, bg="#F7ECDE").place(x=700,y=18)
+        Label(self.canvas_top, text="  Document No.       Document Name                Issue               Users           Date Trained       Level       Expire Date        Trainer                   Notes                            ").place(x=3,y=220)
         self.show_list_data()
+        self.fill_form()
 
     def admin_user(self):
-        
         self.control.show_frame(AU.ShowUsers)
 
     def search_data(self):
-        print(self.search_item.get())
+        self.show_list_data()
+        if self.finish:
+            for name,item in TR.get_all_training().items():
+                for doc,data in item.items():
+                    if self.search_doc.get() == doc[:9]:
+                        self.fill_docs_list(doc)
+        else:
+            if self.search_item.get() == "Choose":
+                mb.showerror(title="Search Error", message="Please select a name.")
+            else:
+                for name,item in TR.get_all_training().items():
+                    trainer = TR.get_user(name)['trainer']
+                    if self.search_item.get() == name:
+                        self.fill_users_lists(name)
+                    if self.search_item.get() == trainer:
+                        self.fill_users_lists(name)
 
+    def fill_form(self):
+        if not self.finish:
+            self.control.after(1000, func=self.check_data)
 
+    def check_data(self):
+        doc = TR.get_a_document(self.search_doc.get())
+        if not doc:
+            pass
+        else:
+            self.search_document.set(doc['name'])
+            self.finish = True
+        Tk.update(self)
+        self.fill_form()
 
     def selection_changed(self, event):
         selection = self.items.get()
@@ -110,11 +158,6 @@ class main_screen(tk.Frame):
     def display_events(self):
         self.control.show_frame(DSP.show_event_window)
 
-
-    def display_update(self):
-
-        ADD.get_user_info()
-        self.control.show_frame(main_screen)
 
 
     def log_out(self):
@@ -166,61 +209,60 @@ class main_screen(tk.Frame):
         else:
             self.index = -1
             self.show_list_data()
-        
       
     def show_list_data(self):
-        self.doc_no = Listbox(self.canvas_lists ,exportselection=False)
-        self.doc_no.place(x=5, y=25)
-        self.doc_no.config(height=32, width=15, bg="#E9DAC1")
+        scrollbar = Scrollbar(self.control)
+        scrollbar.pack(side=RIGHT, fill=Y)
+        self.doc_no = Listbox(self.canvas_lists ,exportselection=False, yscrollcommand=scrollbar.set)
+        self.doc_no.place(x=5, y=250)
+        self.doc_no.config(height=19, width=15, bg="#E9DAC1")
+
 
         self.doc_name = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_name.place(x=100, y=25)
-        self.doc_name.config(height=32, width=20, bg="#E9DAC1")
+        self.doc_name.place(x=100, y=250)
+        self.doc_name.config(height=19, width=20, bg="#E9DAC1")
 
         self.doc_issue = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_issue.place(x=225, y=25)
-        self.doc_issue.config(height=32, width=10, bg="#E9DAC1")
+        self.doc_issue.place(x=225, y=250)
+        self.doc_issue.config(height=19, width=10, bg="#E9DAC1")
 
         self.doc_users = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_users.place(x=290, y=25)
-        self.doc_users.config(height=32, width=15, bg="#E9DAC1")
+        self.doc_users.place(x=290, y=250)
+        self.doc_users.config(height=19, width=15, bg="#E9DAC1")
 
         self.doc_train = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_train.place(x=385, y=25)
-        self.doc_train.config(height=32, width=12, bg="#E9DAC1")
+        self.doc_train.place(x=385, y=250)
+        self.doc_train.config(height=19, width=12, bg="#E9DAC1")
 
         self.doc_level = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_level.place(x=462, y=25)
-        self.doc_level.config(height=32, width=8, bg="#E9DAC1")
+        self.doc_level.place(x=462, y=250)
+        self.doc_level.config(height=19, width=8, bg="#E9DAC1")
 
         self.doc_expire = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_expire.place(x=515, y=25)
-        self.doc_expire.config(height=32, width=10, bg="#E9DAC1")
+        self.doc_expire.place(x=515, y=250)
+        self.doc_expire.config(height=19, width=10, bg="#E9DAC1")
 
         self.doc_trainer = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_trainer.place(x=580, y=25)
-        self.doc_trainer.config(height=32, width=12, bg="#E9DAC1")
+        self.doc_trainer.place(x=580, y=250)
+        self.doc_trainer.config(height=19, width=12, bg="#E9DAC1")
 
-        self.doc_note = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_note.place(x=658, y=25)
-        self.doc_note.config(height=32, width=24, bg="#E9DAC1")
+        self.doc_note = Listbox(self.canvas_lists,exportselection=False, yscrollcommand=scrollbar.set)
+        self.doc_note.place(x=658, y=250)
+        self.doc_note.config(height=19, width=20, bg="#E9DAC1")
+        scrollbar.config(command=self.doc_note.yview)
 
-        self.fill_users_lists()
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
         self.doc_users.bind('<<ListboxSelect>>', self.onselect)
         self.doc_name.bind('<<ListboxSelect>>', self.onselect)
         self.doc_no.bind("<MouseWheel>", self.OnMouseWheel)
      
-    
 
-    def fill_users_lists(self):
+    def fill_users_lists(self,name):
         date = datetime.now() + timedelta(days=4)
-        # check to match days difference only using split()
         time_left = str(date - datetime.now())[:2]
-        users = TR.get_all_users()
         training_events = TR.get_all_training()
         for user,event in training_events.items():
-            if user in users:
+            if user == name:
                 for ref,items in event.items():
                     self.doc_no.insert(END, ref)
                     self.doc_train.insert(END, items['trained_on'])
@@ -237,8 +279,29 @@ class main_screen(tk.Frame):
                     # if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
                     #     EM.notify_training(user,ref,1)
                     #     EM.send_copy_to_trainer(user,ref)
-       # except:
-            #pass
+
+    def fill_docs_list(self, doc):
+        training_events = TR.get_all_training()
+        for user, event in training_events.items():
+            for ref, items in event.items():
+                if ref[:9] == doc:
+                    self.doc_no.insert(END, ref)
+                    self.doc_train.insert(END, items['trained_on'])
+                    self.doc_expire.insert(END, items['review_date'])
+                    self.doc_note.insert(END, items['note'])
+                    self.doc_name.insert(END, items['name'])
+                    item = TR.get_a_document(ref[:9])
+                    self.doc_issue.insert(END, item['issue'])
+                    user_data = TR.get_user(user)
+                    self.doc_users.insert(END, user)
+                    self.doc_level.insert(END, items['level'])
+                    self.doc_trainer.insert(END, user_data['trainer'])
+                    due = items['review_date']
+                    # if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
+                    #     EM.notify_training(user,ref,1)
+                    #     EM.send_copy_to_trainer(user,ref)
+
+
 
     def OnMouseWheel(self, event):
         self.doc_no.yview("scroll", event.delta, "units")

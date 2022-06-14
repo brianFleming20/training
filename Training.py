@@ -40,7 +40,7 @@ class Training:
         documents = self.get_documents()
         doc_items = None
         for doc, item in documents.items():
-            if doc_ref == doc:
+            if doc_ref == doc[:9]:
                 doc_items = item
         return doc_items
 

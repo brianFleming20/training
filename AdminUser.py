@@ -13,6 +13,7 @@ import User
 import Documents
 import AccessDataBase
 import onetimepad
+import time
 
 TR = Training.Training()
 INT = interface.interface()
@@ -197,6 +198,8 @@ class ShowUsers(tk.Frame):
         self.documents = Listbox(self.canvas_lists, exportselection=False)
         self.documents.place(x=250, y=45)
         self.documents.config(height=20, width=45, bg="#E9DAC1")
+        Button(self.canvas_lists, text="Update System", width=12, command=self.display_update,
+               bg='#54BAB9').place(x=650,y=480)
 
         for no in TR.get_all_users():
             self.users.insert(END, no)
@@ -223,6 +226,31 @@ class ShowUsers(tk.Frame):
         num = self.documents.get(idx)
         INT.provide_interface([num])
         self.control.show_frame(editDocument)
+
+    def display_update(self):
+        self.window = Tk()
+        self.window.title("Please wait")
+        w = 300  # width for the Tk root
+        h = 150  # height for the Tk root
+
+        # get screen width and height
+        ws = self.winfo_screenwidth()  # width of the screen
+        hs = self.winfo_screenheight()  # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = (ws / 2) - (w / 2)
+        y = (hs / 2) - (h / 2)
+
+        # set the dimensions of the screen
+        # and where it is placed
+        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        Label(self.window, text="This may take some time.").place(x=80,y=50)
+        self.control.after(2000, func=self.destroy_window)
+        AS.get_user_info()
+
+    def destroy_window(self):
+        self.window.destroy()
+
 
     def edit_user(self):
         try:

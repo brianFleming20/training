@@ -46,7 +46,6 @@ class show_user_window(tk.Frame):
         self.data.clear()
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
-
         Button(self.canvas_btndis, text="Main", width=12,
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Selected User").place(x=10, y=15)
