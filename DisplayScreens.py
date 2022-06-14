@@ -49,10 +49,7 @@ class show_user_window(tk.Frame):
         Button(self.canvas_btndis, text="Main", width=12,
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Selected User").place(x=10, y=15)
-        Label(self.canvas_srdis, text="Search").place(x=250, y=15)
-        search = Entry(self.canvas_srdis,
-                       textvariable=self.serach_item, width=25)
-        search.place(x=300, y=15)
+
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
         Label(self.canvas_back, text="Name", bg="#E9DAC1").place(x=50, y=90)
 
@@ -117,7 +114,8 @@ class show_user_window(tk.Frame):
                         self.doc_issue.insert(END, doc_data['issue'])
                         self.canvas_back.itemconfigure(self.email, text=user_info['email'])
                     except:
-                        mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries..")
+                        pass
+                        # mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries..")
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
@@ -277,42 +275,37 @@ class show_event_window(tk.Frame):
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
 
         Label(self.canvas_back, text="Upcoming training events").place(x=50, y=50)
+        self.check_for_email()
 
+    def check_for_email(self):
+        sent = False
         text_area = tk.Text(self.canvas_back, height=25, width=85)
         text_area.place(x=50, y=100)
-
-        date = datetime.now() + timedelta(days=4)
-
-        # check to match days difference only using split()
-        time_left = str(date - datetime.now())[:2]
-
         for user, event in TR.get_all_training().items():
             for ref, items in event.items():
-                due = items['review_date'][:2]
-                if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
-                    text_area.insert(INSERT,
-                                     f" user {user} \t\t: {items['name']} : {ref}\t\t\t: "
-                                     f"training expires on {items['review_date']}\n")
-                    self.generate_email(user,ref)
-                if items['review_date'] < TR.get_date_now():
-                    text_area.insert(INSERT, "\n\nOverdue training\n\n")
-                    text_area.insert(INSERT,
-                                     f" user {user} \t\t: {items['name']} : {ref}\t\t\t: training expired on {items['review_date']}\n")
-                    self.generate_email_reminder(user, ref)
+                print(ref)
+                if not items['note'] or type(items['note']) == str and "No longer an employee" in items['note']:
+                    print("gone")
+                else:
+                    if ref != "Login" and TR.get_email_date(items['review_date']):
+                        text_area.insert(INSERT,
+                                         f"{user} \t\t: {items['name']} : {ref}\t\t: "
+                                         f"review {items['review_date']}\n")
+                        self.generate_email(user,ref)
+                        sent = True
         text_area.config(state=DISABLED)
+        if sent:
+            return True
+        else:
+            return False
+
+    def generate_email(self, name, ref):
+        EM.notify_training(name,ref)
+        EM.send_copy_to_trainer(name,ref)
+
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
 
     def add_event(self):
         self.control.show_frame(AU.ShowUsers)
-
-    def generate_email(self, name, ref):
-        print(f"{name} : {ref}")
-        EM.notify_training(name,ref)
-        EM.send_copy_to_trainer(name,ref)
-
-    def generate_email_reminder(self, name, ref):
-        print(f"{name} : {ref}")
-        EM.overdue_training(name, ref)
-        EM.send_copy_to_trainer(name, ref)

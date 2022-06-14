@@ -77,13 +77,12 @@ class main_screen(tk.Frame):
         Label(self.canvas_search, text="Logged in -", bg="#F7ECDE").place(x=10,y=15)
         Label(self.canvas_top, text="Search", font=("Courier", 16), bg="#C2DED1").place(x=350, y=15)
         Label(self.canvas_top, text="Name", bg="#C2DED1").place(x=30, y=80)
-        try:
-            names = TR.get_all_users()
-            self.search_item.set("Choose")
-            search_name = OptionMenu(self.canvas_top, self.search_item, *names)
-            search_name.place(x=80, y=80)
-        except:
-            pass
+
+        names = TR.get_all_users()
+        self.search_item.set("Choose")
+        search_name = OptionMenu(self.canvas_top, self.search_item, *names)
+        search_name.place(x=80, y=80)
+
         Label(self.canvas_top, text="Document Number", bg="#C2DED1").place(x=270, y=80)
         Label(self.canvas_top, text="Document Name", bg="#C2DED1").place(x=270, y=120)
         self.document_name = Label(self.canvas_top, textvariable=self.search_document, bg="#C2DED1")
@@ -269,16 +268,17 @@ class main_screen(tk.Frame):
                     self.doc_expire.insert(END, items['review_date'])
                     self.doc_note.insert(END, items['note'])
                     self.doc_name.insert(END, items['name'])
-                    item = TR.get_a_document(ref)
-                    self.doc_issue.insert(END, item['issue'])
+                    user_item = TR.get_a_document(ref[:9])
+                    self.doc_issue.insert(END, user_item['issue'])
                     user_data = TR.get_user(user)
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
                     self.doc_trainer.insert(END, user_data['trainer'])
                     due = items['review_date']
-                    # if items['review_date'] > TR.get_date_now() and int(due) <= int(time_left):
-                    #     EM.notify_training(user,ref,1)
-                    #     EM.send_copy_to_trainer(user,ref)
+                    # If the review date is less than today's date, send and email
+                    if TR.get_email_date(due):
+                        EM.notify_training(user,ref)
+                        EM.send_copy_to_trainer(user,ref)
 
     def fill_docs_list(self, doc):
         training_events = TR.get_all_training()
@@ -313,7 +313,7 @@ class main_screen(tk.Frame):
         self.doc_level.yview("scroll", event.delta, "units")
         self.doc_expire.yview("scroll", event.delta, "units")
         self.doc_note.yview("scroll", event.delta, "units")
-        return "break"
+        #return "break"
 
 class LoggedInUser():
     def set_logged_in_user(user):

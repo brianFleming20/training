@@ -1,7 +1,7 @@
 '''
 Creats a training event
 '''
-from datetime import datetime
+import datetime as DT
 from tkinter import messagebox as mb
 import DataStore
 import User
@@ -15,14 +15,29 @@ LGI = Login
 class Training:
 
     def get_date_now(self):
-        presentime = datetime.now()
+        presentime = DT.datetime.now()
         date = presentime.strftime('%d-%m-%y')
         return date
 
     def get_review_date(self):
-        dt = datetime.now()
+        dt = DT.datetime.now()
         dt = dt.replace(year=dt.year + 1)
         return dt.strftime('%d-%m-%y')
+
+    def get_email_date(self, review_date):
+        if type(review_date) == str:
+            if review_date[2:3] == "-":
+                date_convert = DT.datetime.strptime(review_date, "%d-%m-%Y")
+            else:
+                date_convert = DT.datetime.strptime(review_date, "%d/%m/%Y")
+
+            email_date = date_convert - DT.timedelta(days=7)
+            present = DT.datetime.now()
+            if email_date < present:
+                return True
+            else:
+                return False
+
 
     def get_documents(self):
         docs = DS.get_all_documents()

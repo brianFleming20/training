@@ -4,6 +4,7 @@ import Documents
 import User
 import Login
 import DataStore
+import datetime as DT
 
 TR = Training.Training()
 TE = Training
@@ -16,8 +17,8 @@ LG = Login
 class TrainingTests(unittest.TestCase):
 
     def setUp(self):
-        self.a_user = USER.User(name="Brian", train="Lee", trainer=False)
-        self.b_user = USER.User(name="Hendryk", train="Lee", trainer=True)
+        self.a_user = USER.User(name="Brian", trainer="Lee", is_trainer=False)
+        self.b_user = USER.User(name="Hendryk", trainer="Lee", is_trainer=True)
 
     def test_time_now(self):
         print("Show time now")
@@ -108,7 +109,7 @@ class TrainingTests(unittest.TestCase):
         name = "Lee"
         password = "your password"
         admin = 1
-        user = USER.User(name="Lee", train="Lee", trainer=True)
+        user = USER.User(name="Lee", trainer=True)
 
         TR.save_user_login(user,password,admin)
 
@@ -153,7 +154,23 @@ class TrainingTests(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_get_email_date(self):
+        print("Test getting email date")
+        date = "14-06-2022"
 
+        result1 = TR.get_email_date(date)
+
+        expected_now = True
+
+        self.assertEqual(expected_now,result1)
+
+        review_date = "01-09-2022"
+
+        expected_review = False
+
+        result2 = TR.get_email_date(review_date)
+
+        self.assertEqual(expected_review,result2)
 
 
 

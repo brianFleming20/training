@@ -31,7 +31,6 @@ class GetExternalData:
         header8 = ["Issue", "Trainee", "Level", "Trainer", "Date_Trained", "Review_date", "Logged_by",
                    "date_logged"]
         data = pd.read_csv(raw_path, header=None)
-        print(f"{file} : {data}")
         length = len(data.columns)
         if length == 10:
             data.set_axis(header10, axis='columns', inplace=True)
@@ -84,6 +83,9 @@ class GetExternalData:
                 self.is_trainer = False
 
     def get_user_info(self):
+        path = os.path.join(self.path_doc_names, "train.json")
+        if os.path.exists(path):
+            os.remove(path)
         raw_path = os.path.join(self.path_doc_names, "TrainingDocs.csv")
         self.doc_names = pd.read_csv(raw_path)
         for files in os.listdir(self.path):

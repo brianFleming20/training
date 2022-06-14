@@ -244,13 +244,12 @@ class ShowUsers(tk.Frame):
         # set the dimensions of the screen
         # and where it is placed
         self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        Label(self.window, text="This may take some time.").place(x=80,y=50)
-        self.control.after(2000, func=self.destroy_window)
+        Label(self.window, text="Building database, \nThis may take some time.").place(x=80,y=50)
         AS.get_user_info()
+        self.control.after(1000, func=self.destroy_window)
 
     def destroy_window(self):
         self.window.destroy()
-
 
     def edit_user(self):
         try:
@@ -571,7 +570,10 @@ class RecordTraining(tk.Frame):
         Label(self.canvas_back, text="Document Name", bg="#E9DAC1").place(x=350, y=150)
         Label(self.canvas_back, text="Issue Number", bg="#E9DAC1").place(x=350, y=230)
 
-        Entry(self.canvas_back, textvariable=self.name, width=30).place(x=50, y=100)
+        names = TR.get_all_users()
+        self.name.set("Choose")
+        search_name = OptionMenu(self.canvas_back, self.name, *names)
+        search_name.place(x=50, y=100)
         Entry(self.canvas_back, textvariable=self.doc_reference, width=25).place(x=350, y=100)
         Entry(self.canvas_back, textvariable=self.training_date, width=30).place(x=50, y=250)
         Label(self.canvas_back, textvariable=self.doc_name, bg="#E9DAC1").place(x=350, y=170)
