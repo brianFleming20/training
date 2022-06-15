@@ -92,6 +92,8 @@ class main_screen(tk.Frame):
         btn = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
         btn.place(x=630, y=180)
         self.search_document.set("----------------")
+        Label(self.canvas_top,text="Needs training soon", bg="#A0D995").place(x=10, y=160)
+        Label(self.canvas_top,text="Overdue training     ", bg="#F24C4C").place(x=10, y=183)
         admin = TR.get_user_admin()
         if admin:
             self.admin.config(state=NORMAL)
