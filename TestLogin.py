@@ -23,12 +23,13 @@ class LoginTests(unittest.TestCase):
         print("\nTest user login")
 
         name = "Brian Fleming"
-        password = "your password"
+        password = "password"
         user = UL.Login(name,password)
+        print(user.name)
 
         result = user.get_logged_in_user()
 
-        self.assertEqual(user.name, result)
+        self.assertEqual(name, result)
 
 
 

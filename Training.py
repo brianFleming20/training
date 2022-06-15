@@ -24,8 +24,14 @@ class Training:
         dt = dt.replace(year=dt.year + 1)
         return dt.strftime('%d-%m-%y')
 
-    def convert_date(self, review_date):
-        if type(review_date) == str:
+    def convert_date(self, review):
+        if type(review) == str:
+            if len(review) < 9:
+                mon = review[:6]
+                year = review[6:]
+                review_date = f"{mon}20{year}"
+            else:
+                review_date = review
             if review_date[2:3] == "-":
                 date_convert = DT.datetime.strptime(review_date, "%d-%m-%Y")
             else:

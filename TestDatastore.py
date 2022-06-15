@@ -1,10 +1,11 @@
 import unittest
 import DataStore
-import onetimepad
+# import onetimepad
 import Training
 import Login
 import Documents
 import User
+import cryptocode
 
 DS = DataStore.data_store()
 TR = Training.Training()
@@ -28,11 +29,11 @@ class DatastoreTests(unittest.TestCase):
     def test_save_data(self):
         print("Test save user login data")
 
-        name = "Brian Fleming"
+        name = "Lee Lindfield"
         password = "password"
         admin = 1
 
-        expected = False
+        expected = True
 
         result = DS.save_data(name,password,admin)
 
@@ -52,8 +53,7 @@ class DatastoreTests(unittest.TestCase):
         for item in result:
             if item['Name'] == name:
                 pw = item['Password']
-                decrypt = onetimepad.decrypt(pw,KEY)
-                plain_text = onetimepad.decrypt(decrypt,KEY)
+                plain_text = cryptocode.decrypt(pw,KEY)
                 self.assertEqual(plain_text,password)
 
 
@@ -89,22 +89,19 @@ class DatastoreTests(unittest.TestCase):
         password = "my password"
         admin = 1
         pw = DS.update_user(name, password, admin)
-        decrypt = onetimepad.decrypt(pw,KEY)
-        print(decrypt)
-        result = onetimepad.decrypt(decrypt,KEY)
-        print(result)
+        result = cryptocode.decrypt(pw,KEY)
 
         self.assertEqual(result, password)
 
     def test_send_data_to_file(self):
         print("Send data to csv file")
 
-        document = MD.MakeDoc("Printing",1,"9050-1212","no location yet")
-        user = U.User("Brian Fleming",2.0,"Hendryk",False,"my-email@gmail.com","none")
+        document = MD.MakeDoc("Printing",1,"9050-1212")
+        user = U.User("Brian Fleming",False,"my-email@gmail.com")
         #
         # TR.register_trained(document,user)
 
-        training_to_file = [document.issue_number, user.name, user.level, user.trainer, TR.get_date_now(),
+        training_to_file = [document.issue_number, user.name, 2, "Hendryk", TR.get_date_now(),
                             TR.get_review_date(), "System", TR.get_date_now(), "no status"]
 
         DS.update_training_file(training_to_file, document.reference_number)

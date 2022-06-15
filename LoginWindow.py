@@ -10,7 +10,6 @@ Created on 9 March 2022
 
 import tkinter as tk
 from tkinter import *
-from tkinter import messagebox as mb
 import Login
 import Screen
 import User

@@ -7,11 +7,10 @@ Created on 9 March 2022
 
 
 '''
-import datetime
+
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as mb
-from datetime import datetime, timedelta
 import DisplayScreens
 import Training
 import Documents
@@ -121,7 +120,10 @@ class main_screen(tk.Frame):
                 mb.showerror(title="Search Error", message="Please select a name.")
             else:
                 for name,item in TR.get_all_training().items():
-                    trainer = TR.get_user(name)['trainer']
+                    try:
+                        trainer = TR.get_user(name)['trainer']
+                    except :
+                        trainer = "-"
                     if self.search_item.get() == name:
                         self.fill_users_lists(name)
                     if self.search_item.get() == trainer:
@@ -279,6 +281,7 @@ class main_screen(tk.Frame):
 
 
     def fill_docs_list(self, doc):
+        index = 0
         training_events = TR.get_all_training()
         for user, event in training_events.items():
             for ref, items in event.items():
@@ -299,7 +302,11 @@ class main_screen(tk.Frame):
                     #
                     #     EM.notify_training(user, ref)
                     #     EM.send_copy_to_trainer(user, ref)
-
+                    if TR.get_email_date(items['review_date']):
+                        self.doc_no.itemconfig(index,{"bg":"#A0D995"})
+                    if TR.get_overdue_train(items['review_date']):
+                        self.doc_no.itemconfig(index,{"bg":"#F24C4C"})
+                    index += 1
 
 
     def OnMouseWheel(self, event):

@@ -1,6 +1,7 @@
 import User
 import DataStore
-import onetimepad
+# import onetimepad
+import cryptocode
 from tkinter import messagebox as mb
 
 DS = DataStore.data_store()
@@ -28,8 +29,9 @@ class Login():
         user_data = DS.get_login_data()
         for name in user_data:
             if name["Name"] == self.name:
-                encrypt_password = onetimepad.decrypt(name['Password'],ENTRY)
-                plain_password = onetimepad.decrypt(encrypt_password,ENTRY)
+                plain_password = cryptocode.decrypt(name['Password'],ENTRY)
+                # encrypt_password = onetimepad.decrypt(name['Password'],ENTRY)
+                # plain_password = onetimepad.decrypt(encrypt_password,ENTRY)
                 if plain_password == self.password:
                     self.write_user(name['Name'], name['admin'])
                     return True

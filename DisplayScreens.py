@@ -17,8 +17,7 @@ import interface
 import Screen as SC
 import Training
 import Email
-from datetime import datetime, timedelta
-from bs4 import BeautifulSoup
+
 
 TR = Training.Training()
 TE = Training
@@ -278,14 +277,14 @@ class show_event_window(tk.Frame):
         self.check_for_email()
 
     def check_for_email(self):
+        mb.showinfo(title="Email", message="Email function disabled..")
         sent = False
         text_area = tk.Text(self.canvas_back, height=25, width=85)
         text_area.place(x=50, y=100)
         for user, event in TR.get_all_training().items():
             for ref, items in event.items():
-                print(ref)
                 if not items['note'] or type(items['note']) == str and "No longer an employee" in items['note']:
-                    print("gone")
+                    pass
                 else:
                     if ref != "Login" and TR.get_email_date(items['review_date']):
                         text_area.insert(INSERT,
@@ -300,7 +299,8 @@ class show_event_window(tk.Frame):
             return False
 
     def generate_email(self, name, ref):
-        mb.showinfo(title="Email", message="Email function disabled..")
+        pass
+        ##mb.showinfo(title="Email", message="Email function disabled..")
         # EM.notify_training(name,ref)
         # EM.send_copy_to_trainer(name,ref)
 

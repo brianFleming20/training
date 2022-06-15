@@ -12,8 +12,8 @@ import Screen as SC
 import User
 import Documents
 import AccessDataBase
-import onetimepad
-import time
+# import onetimepad
+import cryptocode
 
 TR = Training.Training()
 INT = interface.interface()
@@ -126,8 +126,9 @@ class AddNewUser(tk.Frame):
     #     self.document.set(filename)
 
     def add_user(self):
-        create_password = onetimepad.encrypt(self.passw.get(), ENTRY)
-        encrypt_password = onetimepad.encrypt(create_password, ENTRY)
+        encrypt_password = cryptocode.encrypt(self.passw.get(), ENTRY)
+        # create_password = onetimepad.encrypt(self.passw.get(), ENTRY)
+        # encrypt_password = onetimepad.encrypt(create_password, ENTRY)
         if self.name.get() == "" or self.passw.get() == "" or self.email.get() == "":
             mb.showerror(title="Entry Error", message="Some of the fields are empty, \ntry again.")
         else:
@@ -374,8 +375,9 @@ class EditUser(tk.Frame):
     def update_user(self):
         password = self.passw.get()
         if password == self.conf_pass.get():
-            create_password = onetimepad.encrypt(password, ENTRY)
-            encrypt_password = onetimepad.encrypt(create_password, ENTRY)
+            encrypt_password = cryptocode.encrypt(password, ENTRY)
+            # create_password = onetimepad.encrypt(password, ENTRY)
+            # encrypt_password = onetimepad.encrypt(create_password, ENTRY)
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
             update_user.level = self.comp.get()
@@ -486,7 +488,6 @@ class editDocument(tk.Frame):
         self.name = StringVar()
         self.ref = StringVar()
         self.issue = StringVar()
-        self.location = StringVar()
         self.time = StringVar()
         self.data = []
 
@@ -506,17 +507,14 @@ class editDocument(tk.Frame):
         Label(self.canvas_back, text="Document Name ", bg="#E9DAC1").place(x=50, y=100)
         Label(self.canvas_back, text="Document reference ", bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Issue number ", bg="#E9DAC1").place(x=50, y=180)
-        Label(self.canvas_back, text="Document Location", bg="#E9DAC1").place(x=50, y=220)
 
         Entry(self.canvas_back, textvariable=self.name, width=25).place(x=210, y=100)
         Entry(self.canvas_back, textvariable=self.ref, width=25).place(x=210, y=140)
         Entry(self.canvas_back, textvariable=self.issue, width=25).place(x=210, y=180)
-        Entry(self.canvas_back, textvariable=self.location, width=35).place(x=210, y=220)
 
         self.name.set(ref["name"])
         self.ref.set(ref_num)
         self.issue.set(ref["issue"])
-        self.location.set(ref["location"])
 
         Button(self.canvas_back, text="Save Changes", command=self.save, width=12, bg='#54BAB9').place(x=550, y=450)
 

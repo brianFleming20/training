@@ -28,8 +28,8 @@ class AdminTests(unittest.TestCase):
 
     def test_record_training(self):
         print("Record new training")
-        root = AUT.RecordTraining()
-        AU.RecordTraining.set_up_for_test(AU, 3)
+
+        # AU.RecordTraining.set_up_for_test(AU, 3)
 
         AU.RecordTraining.register_training(AU)
 

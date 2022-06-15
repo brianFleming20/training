@@ -2,7 +2,8 @@ import json
 import os
 from tkinter import messagebox as mb
 import pandas as pd
-import onetimepad
+# import onetimepad
+import cryptocode
 import csv
 
 KEY = "ByH1KHdo7y30I6aN"
@@ -10,9 +11,9 @@ class data_store():
 
     def __init__(self):
         self.data = []
-        self.path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
+        # self.path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
         self.data_path = os.path.join("C:\\Users", os.getenv('username'),
-                                      "Deltex Medical\\Training - Documents\\Training Database\\Files backup\\Docs", "")
+                                      "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
         self.json_path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training", "")
         self.check_directories()
 
@@ -217,7 +218,7 @@ class data_store():
             return True
 
     def get_login_data(self):
-        raw_path = os.path.join(self.path, "Login.csv")
+        raw_path = os.path.join(self.data_path, "Login.csv")
         try:
             data = pd.read_csv(raw_path)
         except FileNotFoundError:
@@ -229,16 +230,15 @@ class data_store():
             return output_data
 
     def save_data(self, name, password, admin):
-        raw_path = os.path.join(self.path, "Login.csv")
+        raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
         output_data = data.to_dict(orient="records")
-        encrypt = onetimepad.encrypt(password,KEY)
-        encrypt2 = onetimepad.encrypt(encrypt,KEY)
+        encrypt2 = cryptocode.encrypt(password, KEY)
+        # encrypt = onetimepad.encrypt(password,KEY)
+        # encrypt2 = onetimepad.encrypt(encrypt,KEY)
         for user in output_data:
             if user["Name"] == name:
-                print(f"{user['Name']}")
                 return False
-
         print("new person")
         new_data = {
             "Name": name,
@@ -251,7 +251,7 @@ class data_store():
         return True
 
     def login_delete_user(self, name):
-        raw_path = os.path.join(self.path, "Login.csv")
+        raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
         indexNames = data[data['Name'] == name].index
         data.drop(indexNames, inplace=True)
@@ -260,12 +260,14 @@ class data_store():
 
 
     def update_user(self, name, password, admin):
-        raw_path = os.path.join(self.path, "Login.csv")
+        raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
-        encrypt_password = onetimepad.encrypt(password, KEY)
-        encrypt2 = onetimepad.encrypt(encrypt_password, KEY)
+        encrypt2 = cryptocode.encrypt(password, KEY)
+        # encrypt_password = onetimepad.encrypt(password, KEY)
+        # encrypt2 = onetimepad.encrypt(encrypt_password, KEY)
         data.loc[data['Name'] == name, 'Password'] = encrypt2
         data.loc[data['Name'] == name, 'admin'] = admin
+
         return encrypt2
 
 
@@ -274,21 +276,21 @@ class data_store():
         '''
         Check that the directories exist, if not create them        
         '''
-        if not os.path.isdir(self.path):
+        if not os.path.isdir(self.json_path):
             try:
-                os.makedirs(self.path, 0o777)
+                os.makedirs(self.json_path, 0o777)
             except OSError:
-                print(" %s already exists." % self.path)
+                print(" %s already exists." % self.json_path)
             else:
-                print("Successfully created the directory %s" % self.path)
+                print("Successfully created the directory %s" % self.json_path)
 
-        if not os.path.isdir(self.path):
+        if not os.path.isdir(self.json_path):
             try:
-                os.makedirs(self.path, 0o777)
+                os.makedirs(self.json_path, 0o777)
             except OSError:
-                print(" %s failed" % self.path)
+                print(" %s failed" % self.json_path)
             else:
-                print("Successfully created the directory %s" % self.path)
+                print("Successfully created the directory %s" % self.json_path)
 
     def reset_files(self):
         pass
@@ -300,7 +302,7 @@ class data_store():
         #     os.remove(train_path)
 
     def get_user_admin_status(self, name):
-        raw_path = os.path.join(self.path, "Login.csv")
+        raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
         output_data = data.to_dict(orient="records")
         for item in output_data:

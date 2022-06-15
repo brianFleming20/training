@@ -15,6 +15,12 @@ include the email template files and the onetimepad library from venv/lib/site-p
 
 #         s = ttk.Separator(self.root, orient=VERTICAL)
 #         s.grid(row=0, column=1, sticky=(N,S))
+#
+# To convert to an .exe file user auto py 2 exe
+#   Include the text files that are used for the email templetes
+#   Include the following folders for the encrypting process
+#   'cryptocode' in the venv/Lib/site-packages/
+#   'Cryptodome' in the venv/Lib/site-packages/
 
 '''
 
@@ -24,7 +30,7 @@ import Screen as SC
 import DisplayScreens as DSP
 import AdminUser as AU
 
-Training_Version = 'Deltex Medical : Training Register V 1'
+Training_Version = 'Deltex Medical : Training Register V 2'
 w = 1000  # window width
 h = 700  # window height
 LARGE_FONT = ("Verdana", 14)
