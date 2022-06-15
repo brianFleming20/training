@@ -11,7 +11,8 @@ class data_store():
     def __init__(self):
         self.data = []
         self.path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
-        # self.data_path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\", "")
+        self.data_path = os.path.join("C:\\Users", os.getenv('username'),
+                                      "Deltex Medical\\Training - Documents\\Training Database\\Files backup\\Docs", "")
         self.json_path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training", "")
         self.check_directories()
 
@@ -158,7 +159,6 @@ class data_store():
                             self.dump_training_data(train_data)
 
     def update_training_file(self, training_file, doc_ref):
-        print(training_file)
         result = self.add_training_to_file(training_file,doc_ref)
         return result
 
@@ -210,7 +210,7 @@ class data_store():
 
     def add_training_to_file(self, training_data, ref):
         file_loc = f"{ref}.csv"
-        raw_path = os.path.join(self.path, file_loc)
+        raw_path = os.path.join(self.data_path, file_loc)
         with open(raw_path, 'a', newline='') as file:
             writer = csv.writer(file, delimiter=',')
             writer.writerow(training_data)

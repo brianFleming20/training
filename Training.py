@@ -24,20 +24,31 @@ class Training:
         dt = dt.replace(year=dt.year + 1)
         return dt.strftime('%d-%m-%y')
 
-    def get_email_date(self, review_date):
+    def convert_date(self, review_date):
         if type(review_date) == str:
             if review_date[2:3] == "-":
                 date_convert = DT.datetime.strptime(review_date, "%d-%m-%Y")
             else:
                 date_convert = DT.datetime.strptime(review_date, "%d/%m/%Y")
+            return date_convert
+        else:
+            return DT.datetime.now()
 
-            email_date = date_convert - DT.timedelta(days=7)
-            present = DT.datetime.now()
-            if email_date < present:
-                return True
-            else:
-                return False
+    def get_email_date(self, review_date):
+        email_date = self.convert_date(review_date) - DT.timedelta(days=-7)
+        present = DT.datetime.now()
+        if email_date > present:
+            return True
+        else:
+            return False
 
+    def get_overdue_train(self, review_date):
+        overdue = self.convert_date(review_date)
+        limit = DT.datetime.now() - DT.timedelta(30)
+        if overdue < limit:
+            return True
+        else:
+            return False
 
     def get_documents(self):
         docs = DS.get_all_documents()
@@ -90,7 +101,7 @@ class Training:
                                       review=self.get_review_date(), level=level, logger=self.get_logged_in_user(),
                                       note=note)
             training_to_file = [doc_data['issue'], user_data['name'], level, user_data['trainer'], self.get_date_now(),
-                                self.get_review_date(), "System", self.get_date_now(), note]
+                                self.get_review_date(), self.get_logged_in_user(), self.get_date_now(), note]
             DS.add_training_to_user(training)
             result = DS.update_training_file(training_to_file, document)
             return result

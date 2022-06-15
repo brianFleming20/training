@@ -199,8 +199,6 @@ class main_screen(tk.Frame):
             self.form_data.insert(7,trainer)
             self.doc_trainer.selection_set(idx)
             note = self.doc_note.get(idx)
-            if note == "Expired":
-                self.doc_no.config( bg="#F24C4C")
             self.form_data.insert(8,note)
             self.doc_note.selection_set(idx)
             INT.provide_interface(self.form_data)
@@ -210,9 +208,7 @@ class main_screen(tk.Frame):
             self.show_list_data()
       
     def show_list_data(self):
-        scrollbar = Scrollbar(self.control)
-        scrollbar.pack(side=RIGHT, fill=Y)
-        self.doc_no = Listbox(self.canvas_lists ,exportselection=False, yscrollcommand=scrollbar.set)
+        self.doc_no = Listbox(self.canvas_lists ,exportselection=False)
         self.doc_no.place(x=5, y=250)
         self.doc_no.config(height=19, width=15, bg="#E9DAC1")
 
@@ -245,10 +241,10 @@ class main_screen(tk.Frame):
         self.doc_trainer.place(x=580, y=250)
         self.doc_trainer.config(height=19, width=12, bg="#E9DAC1")
 
-        self.doc_note = Listbox(self.canvas_lists,exportselection=False, yscrollcommand=scrollbar.set)
+        self.doc_note = Listbox(self.canvas_lists,exportselection=False)
         self.doc_note.place(x=658, y=250)
         self.doc_note.config(height=19, width=20, bg="#E9DAC1")
-        scrollbar.config(command=self.doc_note.yview)
+
 
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
         self.doc_users.bind('<<ListboxSelect>>', self.onselect)
@@ -257,8 +253,7 @@ class main_screen(tk.Frame):
      
 
     def fill_users_lists(self,name):
-        date = datetime.now() + timedelta(days=4)
-        time_left = str(date - datetime.now())[:2]
+        index = 0
         training_events = TR.get_all_training()
         for user,event in training_events.items():
             if user == name:
@@ -274,8 +269,11 @@ class main_screen(tk.Frame):
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
                     self.doc_trainer.insert(END, user_data['trainer'])
-                    due = items['review_date']
-                    # If the review date is less than today's date, send and email
+                    if TR.get_email_date(items['review_date']):
+                        self.doc_no.itemconfig(index,{"bg":"#A0D995"})
+                    if TR.get_overdue_train(items['review_date']):
+                        self.doc_no.itemconfig(index,{"bg":"#F24C4C"})
+                    index += 1
 
 
     def fill_docs_list(self, doc):
