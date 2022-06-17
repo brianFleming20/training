@@ -25,25 +25,36 @@ class Training:
         return dt.strftime('%d-%m-%y')
 
     def convert_date(self, review):
+        review_date = self.check_date_format(review)
+        if review_date[2:3] == "-":
+            date_convert = DT.datetime.strptime(review_date, "%d-%m-%Y")
+        else:
+            date_convert = DT.datetime.strptime(review_date, "%d/%m/%Y")
+        return date_convert
+
+    def check_date_format(self, review):
         if type(review) == str:
             if len(review) < 9:
                 mon = review[:6]
                 year = review[6:]
-                review_date = f"{mon}20{year}"
+                return f"{mon}20{year}"
             else:
-                review_date = review
-            if review_date[2:3] == "-":
-                date_convert = DT.datetime.strptime(review_date, "%d-%m-%Y")
-            else:
-                date_convert = DT.datetime.strptime(review_date, "%d/%m/%Y")
-            return date_convert
+                return review
         else:
-            return DT.datetime.now()
+            return DT.datetime.strftime(DT.datetime.now(), "%d/%m/%Y")
 
     def get_email_date(self, review_date):
-        email_date = self.convert_date(review_date) - DT.timedelta(days=-7)
+        check = self.check_date_format(review_date)
+        email_date = self.convert_date(check) - DT.timedelta(days=-7)
         present = DT.datetime.now()
         if email_date > present:
+            return True
+        else:
+            return False
+
+    def get_trained(self, review):
+        review_date = self.check_date_format(review)
+        if self.convert_date(review_date) > DT.datetime.now():
             return True
         else:
             return False

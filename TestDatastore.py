@@ -1,11 +1,11 @@
 import unittest
 import DataStore
-# import onetimepad
 import Training
 import Login
 import Documents
 import User
 import cryptocode
+import os
 
 DS = DataStore.data_store()
 TR = Training.Training()
@@ -33,7 +33,7 @@ class DatastoreTests(unittest.TestCase):
         password = "password"
         admin = 1
 
-        expected = True
+        expected = False
 
         result = DS.save_data(name,password,admin)
 
@@ -96,15 +96,24 @@ class DatastoreTests(unittest.TestCase):
     def test_send_data_to_file(self):
         print("Send data to csv file")
 
-        document = MD.MakeDoc("Printing",1,"9050-1212")
+        document = MD.MakeDoc("Compressor Operation",1,"9070-2004")
         user = U.User("Brian Fleming",False,"my-email@gmail.com")
         #
         # TR.register_trained(document,user)
 
-        training_to_file = [document.issue_number, user.name, 2, "Hendryk", TR.get_date_now(),
+        training_to_file = [document.issue_number, user.name, 3, "Hendryk", TR.get_date_now(),
                             TR.get_review_date(), "System", TR.get_date_now(), "no status"]
 
-        DS.update_training_file(training_to_file, document.reference_number)
+        # result1 = DS.update_training_file(training_to_file, document.reference_number)
+
+
+
+
+
+    def test_copy_system_files(self):
+        print("Test transfer system files to host computer")
+
+        json_fake = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Test", "")
 
 
 

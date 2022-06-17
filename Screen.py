@@ -91,8 +91,9 @@ class main_screen(tk.Frame):
         btn = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
         btn.place(x=630, y=180)
         self.search_document.set("----------------")
-        Label(self.canvas_top,text="Needs training soon", bg="#A0D995").place(x=10, y=160)
-        Label(self.canvas_top,text="Overdue training     ", bg="#F24C4C").place(x=10, y=183)
+        Label(self.canvas_top,text="Needs training soon", bg="#3AB0FF").place(x=10, y=160)
+        Label(self.canvas_top,text="Overdue training      ", bg="#F24C4C").place(x=10, y=183)
+        Label(self.canvas_top,text="Trained                      ", bg="#A0D995").place(x=10, y=137)
         admin = TR.get_user_admin()
         if admin:
             self.admin.config(state=NORMAL)
@@ -148,7 +149,7 @@ class main_screen(tk.Frame):
         mb.showinfo(
                 title="New Selection",
                 message=f"Selected option: {selection}"
-    )
+                )
 
 
     def display_user(self):
@@ -273,10 +274,12 @@ class main_screen(tk.Frame):
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
                     self.doc_trainer.insert(END, user_data['trainer'])
-                    if TR.get_email_date(items['review_date']):
-                        self.doc_no.itemconfig(index,{"bg":"#A0D995"})
+                    if TR.get_email_date(items['review_date']): # error
+                        self.doc_no.itemconfig(index,{"bg":"#3AB0FF"})
                     if TR.get_overdue_train(items['review_date']):
                         self.doc_no.itemconfig(index,{"bg":"#F24C4C"})
+                    if TR.get_trained(items['review_date']):
+                        self.doc_no.itemconfig(index,{"bg":"#A0D995"})
                     index += 1
 
 
@@ -297,15 +300,12 @@ class main_screen(tk.Frame):
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
                     self.doc_trainer.insert(END, user_data['trainer'])
-                    due = items['review_date']
-                    # if TR.get_email_date(due):
-                    #
-                    #     EM.notify_training(user, ref)
-                    #     EM.send_copy_to_trainer(user, ref)
                     if TR.get_email_date(items['review_date']):
-                        self.doc_no.itemconfig(index,{"bg":"#A0D995"})
+                        self.doc_no.itemconfig(index, {"bg": "#3AB0FF"})
                     if TR.get_overdue_train(items['review_date']):
-                        self.doc_no.itemconfig(index,{"bg":"#F24C4C"})
+                        self.doc_no.itemconfig(index, {"bg": "#F24C4C"})
+                    if TR.get_trained(items['review_date']):
+                        self.doc_no.itemconfig(index, {"bg":"#A0D995"})
                     index += 1
 
 

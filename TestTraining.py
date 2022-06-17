@@ -175,6 +175,40 @@ class TrainingTests(unittest.TestCase):
 
         self.assertEqual(expected,result)
 
+    def test_review_date_formats(self):
+        print("Test review different date formats")
+        date1 = "15-06-2022"
+        date2 = "15-06-22"
+        date3 = "15/06/2022"
+        date4 = "15/06/22"
+        date5 = DT.datetime.now()
+        date6 = 0.0
+
+        expected = True
+
+        check1 = TR.check_date_format(date1)
+        result1 = TR.get_email_date(check1)
+        self.assertEqual(expected, result1)
+
+        check2 = TR.check_date_format(date2)
+        result2 = TR.get_email_date(check2)
+        self.assertEqual(expected,result2)
+
+        check3 = TR.check_date_format(date3)
+        result3 = TR.get_email_date(check3)
+        self.assertEqual(expected, result3)
+
+        check4 = TR.check_date_format(date4)
+        result4 = TR.get_email_date(check4)
+        self.assertEqual(expected,result4)
+
+        check5 = TR.check_date_format(date5)
+        result5 = TR.get_email_date(check5)
+        self.assertEqual(expected,result5)
+
+        check6 = TR.check_date_format(date6)
+        result6 = TR.get_email_date(check6)
+        self.assertEqual(expected,result6)
 
 
 if __name__ == '__main__':

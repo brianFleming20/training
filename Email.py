@@ -6,6 +6,7 @@ Send an email to the user on training review date reached or near.
 
 import Training
 import smtplib
+from tkinter import messagebox as mb
 
 TR = Training.Training()
 
@@ -21,6 +22,9 @@ class send_emails():
         else:
             trainer = "Trainer not stated"
         email = the_user['email']
+        if not email.contains("@"):
+            mb.showerror(title="Email address error",message=f"Email address {email} does not include @.")
+            return False
         for user, event in TR.get_all_training().items():
             for ref, items in event.items():
                 if the_ref == ref:
@@ -80,12 +84,15 @@ class send_emails():
                     else:
                         review = TR.get_date_now()
                     doc_name = items['name']
-        print(f" > {trainer} < ")
+
         if trainer == " not stated" or trainer == 0.0 or trainer is None:
             trainer = "Lee Lindfield"
         if type(trainer) == str:
             user2 = TR.get_user(trainer)
-            trainer_email = user2['email']
+            if user2['email'].contains("@"):
+                trainer_email = user2['email']
+            else:
+                trainer_email = "lee.lindfield@deltexmedical.com"
         else:
             trainer_email = "lee.lindfield@deltexmedical.com"
         filepath = "training_email.txt"
@@ -103,15 +110,18 @@ class send_emails():
             return False
 
     def send_email(self, content,recipetent):
+
         my_email = "deltex.medical3mail@gmail.com"
-        my_password = "Hf4aubkDFz6yHjRS"
+        # my_password = "Hf4aubkDFz6yHjRS"
+        app_password= "yicacircbaoqimgb"
         print(content)
-        # with smtplib.SMTP("smtp.gmail.com") as connection:
-        #     connection.starttls()
-        #     connection.login(user=my_email, password=my_password)
-        #     connection.sendmail(
-        #         from_addr=my_email,
-        #         #to_addrs="lee.lindfield@deltexmedical.com",
-        #         to_addrs="brian.fleming@deltexmedical.com",
-        #         msg=f"Subject:Deltex Medical Training\n\n{content}"
-        #     )
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(user=my_email, password=app_password)
+            connection.sendmail(
+                from_addr=my_email,
+                #to_addrs="lee.lindfield@deltexmedical.com",
+                # to_addrs="brian.fleming@deltexmedical.com",
+                to_addrs=recipetent,
+                msg=f"Subject:Deltex Medical Training\n\n{content}"
+            )

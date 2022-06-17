@@ -1,20 +1,30 @@
 import json
 import os
+import webbrowser
 from tkinter import messagebox as mb
 import pandas as pd
-# import onetimepad
+import time
 import cryptocode
 import csv
 
 KEY = "ByH1KHdo7y30I6aN"
+USERNAME = "brian.fleming@dtxmedical.onmicrosoft.com"
+PASSWORD = "Manakin88%G"
+
+
 class data_store():
 
     def __init__(self):
         self.data = []
-        # self.path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
+        # self.data_path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
         self.data_path = os.path.join("C:\\Users", os.getenv('username'),
                                       "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
-        self.json_path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training", "")
+        self.json_path = os.path.join("C:\\Users", os.getenv('username'),
+                                      "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Registry", "")
+        self.json_fake = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Test", "")
+
+
+        self.download = os.path.join("C:\\Users", os.getenv('username'), "Downloads", "")
         self.check_directories()
 
     def write_user(self, user):
@@ -58,7 +68,7 @@ class data_store():
         if users == None:
             self.write_user(usr_obj)
         else:
-            for usr,value in users.items():
+            for usr, value in users.items():
 
                 if usr == usr_obj.name:
                     return value
@@ -155,12 +165,12 @@ class data_store():
                 train_data = json.load(train_file)
                 for the_user in train_data:
                     if training_obj.username == the_user:
-                        for key,val in the_values.items():
+                        for key, val in the_values.items():
                             train_data[the_user][key] = val
                             self.dump_training_data(train_data)
 
     def update_training_file(self, training_file, doc_ref):
-        result = self.add_training_to_file(training_file,doc_ref)
+        result = self.add_training_to_file(training_file, doc_ref)
         return result
 
     def create_user_dict(self, user):
@@ -212,17 +222,20 @@ class data_store():
     def add_training_to_file(self, training_data, ref):
         file_loc = f"{ref}.csv"
         raw_path = os.path.join(self.data_path, file_loc)
-        with open(raw_path, 'a', newline='') as file:
-            writer = csv.writer(file, delimiter=',')
-            writer.writerow(training_data)
-            return True
+        try:
+            with open(raw_path, 'a', newline='') as file:
+                writer = csv.writer(file, delimiter=',')
+                writer.writerow(training_data)
+                return True
+        except FileNotFoundError:
+            return False
 
     def get_login_data(self):
         raw_path = os.path.join(self.data_path, "Login.csv")
         try:
             data = pd.read_csv(raw_path)
         except FileNotFoundError:
-            title_names = ["Name", "Password","Admin"]
+            title_names = ["Name", "Password", "Admin"]
             create = pd.DataFrame(columns=title_names)
             create.to_csv(raw_path, index=False)
         else:
@@ -234,8 +247,6 @@ class data_store():
         data = pd.read_csv(raw_path)
         output_data = data.to_dict(orient="records")
         encrypt2 = cryptocode.encrypt(password, KEY)
-        # encrypt = onetimepad.encrypt(password,KEY)
-        # encrypt2 = onetimepad.encrypt(encrypt,KEY)
         for user in output_data:
             if user["Name"] == name:
                 return False
@@ -244,7 +255,7 @@ class data_store():
             "Name": name,
             "Password": encrypt2,
             "admin": admin,
-            }
+        }
         output_data.insert(0, new_data)
         df = pd.DataFrame(output_data)
         df.to_csv(raw_path, index=False)
@@ -258,7 +269,6 @@ class data_store():
         data.to_csv(raw_path, index=False)
         return True
 
-
     def update_user(self, name, password, admin):
         raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
@@ -270,8 +280,6 @@ class data_store():
 
         return encrypt2
 
-
-
     def check_directories(self):
         '''
         Check that the directories exist, if not create them        
@@ -280,17 +288,40 @@ class data_store():
             try:
                 os.makedirs(self.json_path, 0o777)
             except OSError:
-                print(" %s already exists." % self.json_path)
-            else:
-                print("Successfully created the directory %s" % self.json_path)
+                pass
 
-        if not os.path.isdir(self.json_path):
-            try:
-                os.makedirs(self.json_path, 0o777)
-            except OSError:
-                print(" %s failed" % self.json_path)
             else:
-                print("Successfully created the directory %s" % self.json_path)
+                mb.showinfo(title="Database Info",
+                            message=f"Successfully created the directory \n{self.json_path}\nImporting system files. Please wait.")
+
+                # path = "https://dtxmedical.sharepoint.com/:u:/s/SharedNoSecurity/Ef_r7mG-GqtJrIVHHvImXBkBqJKvKQwgvnc-ru3kjdphlQ?e=Mhy3Cy&download=1"
+                # webbrowser.open(path)
+                # path1 = "https://dtxmedical.sharepoint.com/:u:/s/SharedNoSecurity/ERwEjASwsM5IpkwZYb8tdXMBe48uCXrACsyOoxnuceCaHQ?e=BeCWN5&download=1"
+                # webbrowser.open(path1)
+                # path2 = "https://dtxmedical.sharepoint.com/:u:/s/SharedNoSecurity/EXx2VMohW-dJp1hrAuctxsMBy4JMvZMLWfYyTQihM4VFKA?e=gQz0Sw&download=1"
+                # webbrowser.open(path2)
+                # time.sleep(5)
+                #
+                # locations = ['doc.json','file.user','train.json']
+                # for loc in locations:
+                #     originalPath = os.path.abspath(self.download + loc)
+                #     destinationPath = os.path.abspath(self.json_fake + loc)
+                #     os.renames(originalPath, destinationPath)
+                # time.sleep(3)
+                # try:
+                #     os.system("taskkill / IMmsedge.exe / F")
+                # except:
+                #     pass
+                # try:
+                #     os.system("taskkill /im firefox.exe /f")
+                # except:
+                #     pass
+                # try:
+                #     os.system("taskkill /im chrome.exe /f")
+                # except:
+                #     pass
+
+
 
     def reset_files(self):
         pass

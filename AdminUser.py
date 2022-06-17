@@ -61,14 +61,12 @@ class AddNewUser(tk.Frame):
                                                                                                              y=160)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="New User").place(x=10, y=15)
-        Label(self.canvas_srdis, text="Search").place(x=250, y=15)
-        search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
-        search.place(x=300, y=15)
+
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
         Label(self.canvas_back, text="Name ", bg="#E9DAC1").place(x=50, y=100)
         Label(self.canvas_back, text="New Password ", bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50, y=180)
-        Label(self.canvas_back, text="Email address", width=30,bg="#E9DAC1").place(x=50, y=220)
+        Label(self.canvas_back, text="Email address",bg="#E9DAC1").place(x=50, y=250)
 
         name = Entry(self.canvas_back, textvariable=self.name, width=25)
         name.place(x=210, y=100)
@@ -119,16 +117,8 @@ class AddNewUser(tk.Frame):
     def show_users(self):
         self.control.show_frame(ShowUsers)
 
-    # def add_document(self):
-    #     filename = filedialog.askopenfilename(initialdir="./Downloads",
-    #     title="Select Document",filetypes = (("pdf files","*.pdf"),("word files","*.docx")))
-    #     print(filename)
-    #     self.document.set(filename)
-
     def add_user(self):
         encrypt_password = cryptocode.encrypt(self.passw.get(), ENTRY)
-        # create_password = onetimepad.encrypt(self.passw.get(), ENTRY)
-        # encrypt_password = onetimepad.encrypt(create_password, ENTRY)
         if self.name.get() == "" or self.passw.get() == "" or self.email.get() == "":
             mb.showerror(title="Entry Error", message="Some of the fields are empty, \ntry again.")
         else:
@@ -181,15 +171,11 @@ class ShowUsers(tk.Frame):
                                                                                                                y=220)
         Button(self.canvas_btndis, text="Add Document", command=self.add_document, width=12, bg='#54BAB9').place(x=20,
                                                                                                                  y=300)
-        Button(self.canvas_btndis, text="Edit Document", command=self.edit_doc, width=12, bg='#54BAB9').place(x=20,
-                                                                                                              y=380)
         Button(self.canvas_btndis, text="Record Training", command=self.training, width=12, bg='#54BAB9').place(x=20,
-                                                                                                                y=460)
+                                                                                                                y=380)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=550)
         Label(self.canvas_srdis, text="New User").place(x=10, y=15)
-        Label(self.canvas_srdis, text="Search").place(x=250, y=15)
-        search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
-        search.place(x=300, y=15)
+
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
         Label(self.canvas_lists, text="Trained Users").place(x=20, y=18)
         Label(self.canvas_lists, text="Documents").place(x=280, y=18)
@@ -223,6 +209,7 @@ class ShowUsers(tk.Frame):
 
     def edit_doc(self, event):
         # show doc details for edit
+
         idx = int(self.documents.curselection()[0])
         num = self.documents.get(idx)
         INT.provide_interface([num])
@@ -252,11 +239,11 @@ class ShowUsers(tk.Frame):
     def destroy_window(self):
         self.window.destroy()
 
-    def edit_user(self):
+    def edit_user(self, event):
         try:
             self.index = int(self.users.curselection()[0])
         except IndexError:
-            mb.showerror(title="Selection Error", message="Please select a row.")
+            mb.showerror(title="Selection Error", message="Please select a user.")
             self.refresh_window()
         else:
             data_user = self.users.get(self.index)
@@ -265,14 +252,23 @@ class ShowUsers(tk.Frame):
             self.control.show_frame(EditUser)
 
     def delete_user(self):
-        self.index = int(self.users.curselection()[0])
-        user = self.users.get(self.index)
-        # AS.user_left(user) use in training
-        result = TR.delete_user(user)
-        if result:
-            self.control.show_frame(ShowUsers)
+        try:
+            self.index = int(self.users.curselection()[0])
+        except IndexError:
+            mb.showerror(title="Selection Error", message="Please select a user.")
+            self.refresh_window()
         else:
-            mb.showerror(title="Selection Error", message="Please select a row.")
+            user = self.users.get(self.index)
+            if mb.askyesno(title="Delete User",message=f"Are you sure you want to remove \n{user} \nfrom the system?"):
+
+                # AS.user_left(user) use in training
+                result = TR.delete_user(user)
+                if result:
+                    self.control.show_frame(ShowUsers)
+                else:
+                    mb.showerror(title="Selection Error", message="Please select a user.")
+            else:
+                pass
 
 
 class EditUser(tk.Frame):
@@ -351,7 +347,7 @@ class EditUser(tk.Frame):
         else:
             mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries,"
                                                      "\nPlease complete..")
-        btn6 = Button(self.canvas_back, text="Update user", command=self.update, width=14)
+        btn6 = Button(self.canvas_back, text="Update user", command=self.update, width=14,  bg='#54BAB9')
         btn6.place(x=400, y=520)
 
     def return_to_home(self):
@@ -376,8 +372,6 @@ class EditUser(tk.Frame):
         password = self.passw.get()
         if password == self.conf_pass.get():
             encrypt_password = cryptocode.encrypt(password, ENTRY)
-            # create_password = onetimepad.encrypt(password, ENTRY)
-            # encrypt_password = onetimepad.encrypt(create_password, ENTRY)
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
             update_user.level = self.comp.get()
@@ -461,7 +455,7 @@ class addNewDocument(tk.Frame):
         self.control.show_frame(SC.main_screen)
 
     def documents(self):
-        self.refresh_window()
+        self.control.show_frame(ShowUsers)
 
     def add_new_document(self):
         if self.name.get() == "" or self.doc_issue.get() == "" or self.doc_reference.get() == "":
@@ -627,5 +621,4 @@ class RecordTraining(tk.Frame):
         Tk.update(self)
         self.fill_form()
 
-    def set_up_for_test(self, cb):
-        self.cb.set(cb)
+

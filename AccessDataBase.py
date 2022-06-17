@@ -16,10 +16,11 @@ class GetExternalData:
 
     def __init__(self):
         self.path = os.path.join("C:\\Users", os.getenv('username'),
-                                 "Deltex Medical\\Training - Documents\\Training Database\\Files\\Docs", "")
+                                 "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
         self.path_doc = os.path.join("C:\\Users", os.getenv('username'),
-                                    "Deltex Medical\\Training - Documents\\Training Database\\Files", "")
-        self.path_doc_names = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training", "")
+                                    "Deltex Medical\Training - Documents\Training Database\Files", "")
+        self.path_doc_json = os.path.join("C:\\Users", os.getenv('username'),
+                                           "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Registry", "")
         self.is_trainer = False
         self.doc_names = None
 
@@ -84,8 +85,9 @@ class GetExternalData:
                 self.is_trainer = False
 
     def get_user_info(self):
-        path = os.path.join(self.path, "train.json")
+        path = os.path.join(self.path_doc_json, "train.json")
         if os.path.exists(path):
+            pass
             os.remove(path)
         raw_path = os.path.join(self.path_doc, "TrainingDocs.csv")
         self.doc_names = pd.read_csv(raw_path)
@@ -94,4 +96,5 @@ class GetExternalData:
             if files[:5] == "Login":
                 pass
             else:
+                pass
                 self.search_data(data, file)

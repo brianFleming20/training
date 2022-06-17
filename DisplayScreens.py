@@ -277,7 +277,7 @@ class show_event_window(tk.Frame):
         self.check_for_email()
 
     def check_for_email(self):
-        mb.showinfo(title="Email", message="Email function disabled..")
+        # mb.showinfo(title="Email", message="Email function disabled..")
         sent = False
         text_area = tk.Text(self.canvas_back, height=25, width=85)
         text_area.place(x=50, y=100)
@@ -299,9 +299,8 @@ class show_event_window(tk.Frame):
             return False
 
     def generate_email(self, name, ref):
-        pass
-        ##mb.showinfo(title="Email", message="Email function disabled..")
-        # EM.notify_training(name,ref)
+
+        EM.notify_training(name,ref)
         # EM.send_copy_to_trainer(name,ref)
 
 

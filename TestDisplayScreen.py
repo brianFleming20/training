@@ -13,7 +13,6 @@ class DisplayScreenTest(unittest.TestCase):
         print(f"overdue email {user} : {ref}")
 
     def setUp(self):
-
         self.parent = tk.Tk()
         self.canvas_back = tk.Canvas(self.parent, width=120, height=630)
 
