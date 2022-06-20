@@ -166,30 +166,30 @@ class ShowUsers(tk.Frame):
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
         Button(self.canvas_btndis, text="New User", command=self.add_new_user, width=12, bg='#54BAB9').place(x=20, y=70)
-        Button(self.canvas_btndis, text="Edit User", command=self.edit_user, width=12, bg='#54BAB9').place(x=20, y=150)
-        Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9').place(x=20,
-                                                                                                               y=220)
+
         Button(self.canvas_btndis, text="Add Document", command=self.add_document, width=12, bg='#54BAB9').place(x=20,
-                                                                                                                 y=300)
+                                                                                                                 y=150)
         Button(self.canvas_btndis, text="Record Training", command=self.training, width=12, bg='#54BAB9').place(x=20,
-                                                                                                                y=380)
+                                                                                                                y=220)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=550)
         Label(self.canvas_srdis, text="New User").place(x=10, y=15)
 
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
-        Label(self.canvas_lists, text="Trained Users").place(x=20, y=18)
-        Label(self.canvas_lists, text="Documents").place(x=280, y=18)
+        Label(self.canvas_lists, text="Click on an item to edit", font=("Courier", 14)).place(x=150, y=15)
+        Label(self.canvas_lists, text="Trained Users").place(x=20, y=48)
+        Label(self.canvas_lists, text="Documents").place(x=280, y=48)
         self.users = Listbox(self.canvas_lists, exportselection=False)
-        self.users.place(x=20, y=45)
+        self.users.place(x=20, y=85)
         self.users.config(height=20, width=20, bg="#E9DAC1")
         self.documents = Listbox(self.canvas_lists, exportselection=False)
-        self.documents.place(x=250, y=45)
+        self.documents.place(x=250, y=85)
         self.documents.config(height=20, width=45, bg="#E9DAC1")
         Button(self.canvas_lists, text="Update System", width=12, command=self.display_update,
                bg='#54BAB9').place(x=650,y=480)
 
         for no in TR.get_all_users():
             self.users.insert(END, no)
+            self.users.bind('<<ListboxSelect>>', self.edit_user)
 
         for ref, doc in TR.get_documents().items():
             self.documents.insert(END, f"{ref} - {doc['name']} - {doc['issue']}")
@@ -209,7 +209,6 @@ class ShowUsers(tk.Frame):
 
     def edit_doc(self, event):
         # show doc details for edit
-
         idx = int(self.documents.curselection()[0])
         num = self.documents.get(idx)
         INT.provide_interface([num])
@@ -240,35 +239,10 @@ class ShowUsers(tk.Frame):
         self.window.destroy()
 
     def edit_user(self, event):
-        try:
-            self.index = int(self.users.curselection()[0])
-        except IndexError:
-            mb.showerror(title="Selection Error", message="Please select a user.")
-            self.refresh_window()
-        else:
-            data_user = self.users.get(self.index)
-
-            INT.provide_interface([data_user])
-            self.control.show_frame(EditUser)
-
-    def delete_user(self):
-        try:
-            self.index = int(self.users.curselection()[0])
-        except IndexError:
-            mb.showerror(title="Selection Error", message="Please select a user.")
-            self.refresh_window()
-        else:
-            user = self.users.get(self.index)
-            if mb.askyesno(title="Delete User",message=f"Are you sure you want to remove \n{user} \nfrom the system?"):
-
-                # AS.user_left(user) use in training
-                result = TR.delete_user(user)
-                if result:
-                    self.control.show_frame(ShowUsers)
-                else:
-                    mb.showerror(title="Selection Error", message="Please select a user.")
-            else:
-                pass
+        self.index = int(self.users.curselection()[0])
+        data_user = self.users.get(self.index)
+        INT.provide_interface([data_user])
+        self.control.show_frame(EditUser)
 
 
 class EditUser(tk.Frame):
@@ -304,7 +278,9 @@ class EditUser(tk.Frame):
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
         Button(self.canvas_btndis, text="Show User", command=self.show_users, width=12, bg='#54BAB9').place(x=20, y=80)
-        Button(self.canvas_btndis, text="Add User", command=self.add_user, width=12, bg='#54BAB9').place(x=20, y=160)
+        Button(self.canvas_btndis, text="Add User", command=self.add_user, width=12, bg='#54BAB9').place(x=20, y=150)
+        Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9').place(x=20,
+                                                                                                               y=220)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Edit User").place(x=10, y=15)
         search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
@@ -358,6 +334,15 @@ class EditUser(tk.Frame):
 
     def add_user(self):
         self.control.show_frame(AddNewUser)
+
+    def delete_user(self):
+        if mb.askyesno(title="Delete User",message=f"Are you sure you want to remove \n{self.name.get()} \nfrom the system?"):
+            result = TR.delete_user(self.name.get())
+            if result:
+                self.control.show_frame(ShowUsers)
+            else:
+                mb.showerror(title="Selection Error", message="Please select a user.")
+
 
     def update_trainer(self):
         if not self.admin:
