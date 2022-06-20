@@ -369,15 +369,6 @@ class EditUser(tk.Frame):
         else:
             mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
 
-    # def change_password(self):
-    #     password = self.passw.get()
-    #     confirm_pass = self.conf_pass.get()
-    #     if password == confirm_pass:
-    #         update_user = self.update_user()
-    #         TR.save_user(update_user)
-    #     else:
-    #         mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
-
     def update(self):
         update_user = self.update_user()
         TR.save_user(update_user)

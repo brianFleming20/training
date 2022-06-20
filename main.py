@@ -31,7 +31,7 @@ import Screen as SC
 import DisplayScreens as DSP
 import AdminUser as AU
 
-Training_Version = 'Deltex Medical : Training Register V 2.1'
+Training_Version = 'Deltex Medical : Training Register V2.5'
 w = 1000  # window width
 h = 700  # window height
 LARGE_FONT = ("Verdana", 14)

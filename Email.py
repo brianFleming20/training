@@ -113,7 +113,7 @@ class send_emails():
 
         my_email = "deltex.medical3mail@gmail.com"
         # my_password = "Hf4aubkDFz6yHjRS"
-        app_password= "yicacircbaoqimgb"
+        app_password = "yicacircbaoqimgb"
         print(content)
         with smtplib.SMTP("smtp.gmail.com") as connection:
             connection.starttls()
