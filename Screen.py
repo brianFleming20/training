@@ -34,6 +34,7 @@ logged_user = []
 class main_screen(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.index = -1
         self.document_name = None
         self.items = None
         self.canvas_lists = None
@@ -125,6 +126,7 @@ class main_screen(tk.Frame):
                         trainer = TR.get_user(name)['trainer']
                     except :
                         trainer = "-"
+                    Label(self.canvas_top, text="Select a document reference number to show details", bg="#C2DED1").place(x=250, y=183)
                     if self.search_item.get() == name:
                         self.fill_users_lists(name)
                     if self.search_item.get() == trainer:
@@ -140,6 +142,7 @@ class main_screen(tk.Frame):
             pass
         else:
             self.search_document.set(doc['name'])
+            Label(self.canvas_top, text="Select a document reference number to show details", bg="#C2DED1").place(x=250, y=183)
             self.finish = True
         Tk.update(self)
         self.fill_form()
@@ -178,39 +181,46 @@ class main_screen(tk.Frame):
         w = event.widget
         self.form_data.clear()
         if self.index == -1:
-            idx = int(self.doc_no.curselection()[0])
-            self.index = idx
-            num = self.doc_no.get(idx)
-            self.form_data.insert(0,num)
-            name = self.doc_name.get(idx)
-            self.form_data.insert(1,name)
-            self.doc_name.selection_set(idx)
-            issue = self.doc_issue.get(idx)
-            self.form_data.insert(2,issue)
-            self.doc_issue.selection_set(idx)
-            user = self.doc_users.get(idx)
-            self.form_data.insert(3,user)
-            self.doc_users.selection_set(idx)
-            date_train = self.doc_train.get(idx)
-            self.form_data.insert(4,date_train)
-            self.doc_train.selection_set(idx)
-            level = self.doc_level.get(idx)
-            self.form_data.insert(5,level)
-            self.doc_level.selection_set(idx)
-            expire = self.doc_expire.get(idx)
-            self.form_data.insert(6,expire)
-            self.doc_expire.selection_set(idx)
-            trainer = self.doc_trainer.get(idx)
-            self.form_data.insert(7,trainer)
-            self.doc_trainer.selection_set(idx)
-            note = self.doc_note.get(idx)
-            self.form_data.insert(8,note)
-            self.doc_note.selection_set(idx)
-            INT.provide_interface(self.form_data)
-
+            try:
+                idx = int(self.doc_no.curselection()[0])
+                self.index = idx
+                num = self.doc_no.get(idx)
+                self.form_data.insert(0, num)
+                name = self.doc_name.get(idx)
+                self.form_data.insert(1, name)
+                self.doc_name.selection_set(idx)
+                issue = self.doc_issue.get(idx)
+                self.form_data.insert(2, issue)
+                self.doc_issue.selection_set(idx)
+                user = self.doc_users.get(idx)
+                self.form_data.insert(3, user)
+                self.doc_users.selection_set(idx)
+                date_train = self.doc_train.get(idx)
+                self.form_data.insert(4, date_train)
+                self.doc_train.selection_set(idx)
+                level = self.doc_level.get(idx)
+                self.form_data.insert(5, level)
+                self.doc_level.selection_set(idx)
+                expire = self.doc_expire.get(idx)
+                self.form_data.insert(6, expire)
+                self.doc_expire.selection_set(idx)
+                trainer = self.doc_trainer.get(idx)
+                self.form_data.insert(7, trainer)
+                self.doc_trainer.selection_set(idx)
+                note = self.doc_note.get(idx)
+                self.form_data.insert(8, note)
+                self.doc_note.selection_set(idx)
+                INT.provide_interface(self.form_data)
+            except IndexError:
+                self.show_list_data()
         else:
             self.index = -1
-            self.show_list_data()
+            if self.search_item.get() == "Choose":
+                self.show_list_data()
+                self.fill_docs_list(self.search_doc.get())
+            else:
+                self.show_list_data()
+                self.fill_users_lists(self.search_item.get())
       
     def show_list_data(self):
         self.doc_no = Listbox(self.canvas_lists ,exportselection=False)
@@ -250,11 +260,11 @@ class main_screen(tk.Frame):
         self.doc_note.place(x=658, y=250)
         self.doc_note.config(height=19, width=20, bg="#E9DAC1")
 
-
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
         self.doc_users.bind('<<ListboxSelect>>', self.onselect)
         self.doc_name.bind('<<ListboxSelect>>', self.onselect)
         self.doc_no.bind("<MouseWheel>", self.OnMouseWheel)
+
      
 
     def fill_users_lists(self,name):
@@ -274,7 +284,7 @@ class main_screen(tk.Frame):
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
                     self.doc_trainer.insert(END, user_data['trainer'])
-                    if TR.get_email_date(items['review_date']): # error
+                    if TR.get_email_date(items['review_date']):
                         self.doc_no.itemconfig(index,{"bg":"#3AB0FF"})
                     if TR.get_overdue_train(items['review_date']):
                         self.doc_no.itemconfig(index,{"bg":"#F24C4C"})

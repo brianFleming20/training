@@ -41,7 +41,6 @@ class GetExternalData:
         if length == 8:
             data.set_axis(header8, axis='columns', inplace=True)
         data = data.fillna(0)
-
         return data, file[:-4]
 
         # search via logger for full list of users and documents
