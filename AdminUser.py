@@ -12,7 +12,6 @@ import Screen as SC
 import User
 import Documents
 import AccessDataBase
-# import onetimepad
 import cryptocode
 
 TR = Training.Training()
@@ -105,11 +104,17 @@ class AddNewUser(tk.Frame):
     def get_admin(self):
         return self.admin
 
+    def get_admin_state(self):
+        return self.admin_state.get()
+
     def update_admin(self):
         if not self.administrator:
             self.administrator = 1
         else:
             self.administrator = 0
+
+    def get_administrator(self):
+        return self.administrator
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
@@ -231,6 +236,7 @@ class ShowUsers(tk.Frame):
         # set the dimensions of the screen
         # and where it is placed
         self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.window.attributes('-topmost',True)
         Label(self.window, text="Building database, \nThis may take some time.").place(x=80,y=50)
         AS.get_user_info()
         self.control.after(1000, func=self.destroy_window)
@@ -374,11 +380,12 @@ class EditUser(tk.Frame):
         TR.save_user(update_user)
         self.control.show_frame(ShowUsers)
 
-    def set_for_test(self, password, level, trainer):
+    def set_for_test(self, password, level, trainer,name):
         self.passw.set(password)
         self.conf_pass.set(password)
         self.comp.set(level)
         self.trainer.set(trainer)
+        self.name.set(name)
 
 
 class addNewDocument(tk.Frame):
@@ -442,7 +449,8 @@ class addNewDocument(tk.Frame):
             self.name.set("")
             self.doc_reference.set("")
             self.doc_issue.set(0)
-            self.refresh_window()
+            mb.showinfo(title="Document", message="New document has been added.")
+            self.control.show_frame(ShowUsers)
 
 
 class editDocument(tk.Frame):

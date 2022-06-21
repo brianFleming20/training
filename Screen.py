@@ -33,6 +33,11 @@ logged_user = []
 
 class main_screen(tk.Frame):
     def __init__(self, parent, controller):
+        #######################################################
+        # Sets up the main screen attributes and resets the   #
+        # index of the lists so the correct user information  #
+        # is collected and transferred.                       #
+        #######################################################
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
         self.index = -1
         self.document_name = None
@@ -55,9 +60,14 @@ class main_screen(tk.Frame):
         self.finish = False
 
     def refresh_window(self):
+        ##########################################################################
+        # Setting up the screen canvases for each part of the screen.            #
+        # The buttons are separated to allow the user distinguish information    #
+        # from actions available.                                                #
+        # The date is added to the screen to remind the user to check the        #
+        # training review dates.                                                 #
+        ##########################################################################
         self.index = -1
-        self.time.set(TR.get_date_now())
-        logged_in_user = TR.get_logged_in_user()
         Canvas(self,bg="#E9DAC1",width=970, height=680).place(x=10, y=10)
         self.canvas_button = Canvas(self,bg="#F7ECDE",width=120,height=630)
         self.canvas_button.place(x=840,y=10)
@@ -72,19 +82,25 @@ class main_screen(tk.Frame):
         self.admin.place(x=20,y=160)
 
         Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=240)
-
         Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
-        Label(self.canvas_search, text="Logged in -", bg="#F7ECDE").place(x=10,y=15)
-        Label(self.canvas_top, text="Search", font=("Courier", 16), bg="#C2DED1").place(x=350, y=15)
-        Label(self.canvas_top, text="Name", bg="#C2DED1").place(x=30, y=80)
-
+        #################################################################
+        # Drown down menu for the user to choose a trainee's name       #
+        #################################################################
         names = TR.get_all_users()
         self.search_item.set("Choose")
         search_name = OptionMenu(self.canvas_top, self.search_item, *names)
         search_name.place(x=80, y=80)
-
+        ##################################################################
+        # Labels for the screen and the user that is logged in.          #
+        # The document name is lined out first of all, then added when   #
+        # the document reference number is complete.                     #
+        ##################################################################
+        Label(self.canvas_search, text="Logged in -", bg="#F7ECDE").place(x=10, y=15)
+        Label(self.canvas_top, text="Search", font=("Courier", 16), bg="#C2DED1").place(x=350, y=15)
+        Label(self.canvas_top, text="Name", bg="#C2DED1").place(x=30, y=80)
         Label(self.canvas_top, text="Document Number", bg="#C2DED1").place(x=270, y=80)
         Label(self.canvas_top, text="Document Name", bg="#C2DED1").place(x=270, y=120)
+
         self.document_name = Label(self.canvas_top, textvariable=self.search_document, bg="#C2DED1")
         self.document_name.place(x=390, y=120)
         search_doc = Entry(self.canvas_top, textvariable=self.search_doc, width=25)
@@ -92,25 +108,54 @@ class main_screen(tk.Frame):
         btn = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
         btn.place(x=630, y=180)
         self.search_document.set("----------------")
+        ################################################################
+        # Sets up the keys for the document numbers to be background   #
+        # coloured according to the review date status.                #
+        # Needs training is blue, overdue training is red and          #
+        # is trained is green.                                         #
+        ################################################################
         Label(self.canvas_top,text="Needs training soon", bg="#3AB0FF").place(x=10, y=160)
         Label(self.canvas_top,text="Overdue training      ", bg="#F24C4C").place(x=10, y=183)
         Label(self.canvas_top,text="Trained                      ", bg="#A0D995").place(x=10, y=137)
+        ################################################################
+        # If the logged in user is not an administrator, then the      #
+        # admin functions button is disabled.                          #
+        # This can be extended to include trainers as well.            #
+        ################################################################
         admin = TR.get_user_admin()
         if admin:
             self.admin.config(state=NORMAL)
         else:
             self.admin.config(state=DISABLED)
+        #################################################################
+        # Getting the logged in user details and the current date.      #
+        #################################################################
+        self.time.set(TR.get_date_now())
+        logged_in_user = TR.get_logged_in_user()
         Label(self.canvas_search, text=logged_in_user, bg="#F7ECDE").place(x=80,y=15)
         Label(self.canvas_search, text="Date", bg="#F7ECDE").place(x=640, y=18)
         Label(self.canvas_search,textvariable=self.time, bg="#F7ECDE").place(x=700,y=18)
+        ##################################################################
+        # Start of the main display screen with the titles of the lists  #
+        ##################################################################
         Label(self.canvas_top, text="  Document No.       Document Name                Issue               Users           Date Trained       Level       Expire Date        Trainer                   Notes                            ").place(x=3,y=220)
         self.show_list_data()
         self.fill_form()
 
     def admin_user(self):
+        ################################################################
+        # Link to the administrator section.                           #
+        ################################################################
         self.control.show_frame(AU.ShowUsers)
 
     def search_data(self):
+        ################################################################
+        # Search for the user input from the dropdown trainee list     #
+        # If the trainee is in the training records, the lists will    #
+        # be filled in for the trainee and if the selected name is     #
+        # als a trainer to others. This gives a complete view of the   #
+        # name selected.                                               #
+        ################################################################
         self.show_list_data()
         if self.finish:
             for name,item in TR.get_all_training().items():
@@ -118,10 +163,18 @@ class main_screen(tk.Frame):
                     if self.search_doc.get() == doc[:9]:
                         self.fill_docs_list(doc)
         else:
+            #############################################################
+            # If the name is the default token of 'Choose' then no name #
+            # has been selected.                                        #
+            #############################################################
             if self.search_item.get() == "Choose":
                 mb.showerror(title="Search Error", message="Please select a name.")
             else:
                 for name,item in TR.get_all_training().items():
+                    #######################################################
+                    # This try - catch block is used if the trainers name #
+                    # is missing from the original database.              #
+                    #######################################################
                     try:
                         trainer = TR.get_user(name)['trainer']
                     except :
@@ -133,10 +186,21 @@ class main_screen(tk.Frame):
                         self.fill_users_lists(name)
 
     def fill_form(self):
+        ##############################################################
+        # When the flag of 'finish' is not set to true, the system   #
+        # will continue to search for the document reference number  #
+        # to be displayed under the document search entry area.      #
+        # The system waits for 1 second before calling to check the  #
+        # data input in the system again.                            #
+        ##############################################################
         if not self.finish:
             self.control.after(1000, func=self.check_data)
 
     def check_data(self):
+        ###############################################################
+        # The system look through the documents to find the reference #
+        # number and gets the document name back.                     #
+        ###############################################################
         doc = TR.get_a_document(self.search_doc.get())
         if not doc:
             pass
@@ -163,6 +227,9 @@ class main_screen(tk.Frame):
 
 
     def display_events(self):
+        ##########################################################
+        # Displays the training review date screen.              #
+        ##########################################################
         self.control.show_frame(DSP.show_event_window)
 
 
@@ -178,6 +245,10 @@ class main_screen(tk.Frame):
         
 
     def onselect(self,event):
+        ######################################################
+        # Receives the selected lists common index data.     #
+        # Then transfers the data to the user screen         #
+        ######################################################
         w = event.widget
         self.form_data.clear()
         if self.index == -1:
@@ -215,6 +286,11 @@ class main_screen(tk.Frame):
                 self.show_list_data()
         else:
             self.index = -1
+            #############################################################
+            # If the lists area selected when there is no data entered  #
+            # into them, does not crash, but re-displays the last       #
+            # search data.                                              #
+            #############################################################
             if self.search_item.get() == "Choose":
                 self.show_list_data()
                 self.fill_docs_list(self.search_doc.get())
@@ -223,10 +299,12 @@ class main_screen(tk.Frame):
                 self.fill_users_lists(self.search_item.get())
       
     def show_list_data(self):
+        ######################################################################
+        # Shows the data lists for the training data to be displayed .       #
+        ######################################################################
         self.doc_no = Listbox(self.canvas_lists ,exportselection=False)
         self.doc_no.place(x=5, y=250)
         self.doc_no.config(height=19, width=15, bg="#E9DAC1")
-
 
         self.doc_name = Listbox(self.canvas_lists,exportselection=False)
         self.doc_name.place(x=100, y=250)
@@ -259,7 +337,10 @@ class main_screen(tk.Frame):
         self.doc_note = Listbox(self.canvas_lists,exportselection=False)
         self.doc_note.place(x=658, y=250)
         self.doc_note.config(height=19, width=20, bg="#E9DAC1")
-
+        ###############################################################
+        # Binding the selected items to the lists and to the mouse    #
+        # wheel.                                                      #
+        ###############################################################
         self.doc_no.bind('<<ListboxSelect>>', self.onselect)
         self.doc_users.bind('<<ListboxSelect>>', self.onselect)
         self.doc_name.bind('<<ListboxSelect>>', self.onselect)

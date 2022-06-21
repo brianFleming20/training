@@ -32,6 +32,7 @@ class data_store():
         fullPath = os.path.abspath(self.json_path + '.file.user')
         if user.name == None:
             mb.showerror(title="Save User Error", message="User cannot be none.")
+            return False
         else:
             user_json = self.create_user_dict(user)
             try:
@@ -44,6 +45,7 @@ class data_store():
                 data.update(user_json)
                 with open(fullPath, 'w') as user_file:
                     json.dump(data, user_file, indent=4)
+            return True
 
     def write_user_admin(self, user, password, admin):
         self.save_data(user, password, admin)
