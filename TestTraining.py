@@ -17,8 +17,8 @@ LG = Login
 class TrainingTests(unittest.TestCase):
 
     def setUp(self):
-        self.a_user = USER.User(name="Brian", trainer="Lee", is_trainer=False)
-        self.b_user = USER.User(name="Hendryk", trainer="Lee", is_trainer=True)
+        self.a_user = USER.User(name="Brian", is_trainer=False)
+        self.b_user = USER.User(name="Hendryk", is_trainer=True)
 
     def test_time_now(self):
         print("Show time now")
@@ -109,7 +109,7 @@ class TrainingTests(unittest.TestCase):
         name = "Lee"
         password = "your password"
         admin = 1
-        user = USER.User(name="Lee", trainer=True)
+        user = USER.User(name="Lee", is_trainer=True)
 
         TR.save_user_login(user,password,admin)
 
@@ -157,7 +157,7 @@ class TrainingTests(unittest.TestCase):
     def test_get_email_date(self):
         print("Test getting email date")
 
-        review_date = "12-06-2022"
+        review_date = "21-06-2022"
 
         expected_review = True
 

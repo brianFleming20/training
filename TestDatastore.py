@@ -5,7 +5,6 @@ import Login
 import Documents
 import User
 import cryptocode
-import os
 
 DS = DataStore.data_store()
 TR = Training.Training()
@@ -105,17 +104,6 @@ class DatastoreTests(unittest.TestCase):
                             TR.get_review_date(), "System", TR.get_date_now(), "no status"]
 
         # result1 = DS.update_training_file(training_to_file, document.reference_number)
-
-
-
-
-
-    def test_copy_system_files(self):
-        print("Test transfer system files to host computer")
-
-        json_fake = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Test", "")
-
-
 
 
 

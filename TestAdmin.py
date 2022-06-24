@@ -19,9 +19,9 @@ class AdminTests(unittest.TestCase):
         self.show = AU.ShowUsers(self.parent, self.controller)
         self.edit = AU.EditUser(self.parent, self.controller)
         self.add_doc = AU.addNewDocument(self.parent, self.controller)
+        self.train = AU.RecordTraining(self.parent, self.controller)
         self.show.documents = Listbox(self.parent ,exportselection=False)
         self.show.users = Listbox(self.parent ,exportselection=False)
-        self.show.control.show_frame = Tk()
 
     def test_add_user(self):
         print("Test add new user")
@@ -31,10 +31,9 @@ class AdminTests(unittest.TestCase):
         email = "my new email"
         encrypt = "testtesttest"
         admin = True
-        trainer = "Lee"
         administrator = 1
 
-        result = self.adduser.create_user(name,password,conf_pass,email, admin,encrypt, trainer, administrator)
+        result = self.adduser.create_user(name,password,conf_pass,email, admin,encrypt, administrator)
 
         self.assertEqual(result, True)
 
@@ -76,7 +75,7 @@ class AdminTests(unittest.TestCase):
         doc = "9070-1209"
         self.show.documents.insert(END,doc)
         self.show.documents.select_set(0)
-        self.show.edit_doc("event")
+        self.show.edit_current_doc("event")
         result = IN.extend_interface()[0]
         self.assertEqual(doc,result)
 
@@ -86,7 +85,7 @@ class AdminTests(unittest.TestCase):
         user = "Jack"
         self.show.users.insert(END, user)
         self.show.users.select_set(0)
-        self.show.edit_user("event")
+        self.show.edit_current_user("event")
         result = IN.extend_interface()[0]
 
         self.assertEqual(user,result)
@@ -109,9 +108,8 @@ class AdminTests(unittest.TestCase):
         user.name = "Fred"
         user.email = "non yet"
         user.is_trainer = False
-        user.trainer = "Lee"
         expected = user.name
-        self.edit.set_for_test("password",2,"Lee",user.name)
+        self.edit.set_for_test("password",2,user.name)
         result_user = self.edit.update_user()
         result = result_user.name
         self.assertEqual(expected, result)
@@ -123,14 +121,15 @@ class AdminTests(unittest.TestCase):
         self.add_doc.doc_issue.set(5)
         self.add_doc.doc_reference.set("1234-5678")
 
-        self.add_doc.add_new_document()
+        result1 = self.add_doc.add_doc()
 
+        self.assertEqual(result1, True)
 
-    def test_register_training(self):
-        print("test register training")
-
-    def test_check_data(self):
-        print("test check data")
+        docs = TR.get_documents()
+        for doc in docs:
+            if doc == self.add_doc.doc_reference.get():
+                result2 = self.add_doc.doc_reference.get()
+                self.assertEqual(doc,result2)
 
 
 

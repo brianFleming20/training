@@ -109,15 +109,15 @@ class Training:
     def save_user_login(self, user, password, admin):
         DS.write_user_admin(user.name, password, admin)
 
-    def register_trained(self, document, user, level, note):
+    def register_trained(self, document, user, level,trainer, note):
         doc_data = self.get_a_document(document)
         user_data = self.get_user(user)
         print(self.get_documents())
         if document in self.get_documents():
-            training = CreateTraining(username=user, doc_ref=document, train_date=self.get_date_now(),
+            training = CreateTraining(username=user, doc_ref=document, train_date=self.get_date_now(),trainer=trainer,
                                       review=self.get_review_date(), level=level, logger=self.get_logged_in_user(),
                                       note=note)
-            training_to_file = [doc_data['issue'], user_data['name'], level, user_data['trainer'], self.get_date_now(),
+            training_to_file = [doc_data['issue'], user_data['name'], level, trainer, self.get_date_now(),
                                 self.get_review_date(), self.get_logged_in_user(), self.get_date_now(), note]
             DS.add_training_to_user(training)
             result = DS.update_training_file(training_to_file, document)
@@ -193,14 +193,16 @@ class Training:
             if name == user:
                 training_data.append(doc)
                 if doc_ref in training_data[0].keys():
+                    print(training_data[0][doc_ref])
                     return training_data[0][doc_ref]
 
 
 class CreateTraining():
 
-    def __init__(self, username="", doc_name="", doc_ref="", train_date="", review="", logger="", level=0, note=""):
+    def __init__(self, username="", doc_name="", trainer="",doc_ref="", train_date="", review="", logger="", level=0, note=""):
         self.notes = note
         self.trained_on = train_date
+        self.trainer = trainer
         self.review_date = review
         self.username = username
         self.document_ref = doc_ref

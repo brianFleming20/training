@@ -7,9 +7,9 @@ This email is generated when your training is due for renewal.
 You are due for training on [document] with reference number of [ref].
 *****************************************************************************************************
 
-**********************************
+***************************************************
 Your training runs out on [expire] 
-**********************************
+***************************************************
 
 Your trainer last time was [trainer].
 

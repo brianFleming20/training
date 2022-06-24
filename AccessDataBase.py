@@ -20,7 +20,7 @@ class GetExternalData:
         self.path_doc = os.path.join("C:\\Users", os.getenv('username'),
                                     "Deltex Medical\Training - Documents\Training Database\Files", "")
         self.path_doc_json = os.path.join("C:\\Users", os.getenv('username'),
-                                           "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Registry", "")
+                                           "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
         self.is_trainer = False
         self.doc_names = None
 
@@ -66,6 +66,7 @@ class GetExternalData:
         # extract all the names that are referred to a trainee #
         ########################################################
         all_names = data["Trainee"].to_list()
+
         ####################################################################
         # search all the names in the file for a document reference number #
         ####################################################################
@@ -99,7 +100,7 @@ class GetExternalData:
                 #################################################################################
                 # Generate a user object and save user to local file for display on main screen #
                 #################################################################################
-                user = US.User(row.Trainee, row.Trainer, self.is_trainer, "No email yet")
+                user = US.User(row.Trainee, row.Trainer, "No email yet")
                 result1 = DS.write_user(user)
                 if not result1:
                     print("User not created")
@@ -112,7 +113,7 @@ class GetExternalData:
                 # Generate a training object and save to local file and displayed on main screen #
                 ##################################################################################
                 training = CT.CreateTraining(username=row.Trainee, doc_name=doc_name, doc_ref=doc_ref,
-                                             train_date=row.Date_Trained, review=row.Review_date,
+                                             train_date=row.Date_Trained, trainer=row.Trainer, review=row.Review_date,
                                              logger=row.Logged_by, level=row.Level, note=status)
                 DS.add_training_record(training)
                 #########################
@@ -122,6 +123,7 @@ class GetExternalData:
         return True
 
     def get_user_info(self):
+        DS.reset_training_file()
         path = os.path.join(self.path_doc_json, "train.json")
         if os.path.exists(path):
             os.remove(path)

@@ -129,15 +129,15 @@ class AddNewUser(tk.Frame):
         else:
             if self.create_user(self.name.get(), self.passw.get(), self.conf_pass.get(),
                                 self.email.get(), self.admin, encrypt_password,
-                                TR.get_logged_in_user(), self.administrator):
+                                self.administrator):
                 self.control.show_frame(ShowUsers)
             else:
                 mb.showerror(title="User Error", message="User not created.")
                 return False
 
-    def create_user(self, name, password, conf_pass, email, admin,encrypt, trainer, administrator):
+    def create_user(self, name, password, conf_pass, email, admin,encrypt,administrator):
         if password == conf_pass:
-            user = UR.User(name=name, trainer=trainer,is_trainer=admin, email=email)
+            user = UR.User(name=name,is_trainer=admin, email=email)
             TR.save_user(user)
             TR.save_user_login(user, encrypt, administrator)
             return True
@@ -180,7 +180,7 @@ class ShowUsers(tk.Frame):
         Label(self.canvas_srdis, text="New User").place(x=10, y=15)
 
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
-        Label(self.canvas_lists, text="Click on an item to edit", font=("Courier", 14)).place(x=150, y=15)
+        Label(self.canvas_lists, text="Click on an item to edit",bg='#E9DAC1', font=("Courier", 14)).place(x=150, y=15)
         Label(self.canvas_lists, text="Trained Users").place(x=20, y=48)
         Label(self.canvas_lists, text="Documents").place(x=280, y=48)
         self.users = Listbox(self.canvas_lists, exportselection=False)
@@ -214,10 +214,13 @@ class ShowUsers(tk.Frame):
 
     def edit_doc(self, event):
         # show doc details for edit
+        self.edit_current_user(event)
+        self.control.show_frame(editDocument)
+
+    def edit_current_doc(self, event):
         idx = int(self.documents.curselection()[0])
         num = self.documents.get(idx)
         INT.provide_interface([num])
-        self.control.show_frame(editDocument)
 
     def display_update(self):
         self.window = Tk()
@@ -238,6 +241,7 @@ class ShowUsers(tk.Frame):
         self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
         self.window.attributes('-topmost',True)
         Label(self.window, text="Building database, \nThis may take some time.").place(x=80,y=50)
+        Tk.update(self)
         AS.get_user_info()
         self.control.after(1000, func=self.destroy_window)
 
@@ -245,10 +249,13 @@ class ShowUsers(tk.Frame):
         self.window.destroy()
 
     def edit_user(self, event):
+        self.edit_current_user(event)
+        self.control.show_frame(EditUser)
+
+    def edit_current_user(self, event):
         self.index = int(self.users.curselection()[0])
         data_user = self.users.get(self.index)
         INT.provide_interface([data_user])
-        self.control.show_frame(EditUser)
 
 
 class EditUser(tk.Frame):
@@ -298,7 +305,7 @@ class EditUser(tk.Frame):
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50, y=180)
         Label(self.canvas_back, text="Change Competency level ", bg="#E9DAC1").place(x=50, y=220)
         Label(self.canvas_back, text="Change Email address ", bg="#E9DAC1").place(x=50, y=260)
-        Label(self.canvas_back, text="Change trainer", bg="#E9DAC1").place(x=50, y=300)
+
         self.name.set(self.data[0])
         Label(self.canvas_back, text=self.name.get(), width=14, font='Helvetica 12 bold').place(x=210, y=100)
         password = Entry(self.canvas_back, textvariable=self.passw, width=25)
@@ -309,8 +316,7 @@ class EditUser(tk.Frame):
         comp.place(x=210, y=220)
         email = Entry(self.canvas_back, textvariable=self.email, width=20)
         email.place(x=210, y=260)
-        trainer = Entry(self.canvas_back, textvariable=self.trainer, width=20)
-        trainer.place(x=210, y=300)
+
         self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
                                        variable=self.admin_state, command=self.update_trainer, font=("Courier", 10))
         self.admin_state.get()
@@ -322,7 +328,6 @@ class EditUser(tk.Frame):
         if user_password:
             try:
                 self.comp.set(user['level'])
-                self.trainer.set(user['trainer'])
                 self.email.set(user['email'])
             except:
                 pass
@@ -366,7 +371,6 @@ class EditUser(tk.Frame):
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
             update_user.level = self.comp.get()
-            update_user.trainer = self.trainer.get()
             update_user.is_trainer = self.admin
             update_user.password = encrypt_password
             update_user.email = self.email.get()
@@ -380,11 +384,10 @@ class EditUser(tk.Frame):
         TR.save_user(update_user)
         self.control.show_frame(ShowUsers)
 
-    def set_for_test(self, password, level, trainer,name):
+    def set_for_test(self, password, level,name):
         self.passw.set(password)
         self.conf_pass.set(password)
         self.comp.set(level)
-        self.trainer.set(trainer)
         self.name.set(name)
 
 
@@ -444,13 +447,18 @@ class addNewDocument(tk.Frame):
         if self.name.get() == "" or self.doc_issue.get() == "" or self.doc_reference.get() == "":
             mb.showerror(title="Entry Error", message="Some of your inputs are empty, \ntry again.")
         else:
-            document = DOC.MakeDoc(name=self.name.get(), issue=self.doc_issue.get(), ref=self.doc_reference.get())
-            TR.add_document(document)
+            self.add_doc()
             self.name.set("")
             self.doc_reference.set("")
             self.doc_issue.set(0)
             mb.showinfo(title="Document", message="New document has been added.")
             self.control.show_frame(ShowUsers)
+
+    def add_doc(self):
+        document = DOC.MakeDoc(name=self.name.get(), issue=self.doc_issue.get(), ref=self.doc_reference.get())
+        TR.add_document(document)
+        return True
+
 
 
 class editDocument(tk.Frame):
@@ -542,7 +550,8 @@ class RecordTraining(tk.Frame):
         Label(self.canvas_back, text="Document Reference No.", bg="#E9DAC1").place(x=350, y=80)
         Label(self.canvas_back, text="Training Level", bg="#E9DAC1").place(x=50, y=150)
         Label(self.canvas_back, text="Date Trained", bg="#E9DAC1").place(x=50, y=230)
-        Label(self.canvas_back, text="Training Note", bg="#E9DAC1").place(x=50, y=300)
+        Label(self.canvas_back, text="Trainer", bg="#E9DAC1").place(x=50,y=300)
+        Label(self.canvas_back, text="Training Note", bg="#E9DAC1").place(x=50, y=380)
         Label(self.canvas_back, text="Document Name", bg="#E9DAC1").place(x=350, y=150)
         Label(self.canvas_back, text="Issue Number", bg="#E9DAC1").place(x=350, y=230)
 
@@ -552,6 +561,7 @@ class RecordTraining(tk.Frame):
         search_name.place(x=50, y=100)
         Entry(self.canvas_back, textvariable=self.doc_reference, width=25).place(x=350, y=100)
         Entry(self.canvas_back, textvariable=self.training_date, width=30).place(x=50, y=250)
+        Entry(self.canvas_back, textvariable=self.trainer, width=30).place(x=50,y=320)
         Label(self.canvas_back, textvariable=self.doc_name, bg="#E9DAC1").place(x=350, y=170)
         Label(self.canvas_back, textvariable=self.doc_issue, bg="#E9DAC1").place(x=350, y=250)
         self.doc_name.set("Doc name")
@@ -563,7 +573,7 @@ class RecordTraining(tk.Frame):
         self.cb.current(0)
         self.trainer.set(TR.get_logged_in_user())
         self.note = tk.Text(self.canvas_back, height=8, width=35)
-        self.note.place(x=50, y=320)
+        self.note.place(x=50, y=400)
         self.training_date.set(TR.get_date_now())
         self.fill_form()
 
@@ -580,7 +590,7 @@ class RecordTraining(tk.Frame):
 
     def register_training(self):
         value = self.cb.get()
-        if TR.register_trained(self.doc_reference, self.name.get(), value, self.note.get('1.0', END)):
+        if TR.register_trained(self.doc_reference, self.name.get(), value,self.trainer.get(), self.note.get('1.0', END)):
             mb.showinfo(title="Training Info", message="Training registered to system.")
         else:
             mb.showerror(title="Training Info", message="Something went wrong \n Training not registered to system.")

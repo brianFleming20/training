@@ -3,7 +3,9 @@ Created on 9 March 2022
 
 
 @Author by Brian F
-
+The screen displays a set of lists to hold the training data form file
+The upper part of the screen is to filter the required data in the
+user centered data or a document centered data.
 
 
 '''
@@ -87,6 +89,7 @@ class main_screen(tk.Frame):
         # Drown down menu for the user to choose a trainee's name       #
         #################################################################
         names = TR.get_all_users()
+        self.search_doc.set("")
         self.search_item.set("Choose")
         search_name = OptionMenu(self.canvas_top, self.search_item, *names)
         search_name.place(x=80, y=80)
@@ -105,8 +108,10 @@ class main_screen(tk.Frame):
         self.document_name.place(x=390, y=120)
         search_doc = Entry(self.canvas_top, textvariable=self.search_doc, width=25)
         search_doc.place(x=390, y=80)
-        btn = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
-        btn.place(x=630, y=180)
+        btn1 = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
+        btn1.place(x=630, y=180)
+        btn2 = Button(self.canvas_top, text="Clear search", command=self.refresh_window, width=10, bg="#54BAB9")
+        btn2.place(x=720,y=180)
         self.search_document.set("----------------")
         ################################################################
         # Sets up the keys for the document numbers to be background   #
@@ -139,7 +144,7 @@ class main_screen(tk.Frame):
         # Start of the main display screen with the titles of the lists  #
         ##################################################################
         Label(self.canvas_top, text="  Document No.       Document Name                Issue               Users           Date Trained       Level       Expire Date        Trainer                   Notes                            ").place(x=3,y=220)
-        self.show_list_data()
+        self.show_lists()
         self.fill_form()
 
     def admin_user(self):
@@ -156,7 +161,7 @@ class main_screen(tk.Frame):
         # als a trainer to others. This gives a complete view of the   #
         # name selected.                                               #
         ################################################################
-        self.show_list_data()
+        self.show_lists()
         if self.finish:
             for name,item in TR.get_all_training().items():
                 for doc,data in item.items():
@@ -179,7 +184,7 @@ class main_screen(tk.Frame):
                         trainer = TR.get_user(name)['trainer']
                     except :
                         trainer = "-"
-                    Label(self.canvas_top, text="Select a document reference number to show details", bg="#C2DED1").place(x=250, y=183)
+                    Label(self.canvas_top, text="Select a document reference number to show user details", bg="#C2DED1").place(x=250, y=183)
                     if self.search_item.get() == name:
                         self.fill_users_lists(name)
                     if self.search_item.get() == trainer:
@@ -283,7 +288,7 @@ class main_screen(tk.Frame):
                 self.doc_note.selection_set(idx)
                 INT.provide_interface(self.form_data)
             except IndexError:
-                self.show_list_data()
+                self.show_lists()
         else:
             self.index = -1
             #############################################################
@@ -292,13 +297,13 @@ class main_screen(tk.Frame):
             # search data.                                              #
             #############################################################
             if self.search_item.get() == "Choose":
-                self.show_list_data()
+                self.show_lists()
                 self.fill_docs_list(self.search_doc.get())
             else:
-                self.show_list_data()
+                self.show_lists()
                 self.fill_users_lists(self.search_item.get())
       
-    def show_list_data(self):
+    def show_lists(self):
         ######################################################################
         # Shows the data lists for the training data to be displayed .       #
         ######################################################################
@@ -349,6 +354,9 @@ class main_screen(tk.Frame):
      
 
     def fill_users_lists(self,name):
+        ########################################################
+        # Fill the lists using the username filter.            #
+        ########################################################
         index = 0
         training_events = TR.get_all_training()
         for user,event in training_events.items():
@@ -361,10 +369,9 @@ class main_screen(tk.Frame):
                     self.doc_name.insert(END, items['name'])
                     user_item = TR.get_a_document(ref[:9])
                     self.doc_issue.insert(END, user_item['issue'])
-                    user_data = TR.get_user(user)
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
-                    self.doc_trainer.insert(END, user_data['trainer'])
+                    self.doc_trainer.insert(END, items['trainer'])
                     if TR.get_email_date(items['review_date']):
                         self.doc_no.itemconfig(index,{"bg":"#3AB0FF"})
                     if TR.get_overdue_train(items['review_date']):
@@ -375,6 +382,9 @@ class main_screen(tk.Frame):
 
 
     def fill_docs_list(self, doc):
+        ##############################################################
+        # Fill the lists with document data from the document filter #
+        ##############################################################
         index = 0
         training_events = TR.get_all_training()
         for user, event in training_events.items():
@@ -390,7 +400,7 @@ class main_screen(tk.Frame):
                     user_data = TR.get_user(user)
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
-                    self.doc_trainer.insert(END, user_data['trainer'])
+                    self.doc_trainer.insert(END, items['trainer'])
                     if TR.get_email_date(items['review_date']):
                         self.doc_no.itemconfig(index, {"bg": "#3AB0FF"})
                     if TR.get_overdue_train(items['review_date']):
@@ -401,6 +411,9 @@ class main_screen(tk.Frame):
 
 
     def OnMouseWheel(self, event):
+        #############################################################
+        # You can use the mouse wheel to move the lists up and down #
+        #############################################################
         self.doc_no.yview("scroll", event.delta, "units")
         self.doc_issue.yview("scroll", event.delta, "units")
         self.doc_name.yview("scroll", event.delta, "units")
@@ -413,10 +426,16 @@ class main_screen(tk.Frame):
         return "break"
 
 class LoggedInUser():
+    ###################################
+    # Get system wide logged in user  #
+    ###################################
     def set_logged_in_user(user):
         logged_user.clear()
         logged_user.insert(0,user)
 
     def get_logged_in_user(self):
         return logged_user[0]
+
+
+
     

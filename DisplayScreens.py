@@ -288,8 +288,7 @@ class show_event_window(tk.Frame):
                 else:
                     if ref != "Login" and TR.get_email_date(items['review_date']):
                         text_area.insert(INSERT,
-                                         f"{user} \t\t: {items['name']} : {ref}\t\t: "
-                                         f"review {items['review_date']}\n")
+                                         f"{user} \t\t: {items['name']} : {ref}\t\t: review {items['review_date']}\n")
                         self.generate_email(user,ref)
                         sent = True
         text_area.config(state=DISABLED)
@@ -299,10 +298,8 @@ class show_event_window(tk.Frame):
             return False
 
     def generate_email(self, name, ref):
-
         EM.notify_training(name,ref)
-        # EM.send_copy_to_trainer(name,ref)
-
+        EM.send_copy_to_trainer(name,ref)
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)

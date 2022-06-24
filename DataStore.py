@@ -1,9 +1,7 @@
 import json
 import os
-import webbrowser
 from tkinter import messagebox as mb
 import pandas as pd
-import time
 import cryptocode
 import csv
 
@@ -20,7 +18,7 @@ class data_store():
         self.data_path = os.path.join("C:\\Users", os.getenv('username'),
                                       "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
         self.json_path = os.path.join("C:\\Users", os.getenv('username'),
-                                      "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Registry", "")
+                                      "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
         self.json_fake = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Test", "")
 
 
@@ -112,7 +110,7 @@ class data_store():
                 json.dump(data, doc_file, indent=4)
 
     def dump_documents(self, docs):
-        fullPath = os.path.abspath(self.path + '.doc.json')
+        fullPath = os.path.abspath(self.json_path + '.doc.json')
         with open(fullPath, 'w') as user_file:
             json.dump(docs, user_file, indent=4)
 
@@ -178,7 +176,6 @@ class data_store():
     def create_user_dict(self, user):
         new_data = {
             user.name: {
-                'trainer': user.trainer,
                 'is_trainer': user.is_trainer,
                 'email': user.email,
             }
@@ -200,6 +197,7 @@ class data_store():
                 record.document_ref: {
                     "name": record.document_name,
                     "trained_on": record.trained_on,
+                    "trainer": record.trainer,
                     "review_date": record.review_date,
                     "entered_by": record.logger,
                     "level": record.level,
@@ -214,6 +212,7 @@ class data_store():
             record.document_ref: {
                 "name": record.document_name,
                 "trained_on": record.trained_on,
+                "trainer": record.trainer,
                 "review_date": record.review_date,
                 "level": record.level,
                 "note": record.notes,
@@ -325,14 +324,10 @@ class data_store():
 
 
 
-    def reset_files(self):
-        pass
-        # train_path = os.path.abspath(self.path + '.train.json')
-        # doc_path = os.path.abspath(self.path + '.doc.json')
-        # if os.path.exists(doc_path):
-        #     os.remove(doc_path)
-        # if os.path.exists(train_path):
-        #     os.remove(train_path)
+    def reset_training_file(self):
+        train_path = os.path.abspath(self.json_path + '.train.json')
+        if os.path.exists(train_path):
+            os.remove(train_path)
 
     def get_user_admin_status(self, name):
         raw_path = os.path.join(self.data_path, "Login.csv")
