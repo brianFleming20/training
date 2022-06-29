@@ -4,6 +4,9 @@ import Training
 import DataStore
 import User
 import Documents
+from tkinter import *
+from tkinter import ttk
+import time
 
 DS = DataStore.data_store()
 CT = Training
@@ -23,6 +26,7 @@ class GetExternalData:
                                            "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
         self.is_trainer = False
         self.doc_names = None
+        self.total = 0.0
 
     def get_data(self, file):
         raw_path = os.path.join(self.path, file)
@@ -53,6 +57,7 @@ class GetExternalData:
         # with zeros.                                        #
         ######################################################
         data = data.fillna(0)
+        self.total += 0.75
         #########################################
         # Returns the filtered data.            #
         #########################################
@@ -100,30 +105,57 @@ class GetExternalData:
                 #################################################################################
                 # Generate a user object and save user to local file for display on main screen #
                 #################################################################################
-                user = US.User(row.Trainee, row.Trainer, "No email yet")
-                result1 = DS.write_user(user)
-                if not result1:
-                    print("User not created")
-                #######################################################################################
-                # Generate a document object saved to the local file and displayed on the main screen #
-                #######################################################################################
-                document = MD.MakeDoc(doc_name, row.Issue, doc_ref)
-                DS.write_document(document)
-                ##################################################################################
-                # Generate a training object and save to local file and displayed on main screen #
-                ##################################################################################
-                training = CT.CreateTraining(username=row.Trainee, doc_name=doc_name, doc_ref=doc_ref,
-                                             train_date=row.Date_Trained, trainer=row.Trainer, review=row.Review_date,
-                                             logger=row.Logged_by, level=row.Level, note=status)
-                DS.add_training_record(training)
-                #########################
-                # Reset is trainer flag #
-                #########################
-                self.is_trainer = False
+                if doc_name_data['Document No.'].to_string(index=False) == doc_ref:
+
+                    user = US.User(row.Trainee, self.is_trainer, "No email yet")
+                    DS.write_user(user)
+                    #######################################################################################
+                    # Generate a document object saved to the local file and displayed on the main screen #
+                    #######################################################################################
+                    document = MD.MakeDoc(doc_name, row.Issue, doc_ref)
+                    DS.write_document(document)
+
+
+                    ##################################################################################
+                    # Generate a training object and save to local file and displayed on main screen #
+                    ##################################################################################
+                    training = CT.CreateTraining(username=row.Trainee, doc_name=doc_name, doc_ref=doc_ref,
+                                                     train_date=row.Date_Trained, trainer=row.Trainer, review=row.Review_date,
+                                                     logger=row.Logged_by, level=row.Level, note=status)
+                    DS.add_training_record(training)
+                    #########################
+                    # Reset is trainer flag #
+                    #########################
+
+                    self.is_trainer = False
         return True
 
     def get_user_info(self):
         DS.reset_training_file()
+        self.window = Tk()
+        self.window.title("Please wait")
+        w = 330  # width for the Tk root
+        h = 150  # height for the Tk root
+
+        # calculate x and y coordinates for the Tk root window
+        x = (1000 / 2) - (w / 2)
+        y = (800 / 2) - (h / 2)
+
+        # set the dimensions of the screen
+        # and where it is placed
+        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.window.attributes('-topmost', True)
+        Label(self.window, text="Building database, \nThis may take some time.").place(x=90, y=35)
+        # progressbar
+        self.pb = ttk.Progressbar(
+            self.window,
+            orient='horizontal',
+            mode='determinate',
+            length=280
+        )
+        # place the progressbar
+        self.pb.place(x=20,y=100)
+        Tk.update(self.window)
         path = os.path.join(self.path_doc_json, "train.json")
         if os.path.exists(path):
             os.remove(path)
@@ -138,7 +170,17 @@ class GetExternalData:
         ##################################################
         for files in os.listdir(self.path):
             data, file = self.get_data(files)
+            if self.pb['value'] < 100:
+                self.pb['value'] = self.total
+                self.window.update_idletasks()
             if files[:5] == "Login":
                 pass
             else:
                 self.search_data(data, file)
+                pass
+        self.pb['value'] = 100
+        time.sleep(1)
+        self.window.destroy()
+
+
+

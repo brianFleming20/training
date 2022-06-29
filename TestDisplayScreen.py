@@ -9,8 +9,6 @@ class DisplayScreenTest(unittest.TestCase):
     def generate_email(self,user,ref):
         print(f"send email {user} : {ref}")
 
-    def generate_email_reminder(self, user, ref):
-        print(f"overdue email {user} : {ref}")
 
     def setUp(self):
         self.parent = tk.Tk()

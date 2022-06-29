@@ -3,10 +3,14 @@ import os
 import json
 import AccessDataBase
 import Login
+import User
+import DataStore
 import pandas as pd
 
 AD = AccessDataBase.GetExternalData()
 LOG = Login
+US = User
+DS = DataStore.data_store()
 
 
 ENTRY = "ByH1KHdo7y30I6aN"
@@ -20,7 +24,7 @@ class remoteDataTests(unittest.TestCase):
                                      "Deltex Medical\Training - Documents\Training Database\Files", "")
         raw_path = os.path.join(self.path_doc, "TrainingDocs.csv")
         self.path_doc_json = os.path.join("C:\\Users", os.getenv('username'),
-                                          "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Registry",
+                                          "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database",
                                           "")
         AD.doc_names = pd.read_csv(raw_path)
 
@@ -56,9 +60,15 @@ class remoteDataTests(unittest.TestCase):
 
         self.assertEqual(True, result)
 
-        json_path = os.path.join(self.path_doc_json, '.file.user')
+        if not os.path.abspath(self.path_doc_json + '.file.user'):
+            json_path = False
+        else:
+            json_path = os.path.abspath(self.path_doc_json + '.file.user')
+        print(json_path)
+
         with open(json_path, 'r') as user_file:
             users = json.load(user_file)
+
         for user,data in users.items():
             if user == 'Grant':
                 self.assertEqual(user, expected)

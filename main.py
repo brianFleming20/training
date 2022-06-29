@@ -30,8 +30,10 @@ import LoginWindow as UL
 import Screen as SC
 import DisplayScreens as DSP
 import AdminUser as AU
+import os
 
-Training_Version = 'Deltex Medical : Training Database V2.5'
+num = "3013-0036"
+Training_Version = f'Deltex Medical : Training Database V2.8 {num: >190s}   '
 w = 1000  # window width
 h = 700  # window height
 LARGE_FONT = ("Verdana", 14)
@@ -41,7 +43,7 @@ class WindowController(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         tk.Tk.__init__(self, *args, **kwargs)
-        
+
         self.title(Training_Version)
         # get window width and height
         ws = self.winfo_screenwidth()
@@ -60,8 +62,7 @@ class WindowController(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        
-        
+
         for F in (UL.LoginWindow,
                   SC.main_screen,
                   DSP.show_user_window,
@@ -82,14 +83,16 @@ class WindowController(tk.Tk):
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-            
-            
 
         self.show_frame(UL.LoginWindow)
+
+        try:
+            import pyi_splash
+            pyi_splash.update_text('UI Loaded ...')
+            pyi_splash.close()
+        except:
+            pass
         
-        
-        
-       
 
     def show_frame(self, newFrame):
 
@@ -100,10 +103,8 @@ class WindowController(tk.Tk):
         # Does the frame have a refresh method, if so call it.
         if hasattr(newFrame, 'refresh_window') and callable(getattr(newFrame, 'refresh_window')):
             self.frames[newFrame].refresh_window()
+            self.attributes('-topmost', True)
 
-    
-
-              
 
 app = WindowController()
 app.mainloop()

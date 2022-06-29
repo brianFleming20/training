@@ -38,7 +38,7 @@ class AdminTests(unittest.TestCase):
         self.assertEqual(result, True)
 
 
-    def test_set_admin_state(self):
+    def test_set_trainer_state(self):
         print("Test set admin state")
 
         expected = True
@@ -47,7 +47,7 @@ class AdminTests(unittest.TestCase):
 
         self.assertEqual(expected, result)
 
-    def test_update_overwrite(self):
+    def test_update_admin(self):
         print("Test update over write")
 
         self.adduser.update_overwrite()
@@ -70,7 +70,7 @@ class AdminTests(unittest.TestCase):
         result2 = self.adduser.get_administrator()
         self.assertEqual(0, result2)
 
-    def test_edit_doc(self):
+    def test_edit_doc_data(self):
         print("Test edit doc")
         doc = "9070-1209"
         self.show.documents.insert(END,doc)
@@ -80,7 +80,7 @@ class AdminTests(unittest.TestCase):
         self.assertEqual(doc,result)
 
 
-    def test_edit_user(self):
+    def test_edit_user_data(self):
         print("Test edit user")
         user = "Jack"
         self.show.users.insert(END, user)

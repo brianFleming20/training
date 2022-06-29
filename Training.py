@@ -16,7 +16,7 @@ class Training:
 
     def get_date_now(self):
         presentime = DT.datetime.now()
-        date = presentime.strftime('%d-%m-%y')
+        date = presentime.strftime('%d-%m-%Y')
         return date
 
     def get_review_date(self):
@@ -83,7 +83,7 @@ class Training:
         documents = self.get_documents()
         doc_items = None
         for doc, item in documents.items():
-            if doc_ref == doc[:9]:
+            if doc_ref == doc:
                 doc_items = item
         return doc_items
 
@@ -103,8 +103,15 @@ class Training:
     def get_user_admin(self):
         return LGI.LI_user[1]
 
+    def get_trainer_status(self):
+        user = self.get_user(self.get_logged_in_user())
+        if user['is_trainer']:
+            return True
+        else:
+            return False
+
     def save_user(self, user):
-        DS.write_user(user)
+        return DS.write_user(user)
 
     def save_user_login(self, user, password, admin):
         DS.write_user_admin(user.name, password, admin)
@@ -112,7 +119,6 @@ class Training:
     def register_trained(self, document, user, level,trainer, note):
         doc_data = self.get_a_document(document)
         user_data = self.get_user(user)
-        print(self.get_documents())
         if document in self.get_documents():
             training = CreateTraining(username=user, doc_ref=document, train_date=self.get_date_now(),trainer=trainer,
                                       review=self.get_review_date(), level=level, logger=self.get_logged_in_user(),
@@ -122,6 +128,8 @@ class Training:
             DS.add_training_to_user(training)
             result = DS.update_training_file(training_to_file, document)
             return result
+        else:
+            return False
 
     def who_is_trainer(self):
         result = []
@@ -148,20 +156,6 @@ class Training:
             mb.showerror(title="Reference Error", message="The old reference number not found.")
             return False
 
-    def search_users(self, search):
-        result = []
-        for usr, value in self.get_all_users().items():
-            for item, i_val in value.items():
-                if i_val == search:
-                    result.insert(0, usr)
-        return list(dict.fromkeys(result))
-
-    def get_all_trainers(self):
-        return self.search_users(True)
-
-    def get_all_at_level(self, level):
-        return self.search_users(level)
-
     def delete_user(self, name):
         users = self.get_all_users()
         if name in users.keys():
@@ -186,14 +180,13 @@ class Training:
         admin = DS.get_user_admin_status(name)
         DS.update_user(name, password, admin)
 
-    def get_training_record(self, user, doc_ref):
+    def get_training_record(self, username, doc_ref):
         training_data = []
         training = self.get_all_training()
         for name, doc in training.items():
-            if name == user:
+            if name == username:
                 training_data.append(doc)
                 if doc_ref in training_data[0].keys():
-                    print(training_data[0][doc_ref])
                     return training_data[0][doc_ref]
 
 

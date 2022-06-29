@@ -41,6 +41,7 @@ class main_screen(tk.Frame):
         # is collected and transferred.                       #
         #######################################################
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.canvas_top = None
         self.index = -1
         self.document_name = None
         self.items = None
@@ -106,8 +107,8 @@ class main_screen(tk.Frame):
 
         self.document_name = Label(self.canvas_top, textvariable=self.search_document, bg="#C2DED1")
         self.document_name.place(x=390, y=120)
-        search_doc = Entry(self.canvas_top, textvariable=self.search_doc, width=25)
-        search_doc.place(x=390, y=80)
+        doc = Entry(self.canvas_top, textvariable=self.search_doc, width=25)
+        doc.place(x=390, y=80)
         btn1 = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
         btn1.place(x=630, y=180)
         btn2 = Button(self.canvas_top, text="Clear search", command=self.refresh_window, width=10, bg="#54BAB9")
@@ -128,7 +129,8 @@ class main_screen(tk.Frame):
         # This can be extended to include trainers as well.            #
         ################################################################
         admin = TR.get_user_admin()
-        if admin:
+        trainer = TR.get_trainer_status()
+        if admin or trainer:
             self.admin.config(state=NORMAL)
         else:
             self.admin.config(state=DISABLED)
@@ -163,10 +165,7 @@ class main_screen(tk.Frame):
         ################################################################
         self.show_lists()
         if self.finish:
-            for name,item in TR.get_all_training().items():
-                for doc,data in item.items():
-                    if self.search_doc.get() == doc[:9]:
-                        self.fill_docs_list(doc)
+            self.fill_docs_list(self.get_document_requested())
         else:
             #############################################################
             # If the name is the default token of 'Choose' then no name #
@@ -175,20 +174,19 @@ class main_screen(tk.Frame):
             if self.search_item.get() == "Choose":
                 mb.showerror(title="Search Error", message="Please select a name.")
             else:
-                for name,item in TR.get_all_training().items():
-                    #######################################################
-                    # This try - catch block is used if the trainers name #
-                    # is missing from the original database.              #
-                    #######################################################
-                    try:
-                        trainer = TR.get_user(name)['trainer']
-                    except :
-                        trainer = "-"
-                    Label(self.canvas_top, text="Select a document reference number to show user details", bg="#C2DED1").place(x=250, y=183)
-                    if self.search_item.get() == name:
-                        self.fill_users_lists(name)
-                    if self.search_item.get() == trainer:
-                        self.fill_users_lists(name)
+                self.fill_users_lists(self.get_selected_name())
+
+    def get_document_requested(self):
+        for name, item in TR.get_all_training().items():
+            for doc, data in item.items():
+                if self.search_doc.get() == doc:
+                    return doc[:9]
+
+
+    def get_selected_name(self):
+        for name, item in TR.get_all_training().items():
+            if self.search_item.get() == name:
+                return name
 
     def fill_form(self):
         ##############################################################
@@ -211,7 +209,6 @@ class main_screen(tk.Frame):
             pass
         else:
             self.search_document.set(doc['name'])
-            Label(self.canvas_top, text="Select a document reference number to show details", bg="#C2DED1").place(x=250, y=183)
             self.finish = True
         Tk.update(self)
         self.fill_form()
@@ -367,7 +364,7 @@ class main_screen(tk.Frame):
                     self.doc_expire.insert(END, items['review_date'])
                     self.doc_note.insert(END, items['note'])
                     self.doc_name.insert(END, items['name'])
-                    user_item = TR.get_a_document(ref[:9])
+                    user_item = TR.get_a_document(ref)
                     self.doc_issue.insert(END, user_item['issue'])
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
@@ -378,6 +375,8 @@ class main_screen(tk.Frame):
                         self.doc_no.itemconfig(index,{"bg":"#F24C4C"})
                     if TR.get_trained(items['review_date']):
                         self.doc_no.itemconfig(index,{"bg":"#A0D995"})
+                    Label(self.canvas_top, text="Select a document reference number to show details",
+                          bg="#C2DED1").place(x=250, y=183)
                     index += 1
 
 
@@ -389,24 +388,31 @@ class main_screen(tk.Frame):
         training_events = TR.get_all_training()
         for user, event in training_events.items():
             for ref, items in event.items():
+                print(items)
                 if ref[:9] == doc:
                     self.doc_no.insert(END, ref)
                     self.doc_train.insert(END, items['trained_on'])
                     self.doc_expire.insert(END, items['review_date'])
                     self.doc_note.insert(END, items['note'])
                     self.doc_name.insert(END, items['name'])
+                    print(f"trainer = {items['name']}")
                     item = TR.get_a_document(ref[:9])
                     self.doc_issue.insert(END, item['issue'])
-                    user_data = TR.get_user(user)
                     self.doc_users.insert(END, user)
                     self.doc_level.insert(END, items['level'])
-                    self.doc_trainer.insert(END, items['trainer'])
+                    if not items['trainer']:
+                        trainer = "---"
+                    else:
+                        trainer = items['trainer']
+                    self.doc_trainer.insert(END, trainer)
                     if TR.get_email_date(items['review_date']):
                         self.doc_no.itemconfig(index, {"bg": "#3AB0FF"})
                     if TR.get_overdue_train(items['review_date']):
                         self.doc_no.itemconfig(index, {"bg": "#F24C4C"})
                     if TR.get_trained(items['review_date']):
                         self.doc_no.itemconfig(index, {"bg":"#A0D995"})
+                    Label(self.canvas_top, text="Select a document reference number to show details",
+                          bg="#C2DED1").place(x=250, y=183)
                     index += 1
 
 

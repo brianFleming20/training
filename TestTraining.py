@@ -17,8 +17,8 @@ LG = Login
 class TrainingTests(unittest.TestCase):
 
     def setUp(self):
-        self.a_user = USER.User(name="Brian", is_trainer=False)
-        self.b_user = USER.User(name="Hendryk", is_trainer=True)
+        self.a_user = USER.User(name="Brian", is_trainer=False, email="no email yet")
+        self.b_user = USER.User(name="Hendryk", is_trainer=True, email="no email yet")
 
     def test_time_now(self):
         print("Show time now")
@@ -65,13 +65,6 @@ class TrainingTests(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
-    def test_get_users(self):
-        print("Get all users")
-
-        users = TR.get_all_users()
-        result = len(users)
-
-        self.assertGreater(result, 0)
 
 
     def test_logged_in_user(self):
@@ -93,13 +86,13 @@ class TrainingTests(unittest.TestCase):
     def test_save_user(self):
         print("Save a user to file")
 
-        TR.save_user(self.b_user)
+        result = TR.save_user(self.b_user)
 
         name = "Hendryk"
-        expected = "Lee"
+        expected = "no email yet"
 
         user = TR.get_user(name)
-        result = user['trainer']
+        result = user['email']
 
         self.assertEqual(result, expected)
 
@@ -135,14 +128,15 @@ class TrainingTests(unittest.TestCase):
         document = "9070-1203"
         user = "Brian Fleming"
         level = 3
+        trainer = "Lee"
         password = "password"
         LG.Login(user, password)
 
-        # result = TR.register_trained(document, user, level, "Note")
+        result = TR.register_trained(document,user,level,trainer, "Note")
 
-        # self.assertEqual(result, expected)
+        self.assertEqual(result, expected)
 
-    def test_get_training(self):
+    def test_get_user_training(self):
         print("Get a training record")
         name = "Brian Fleming"
         doc_ref = "9070-1203"
@@ -157,7 +151,7 @@ class TrainingTests(unittest.TestCase):
     def test_get_email_date(self):
         print("Test getting email date")
 
-        review_date = "21-06-2022"
+        review_date = "28-06-2022"
 
         expected_review = True
 
@@ -165,7 +159,7 @@ class TrainingTests(unittest.TestCase):
 
         self.assertEqual(expected_review,result2)
 
-    def test_overdue_date(self):
+    def test_training_overdue_date(self):
         print("Test overdue training date")
 
         date = "01-05-2021"
@@ -184,7 +178,8 @@ class TrainingTests(unittest.TestCase):
         date5 = DT.datetime.now()
         date6 = 0.0
 
-        expected = True
+        expected = False
+        expected_today = True
 
         check1 = TR.check_date_format(date1)
         result1 = TR.get_email_date(check1)
@@ -204,11 +199,11 @@ class TrainingTests(unittest.TestCase):
 
         check5 = TR.check_date_format(date5)
         result5 = TR.get_email_date(check5)
-        self.assertEqual(expected,result5)
+        self.assertEqual(expected_today,result5)
 
         check6 = TR.check_date_format(date6)
         result6 = TR.get_email_date(check6)
-        self.assertEqual(expected,result6)
+        self.assertEqual(expected_today,result6)
 
 
 if __name__ == '__main__':

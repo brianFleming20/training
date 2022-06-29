@@ -7,18 +7,20 @@ from tkinter import *
 from tkinter import messagebox as mb
 from tkinter.ttk import Combobox
 import Training
-import interface
 import Screen as SC
 import User
 import Documents
 import AccessDataBase
 import cryptocode
+import interface
+
 
 TR = Training.Training()
 INT = interface.interface()
 UR = User
 DOC = Documents
 AS = AccessDataBase.GetExternalData()
+
 ENTRY = "ByH1KHdo7y30I6aN"
 
 
@@ -67,13 +69,13 @@ class AddNewUser(tk.Frame):
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50, y=180)
         Label(self.canvas_back, text="Email address",bg="#E9DAC1").place(x=50, y=250)
 
-        name = Entry(self.canvas_back, textvariable=self.name, width=25)
+        name = Entry(self.canvas_back, textvariable=self.name, width=35)
         name.place(x=210, y=100)
         password = Entry(self.canvas_back, textvariable=self.passw, width=25)
         password.place(x=210, y=140)
         conf_password = Entry(self.canvas_back, textvariable=self.conf_pass, width=25)
         conf_password.place(x=210, y=180)
-        email = Entry(self.canvas_back, textvariable=self.email, width=30)
+        email = Entry(self.canvas_back, textvariable=self.email, width=40)
         email.place(x=210, y=260)
 
         self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
@@ -170,10 +172,10 @@ class ShowUsers(tk.Frame):
         self.data.clear()
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
-        Button(self.canvas_btndis, text="New User", command=self.add_new_user, width=12, bg='#54BAB9').place(x=20, y=70)
-
-        Button(self.canvas_btndis, text="Add Document", command=self.add_document, width=12, bg='#54BAB9').place(x=20,
-                                                                                                                 y=150)
+        btn1 = Button(self.canvas_btndis, text="New User", command=self.add_new_user, width=12, bg='#54BAB9')
+        btn1.place(x=20, y=70)
+        btn2 = Button(self.canvas_btndis, text="Add Document", command=self.add_document, width=12, bg='#54BAB9')
+        btn2.place(x=20, y=150)
         Button(self.canvas_btndis, text="Record Training", command=self.training, width=12, bg='#54BAB9').place(x=20,
                                                                                                                 y=220)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=550)
@@ -189,8 +191,7 @@ class ShowUsers(tk.Frame):
         self.documents = Listbox(self.canvas_lists, exportselection=False)
         self.documents.place(x=250, y=85)
         self.documents.config(height=20, width=45, bg="#E9DAC1")
-        Button(self.canvas_lists, text="Update System", width=12, command=self.display_update,
-               bg='#54BAB9').place(x=650,y=480)
+
 
         for no in TR.get_all_users():
             self.users.insert(END, no)
@@ -199,6 +200,16 @@ class ShowUsers(tk.Frame):
         for ref, doc in TR.get_documents().items():
             self.documents.insert(END, f"{ref} - {doc['name']} - {doc['issue']}")
             self.documents.bind('<<ListboxSelect>>', self.edit_doc)
+
+        admin = TR.get_user_admin()
+        if admin:
+            btn1.config(state=NORMAL)
+            btn2.config(state=NORMAL)
+            Button(self.canvas_lists, text="Update System", width=12, command=self.display_update,
+                   bg='#54BAB9').place(x=650, y=480)
+        else:
+            btn1.config(state=DISABLED)
+            btn2.config(state=DISABLED)
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
@@ -214,7 +225,7 @@ class ShowUsers(tk.Frame):
 
     def edit_doc(self, event):
         # show doc details for edit
-        self.edit_current_user(event)
+        self.edit_current_doc(event)
         self.control.show_frame(editDocument)
 
     def edit_current_doc(self, event):
@@ -223,30 +234,8 @@ class ShowUsers(tk.Frame):
         INT.provide_interface([num])
 
     def display_update(self):
-        self.window = Tk()
-        self.window.title("Please wait")
-        w = 300  # width for the Tk root
-        h = 150  # height for the Tk root
-
-        # get screen width and height
-        ws = self.winfo_screenwidth()  # width of the screen
-        hs = self.winfo_screenheight()  # height of the screen
-
-        # calculate x and y coordinates for the Tk root window
-        x = (ws / 2) - (w / 2)
-        y = (hs / 2) - (h / 2)
-
-        # set the dimensions of the screen
-        # and where it is placed
-        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        self.window.attributes('-topmost',True)
-        Label(self.window, text="Building database, \nThis may take some time.").place(x=80,y=50)
-        Tk.update(self)
         AS.get_user_info()
-        self.control.after(1000, func=self.destroy_window)
 
-    def destroy_window(self):
-        self.window.destroy()
 
     def edit_user(self, event):
         self.edit_current_user(event)
@@ -291,9 +280,8 @@ class EditUser(tk.Frame):
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
         Button(self.canvas_btndis, text="Show User", command=self.show_users, width=12, bg='#54BAB9').place(x=20, y=80)
-        Button(self.canvas_btndis, text="Add User", command=self.add_user, width=12, bg='#54BAB9').place(x=20, y=150)
-        Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9').place(x=20,
-                                                                                                               y=220)
+        btn1 = Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9')
+        btn1.place(x=20,y=150)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Edit User").place(x=10, y=15)
         search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
@@ -307,14 +295,14 @@ class EditUser(tk.Frame):
         Label(self.canvas_back, text="Change Email address ", bg="#E9DAC1").place(x=50, y=260)
 
         self.name.set(self.data[0])
-        Label(self.canvas_back, text=self.name.get(), width=14, font='Helvetica 12 bold').place(x=210, y=100)
-        password = Entry(self.canvas_back, textvariable=self.passw, width=25)
+        Label(self.canvas_back, text=self.name.get(), width=25, font='Helvetica 12 bold').place(x=210, y=100)
+        password = Entry(self.canvas_back, textvariable=self.passw, width=30)
         password.place(x=210, y=140)
-        conf = Entry(self.canvas_back, textvariable=self.conf_pass, width=25)
+        conf = Entry(self.canvas_back, textvariable=self.conf_pass, width=30)
         conf.place(x=210, y=180)
         comp = Entry(self.canvas_back, textvariable=self.comp, width=15)
         comp.place(x=210, y=220)
-        email = Entry(self.canvas_back, textvariable=self.email, width=20)
+        email = Entry(self.canvas_back, textvariable=self.email, width=40)
         email.place(x=210, y=260)
 
         self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
@@ -323,6 +311,11 @@ class EditUser(tk.Frame):
         self.checkbutton.place(x=80, y=520)
         user = TR.get_user(self.name.get())
         self.admin_state.set(user['is_trainer'])
+        admin = TR.get_user_admin()
+        if admin:
+            btn1.config(state=NORMAL)
+        else:
+            btn1.config(state=DISABLED)
 
         user_password = TR.get_user_password(self.name.get())
         if user_password:
@@ -424,7 +417,7 @@ class addNewDocument(tk.Frame):
         Label(self.canvas_back, text="Document Issue No.",
               bg="#E9DAC1").place(x=50, y=180)
 
-        self.doc_name = Entry(self.canvas_back, textvariable=self.name, width=30)
+        self.doc_name = Entry(self.canvas_back, textvariable=self.name, width=45)
         self.doc_name.place(x=210, y=100)
         self.doc_ref = Entry(
             self.canvas_back, textvariable=self.doc_reference, width=30)
@@ -485,8 +478,7 @@ class editDocument(tk.Frame):
         ref_num = reference_no[:9]
         ref = TR.get_a_document(ref_num)
         self.canvas_back.delete('all')
-        Button(self.canvas_btndis, text="Show Documents", command=self.show_documents, width=12, bg='#54BAB9').place(
-            x=20, y=80)
+        Button(self.canvas_btndis, text="Show Users", command=self.show_documents, width=12, bg='#54BAB9').place(x=20, y=80)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Edit Document").place(x=10, y=15)
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
@@ -494,7 +486,7 @@ class editDocument(tk.Frame):
         Label(self.canvas_back, text="Document reference ", bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Issue number ", bg="#E9DAC1").place(x=50, y=180)
 
-        Entry(self.canvas_back, textvariable=self.name, width=25).place(x=210, y=100)
+        Entry(self.canvas_back, textvariable=self.name, width=45).place(x=210, y=100)
         Entry(self.canvas_back, textvariable=self.ref, width=25).place(x=210, y=140)
         Entry(self.canvas_back, textvariable=self.issue, width=25).place(x=210, y=180)
 

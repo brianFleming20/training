@@ -18,7 +18,6 @@ import Screen as SC
 import Training
 import Email
 
-
 TR = Training.Training()
 TE = Training
 INT = interface.interface()
@@ -48,44 +47,25 @@ class show_user_window(tk.Frame):
         Button(self.canvas_btndis, text="Main", width=12,
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Selected User").place(x=10, y=15)
-
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
-        Label(self.canvas_back, text="Name", bg="#E9DAC1").place(x=50, y=90)
-
-        Label(self.canvas_back, text="Trained By ",
-              bg="#E9DAC1").place(x=50, y=170)
-        Label(self.canvas_back, text="Trained On Date",
-              bg="#E9DAC1").place(x=50, y=200)
-        Label(self.canvas_back, text="Training Exrires",
-              bg="#E9DAC1").place(x=50, y=240)
-        Label(self.canvas_back, text="Competence Level",
-              bg="#E9DAC1").place(x=50, y=280)
+        Label(self.canvas_back, text="Name", bg="#E9DAC1").place(x=50, y=150)
         Label(self.canvas_back, text="Email address",
-              bg="#E9DAC1").place(x=50, y=320)
+              bg="#E9DAC1").place(x=50, y=220)
         Label(self.canvas_back, text="Notes", bg="#E9DAC1").place(x=50, y=370)
-
         self.usr = self.canvas_back.create_text(
-            400, 90, text=" ", font=('Helvetica 12 bold'))
-        self.train = self.canvas_back.create_text(
-            400, 170, text=" ", font=('Helvetica 12 bold'))
-        self.train_date = self.canvas_back.create_text(
-            400, 210, text=" ", font=('Helvetica 12 bold'))
-        self.exp = self.canvas_back.create_text(
-            400, 250, text=" ", font=('Helvetica 12 bold'))
-        self.comp = self.canvas_back.create_text(
-            400, 290, text=" ", font=('Helvetica 12 bold'))
+            330, 150, text=" ", font=('Helvetica 12 bold'))
         self.email = self.canvas_back.create_text(
-            330, 330, text=" ", font=('Helvetica 12 bold'))
-
+            330, 220, text=" ", font=('Helvetica 12 bold'))
         self.text_area = tk.Text(self, height=8, width=50)
         self.text_area.place(x=50, y=480)
+
         Label(self.canvas_back, text="Trained on ").place(x=500, y=50)
         self.doc_name = Listbox(self, height=20, width=20)
         self.doc_name.place(x=480, y=180)
         self.doc_ref = Listbox(self, height=20, width=16)
         self.doc_ref.place(x=615, y=180)
-        self.doc_issue = Listbox(self, height=20, width=10)
-        self.doc_issue.place(x=730, y=180)
+        self.doc_issue = Listbox(self, height=20, width=15)
+        self.doc_issue.place(x=725, y=180)
         self.transfer_info()
 
     def transfer_info(self):
@@ -94,32 +74,28 @@ class show_user_window(tk.Frame):
         self.doc_name.insert(END, "-----------------")
         self.doc_ref.insert(END, "Document Ref.")
         self.doc_ref.insert(END, "-----------------")
-        self.doc_issue.insert(END, "Issue")
+        self.doc_issue.insert(END, "Competency")
         self.doc_issue.insert(END, "----------------")
         self.canvas_back.itemconfigure(self.usr, text=self.data[3])
-        self.canvas_back.itemconfigure(self.comp, text=self.data[5])
-        self.canvas_back.itemconfigure(self.train, text=self.data[7])
         for user, data in training.items():
             for ref, values in data.items():
                 if user == self.data[3]:
                     user_info = TR.get_user(user)
                     self.doc_ref.insert(END, ref)
-                    doc_data = TR.get_a_document(ref)
                     try:
-                        self.canvas_back.itemconfigure(self.train_date, text=values['trained_on'])
-                        self.canvas_back.itemconfigure(self.exp, text=values['review_date'])
                         self.text_area.insert('1.0', self.data[8])
                         self.doc_name.insert(END, values['name'])
-                        self.doc_issue.insert(END, doc_data['issue'])
+                        self.doc_issue.insert(END, values['level'])
                         self.canvas_back.itemconfigure(self.email, text=user_info['email'])
                     except:
                         pass
-                        # mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries..")
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)
 
-
+##################################################################################
+# This class is not used.                                                        #
+##################################################################################
 class show_document_window(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
@@ -140,7 +116,6 @@ class show_document_window(tk.Frame):
         self.data = []
         self.doc_location = ""
 
-
     def refresh_window(self):
         self.time.set(TR.get_date_now())
         self.data.clear()
@@ -156,8 +131,8 @@ class show_document_window(tk.Frame):
         Label(self.canvas_srdis, text="Search").place(x=250, y=15)
         search = Entry(self.canvas_srdis, textvariable=self.search_item, width=25)
         search.place(x=300, y=15)
-        btn = Button(self.canvas_srdis,text="Search", command=self.search_data,width=10, bg='#54BAB9')
-        btn.place(x=400,y=15)
+        btn = Button(self.canvas_srdis, text="Search", command=self.search_data, width=10, bg='#54BAB9')
+        btn.place(x=400, y=15)
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
         Label(self.canvas_back, textvariable=self.user).place(x=180, y=40)
         Label(self.canvas_back, text="Training required ").place(x=180, y=70)
@@ -175,7 +150,6 @@ class show_document_window(tk.Frame):
         self.doc_ref.insert(END, "-----------------")
         self.doc_issue.insert(END, "Issue")
         self.doc_issue.insert(END, "----------------")
-
 
         Button(self.canvas_back, text="Read", command=self.training,
                width=10, bg='#54BAB9').place(x=620, y=480)
@@ -244,7 +218,9 @@ class show_document_window(tk.Frame):
         else:
             self.index = -1
             self.refresh_window()
-
+#########################################################################
+#                                                                       #
+#########################################################################
 
 class show_event_window(tk.Frame):
     def __init__(self, parent, controller):
@@ -261,12 +237,9 @@ class show_event_window(tk.Frame):
 
     def refresh_window(self):
         self.time.set(TR.get_date_now())
-        Button(self.canvas_btndis, text="New Event", width=12,
+        Button(self.canvas_btndis, text="Show Users", width=12,
                command=self.add_event, bg='#54BAB9').place(x=20, y=80)
-        Button(self.canvas_btndis, text="Delete",
-               width=12, bg='#54BAB9').place(x=20, y=160)
-        Button(self.canvas_btndis, text="Edit",
-               width=12, bg='#54BAB9').place(x=20, y=240)
+
         Button(self.canvas_btndis, text="Main", width=12,
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Events").place(x=10, y=15)
@@ -274,13 +247,23 @@ class show_event_window(tk.Frame):
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
 
         Label(self.canvas_back, text="Upcoming training events").place(x=50, y=50)
+        admin = TR.get_user_admin()
+        if admin:
+            Button(self.canvas_back, text="Send Emails", width=30, bg='#54BAB9', command=self.generate_email).place(
+                x=580, y=530)
         self.check_for_email()
 
     def check_for_email(self):
-        # mb.showinfo(title="Email", message="Email function disabled..")
-        sent = False
         text_area = tk.Text(self.canvas_back, height=25, width=85)
         text_area.place(x=50, y=100)
+        complete = False
+        dash = '-' * 80
+        name = " Name"
+        doc = "Document Name"
+        review = "Review Date"
+        text_area.insert(INSERT, f"{dash}\n")
+        text_area.insert(INSERT, "{:<10s}{:>35s}{:>33s}\n".format(name, doc, review))
+        text_area.insert(INSERT, f"{dash}\n")
         for user, event in TR.get_all_training().items():
             for ref, items in event.items():
                 if not items['note'] or type(items['note']) == str and "No longer an employee" in items['note']:
@@ -288,18 +271,21 @@ class show_event_window(tk.Frame):
                 else:
                     if ref != "Login" and TR.get_email_date(items['review_date']):
                         text_area.insert(INSERT,
-                                         f"{user} \t\t: {items['name']} : {ref}\t\t: review {items['review_date']}\n")
-                        self.generate_email(user,ref)
-                        sent = True
-        text_area.config(state=DISABLED)
-        if sent:
-            return True
-        else:
-            return False
+                                         f"{user :<18s}{items['name']:^55s}{items['review_date']:^8}\n")
+                    complete = True
 
-    def generate_email(self, name, ref):
-        EM.notify_training(name,ref)
-        EM.send_copy_to_trainer(name,ref)
+        text_area.config(state=DISABLED)
+        return complete
+
+    def generate_email(self):
+        for user, event in TR.get_all_training().items():
+            for ref, items in event.items():
+                if not items['note'] or type(items['note']) == str and "No longer an employee" in items['note']:
+                    pass
+                else:
+                    if ref != "Login" and TR.get_email_date(items['review_date']):
+                        EM.notify_training(user, ref)
+                        EM.send_copy_to_trainer(user, ref)
 
     def return_to_home(self):
         self.control.show_frame(SC.main_screen)

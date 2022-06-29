@@ -21,7 +21,6 @@ class data_store():
                                       "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
         self.json_fake = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Test", "")
 
-
         self.download = os.path.join("C:\\Users", os.getenv('username'), "Downloads", "")
         self.check_directories()
 
@@ -214,6 +213,8 @@ class data_store():
                 "trained_on": record.trained_on,
                 "trainer": record.trainer,
                 "review_date": record.review_date,
+                "entered_by": record.logger,
+                "entered_on": record.review_date,
                 "level": record.level,
                 "note": record.notes,
             },
@@ -223,12 +224,13 @@ class data_store():
     def add_training_to_file(self, training_data, ref):
         file_loc = f"{ref}.csv"
         raw_path = os.path.join(self.data_path, file_loc)
-        try:
+        data_path = os.listdir(self.data_path)
+        if file_loc in data_path:
             with open(raw_path, 'a', newline='') as file:
                 writer = csv.writer(file, delimiter=',')
                 writer.writerow(training_data)
-                return True
-        except FileNotFoundError:
+            return True
+        else:
             return False
 
     def get_login_data(self):
@@ -239,6 +241,7 @@ class data_store():
             title_names = ["Name", "Password", "Admin"]
             create = pd.DataFrame(columns=title_names)
             create.to_csv(raw_path, index=False)
+            return False
         else:
             output_data = data.to_dict(orient="records")
             return output_data
@@ -251,7 +254,6 @@ class data_store():
         for user in output_data:
             if user["Name"] == name:
                 return False
-        print("new person")
         new_data = {
             "Name": name,
             "Password": encrypt2,
@@ -273,13 +275,17 @@ class data_store():
     def update_user(self, name, password, admin):
         raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
+        result = None
         encrypt2 = cryptocode.encrypt(password, KEY)
-        # encrypt_password = onetimepad.encrypt(password, KEY)
-        # encrypt2 = onetimepad.encrypt(encrypt_password, KEY)
-        data.loc[data['Name'] == name, 'Password'] = encrypt2
-        data.loc[data['Name'] == name, 'admin'] = admin
-
-        return encrypt2
+        output_data = data.to_dict(orient="records")
+        for user in output_data:
+            if user['Name'] == name:
+                data.loc[data['Name'] == name, 'Password'] = encrypt2
+                data.loc[data['Name'] == name, 'admin'] = admin
+                result = encrypt2
+            else:
+                result = False
+        return result
 
     def check_directories(self):
         '''
@@ -326,14 +332,20 @@ class data_store():
 
     def reset_training_file(self):
         train_path = os.path.abspath(self.json_path + '.train.json')
+        doc_path = os.path.abspath(self.json_path + '.doc.json')
         if os.path.exists(train_path):
             os.remove(train_path)
+        if os.path.exists(doc_path):
+            os.remove(doc_path)
 
     def get_user_admin_status(self, name):
         raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
+        result = None
         output_data = data.to_dict(orient="records")
         for item in output_data:
             if item['Name'] == name:
-                print(f"admin = {type(item['admin'])}")
-                return item['admin']
+                result = item['admin']
+            else:
+                result = False
+        return result
