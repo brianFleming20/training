@@ -14,14 +14,13 @@ class data_store():
 
     def __init__(self):
         self.data = []
-        # self.data_path = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Training\\Docs", "")
+
         self.data_path = os.path.join("C:\\Users", os.getenv('username'),
                                       "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
         self.json_path = os.path.join("C:\\Users", os.getenv('username'),
                                       "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
-        self.json_fake = os.path.join("C:\\Users", os.getenv('username'), "Desktop\\Test", "")
-
-        self.download = os.path.join("C:\\Users", os.getenv('username'), "Downloads", "")
+        self.my_path = "Files\Docs"
+        self.my_json = 'Shared No Security - Documents\Brian Fleming\Training Database'
         self.check_directories()
 
     def write_user(self, user):
@@ -234,7 +233,10 @@ class data_store():
             return False
 
     def get_login_data(self):
-        raw_path = os.path.join(self.data_path, "Login.csv")
+        raw_path = os.path.join(os.getcwd(), "Files\Docs\Login.csv")
+        os.chdir(self.json_path)
+
+        mb.showinfo(title="Directory", message=f"{os.getcwd()}")
         try:
             data = pd.read_csv(raw_path)
         except FileNotFoundError:

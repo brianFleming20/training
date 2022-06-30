@@ -20,8 +20,8 @@ class AdminTests(unittest.TestCase):
         self.edit = AU.EditUser(self.parent, self.controller)
         self.add_doc = AU.addNewDocument(self.parent, self.controller)
         self.train = AU.RecordTraining(self.parent, self.controller)
-        self.show.documents = Listbox(self.parent ,exportselection=False)
-        self.show.users = Listbox(self.parent ,exportselection=False)
+        self.show.documents = Listbox(self.parent, exportselection=False)
+        self.show.users = Listbox(self.parent, exportselection=False)
 
     def test_add_user(self):
         print("Test add new user")
@@ -30,12 +30,57 @@ class AdminTests(unittest.TestCase):
         conf_pass = "letmein"
         email = "my new email"
         encrypt = "testtesttest"
-        admin = True
-        administrator = 1
+        self.adduser.name.set(name)
+        self.adduser.passw.set(password)
+        self.adduser.conf_pass.set(conf_pass)
+        self.adduser.email.set(email)
+        self.adduser.update_overwrite()
+        self.adduser.update_admin()
 
-        result = self.adduser.create_user(name,password,conf_pass,email, admin,encrypt, administrator)
+        result = self.adduser.add_user( encrypt)
 
         self.assertEqual(result, True)
+
+    def test_passwords_different(self):
+        print("Test for different passwords")
+        name = "Alan"
+        password = "letmein"
+        conf_pass = "letmeout"
+        email = "my new email"
+        encrypt = "testtesttest"
+        admin = False
+        administrator = 0
+
+        result = self.adduser.create_user(name, password, conf_pass, email, admin, encrypt, administrator)
+        self.assertEqual(result, False)
+
+    def test_name_missing(self):
+        print("test name missing")
+        name = ""
+        password = "letmein"
+        conf_pass = "letmein"
+        email = "my new email"
+        encrypt = "testtesttest"
+        admin = False
+        administrator = 0
+
+        self.adduser.name.set(name)
+
+        result = self.adduser.add_user( password, conf_pass, email, admin, encrypt, administrator)
+        self.assertEqual(result, False)
+
+    def test_no_email(self):
+        print("test no email")
+        name = "Alan"
+        password = "letmein"
+        conf_pass = "letmeout"
+        email = ""
+        encrypt = "testtesttest"
+        admin = False
+        administrator = 0
+
+        result = self.adduser.create_user(name, password, conf_pass, email, admin, encrypt, administrator)
+        self.assertEqual(result, False)
 
 
     def test_set_trainer_state(self):
@@ -64,7 +109,7 @@ class AdminTests(unittest.TestCase):
 
         self.adduser.update_admin()
         result1 = self.adduser.get_administrator()
-        self.assertEqual(1,result1)
+        self.assertEqual(1, result1)
 
         self.adduser.update_admin()
         result2 = self.adduser.get_administrator()
@@ -73,12 +118,11 @@ class AdminTests(unittest.TestCase):
     def test_edit_doc_data(self):
         print("Test edit doc")
         doc = "9070-1209"
-        self.show.documents.insert(END,doc)
+        self.show.documents.insert(END, doc)
         self.show.documents.select_set(0)
         self.show.edit_current_doc("event")
         result = IN.extend_interface()[0]
-        self.assertEqual(doc,result)
-
+        self.assertEqual(doc, result)
 
     def test_edit_user_data(self):
         print("Test edit user")
@@ -88,10 +132,10 @@ class AdminTests(unittest.TestCase):
         self.show.edit_current_user("event")
         result = IN.extend_interface()[0]
 
-        self.assertEqual(user,result)
+        self.assertEqual(user, result)
 
     def test_update_trainer(self):
-        print("Test update is trainer")
+        print("Test update is trainer in edit user class")
 
         expected = True
         self.edit.update_trainer()
@@ -106,14 +150,13 @@ class AdminTests(unittest.TestCase):
         print("Test update user")
         user = TR.get_blank_user()
         user.name = "Fred"
-        user.email = "non yet"
+        user.email = "none yet"
         user.is_trainer = False
         expected = user.name
-        self.edit.set_for_test("password",2,user.name)
+        self.edit.set_for_test("password", 2, user.name)
         result_user = self.edit.update_user()
         result = result_user.name
         self.assertEqual(expected, result)
-
 
     def test_add_new_document(self):
         print("Test add new document")
@@ -129,9 +172,11 @@ class AdminTests(unittest.TestCase):
         for doc in docs:
             if doc == self.add_doc.doc_reference.get():
                 result2 = self.add_doc.doc_reference.get()
-                self.assertEqual(doc,result2)
+                self.assertEqual(doc, result2)
 
-
+        removed = TR.remove_document(self.add_doc.doc_reference.get())
+        print(self.add_doc.doc_reference.get())
+        self.assertEqual(removed,True)
 
 
 if __name__ == '__main__':
