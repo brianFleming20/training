@@ -14,18 +14,16 @@ class data_store():
 
     def __init__(self):
         self.data = []
-
-        self.data_path = os.path.join("C:\\Users", os.getenv('username'),
-                                      "Deltex Medical\Training - Documents\Training Database\Files\Docs", "")
-        self.json_path = os.path.join("C:\\Users", os.getenv('username'),
-                                      "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
-        self.my_path = "Files\Docs"
-        self.my_json = 'Shared No Security - Documents\Brian Fleming\Training Database'
+        self.base_path = os.path.abspath("C:\\Users")
+        self.file_data = os.path.join(self.base_path, os.getenv('username'))
+        self.data_path = ""
+        self.json_path = ""
+        self.read_data_file_locations()
         self.check_directories()
 
-    def write_user(self, user):
 
-        fullPath = os.path.abspath(self.json_path + '.file.user')
+    def write_user(self, user):
+        fullPath = os.path.abspath(self.json_path + '\.file.user')
         if user.name == None:
             mb.showerror(title="Save User Error", message="User cannot be none.")
             return False
@@ -43,16 +41,40 @@ class data_store():
                     json.dump(data, user_file, indent=4)
             return True
 
+    def write_data_file_locations(self):
+        raw_path = os.path.join(self.file_data, "DataLocation.json")
+        data = self.search_data_path()
+        data_file = self.search_path()
+        file_obj = {
+            "location1": data,
+            "location2": data_file
+        }
+        with open(raw_path, 'w') as user_file:
+            json.dump(file_obj, user_file, indent=4)
+
+    def read_data_file_locations(self):
+        raw_path = os.path.join(self.file_data, "DataLocation.json")
+        flag = os.path.exists(raw_path)
+        if flag:
+            with open(raw_path, 'r') as load_user_file:
+                load_data = json.load(load_user_file)
+            self.json_path = load_data['location1']
+            self.data_path = load_data['location2']
+        else:
+            mb.showinfo(title="Creating file locations",message="Please wait until finished...")
+            self.write_data_file_locations()
+
+
     def write_user_admin(self, user, password, admin):
         self.save_data(user, password, admin)
 
     def dump_users(self, users):
-        fullPath = os.path.abspath(self.json_path + '.file.user')
+        fullPath = os.path.abspath(self.json_path + '\.file.user')
         with open(fullPath, 'w') as user_file:
             json.dump(users, user_file, indent=4)
 
     def read_users_data(self):
-        fullPath = os.path.abspath(self.json_path + '.file.user')
+        fullPath = os.path.abspath(self.json_path + '\.file.user')
         try:
             with open(fullPath, 'r') as load_user_file:
                 load_data = json.load(load_user_file)
@@ -94,7 +116,7 @@ class data_store():
             return False
 
     def write_document(self, document):
-        docPath = os.path.abspath(self.json_path + '.doc.json')
+        docPath = os.path.abspath(self.json_path + '\.doc.json')
         doc_json = self.create_doc_file(document)
         try:
             with open(docPath, 'r') as doc_file:
@@ -108,22 +130,24 @@ class data_store():
                 json.dump(data, doc_file, indent=4)
 
     def dump_documents(self, docs):
-        fullPath = os.path.abspath(self.json_path + '.doc.json')
+        fullPath = os.path.abspath(self.json_path + '\.doc.json')
         with open(fullPath, 'w') as user_file:
             json.dump(docs, user_file, indent=4)
 
     def get_all_documents(self):
-        docPath = os.path.abspath(self.json_path + '.doc.json')
+        docPath = os.path.abspath(self.json_path + '\.doc.json')
+        result = False
         try:
             with open(docPath, 'r') as docs_file:
                 docs_data = json.load(docs_file)
         except FileNotFoundError:
             mb.showinfo(title="     Document Error ", message="Document not found.")
         else:
-            return docs_data
+            result = docs_data
+        return result
 
     def add_training_record(self, training_obj):
-        trainPath = os.path.abspath(self.json_path + '.train.json')
+        trainPath = os.path.abspath(self.json_path + '\.train.json')
         train_json = self.create_training_file(training_obj)
         try:
             with open(trainPath, 'r') as doc_file:
@@ -141,12 +165,13 @@ class data_store():
             self.add_training_to_user(training_obj)
 
     def dump_training_data(self, data):
-        trainPath = os.path.abspath(self.json_path + '.train.json')
+        trainPath = os.path.abspath(self.find_json_files() + '\.train.json')
         with open(trainPath, 'w') as train_file:
             json.dump(data, train_file, indent=4)
 
     def get_all_training(self):
-        trainPath = os.path.abspath(self.json_path + '.train.json')
+
+        trainPath = os.path.abspath(self.find_json_files() + '\.train.json')
         try:
             with open(trainPath, 'r') as train_file:
                 train_data = json.load(train_file)
@@ -156,7 +181,7 @@ class data_store():
             return train_data
 
     def add_training_to_user(self, training_obj):
-        train_path = os.path.abspath(self.json_path + '.train.json')
+        train_path = os.path.abspath(self.find_json_files() + '\.train.json')
         the_values = self.create_new_train_items(training_obj)
         if training_obj.username in self.get_all_training():
             with open(train_path, 'r') as train_file:
@@ -166,6 +191,9 @@ class data_store():
                         for key, val in the_values.items():
                             train_data[the_user][key] = val
                             self.dump_training_data(train_data)
+                            return True
+                    else:
+                        return False
 
     def update_training_file(self, training_file, doc_ref):
         result = self.add_training_to_file(training_file, doc_ref)
@@ -233,10 +261,7 @@ class data_store():
             return False
 
     def get_login_data(self):
-        raw_path = os.path.join(os.getcwd(), "Files\Docs\Login.csv")
-        os.chdir(self.json_path)
-
-        mb.showinfo(title="Directory", message=f"{os.getcwd()}")
+        raw_path = os.path.join(self.data_path, "Login.csv")
         try:
             data = pd.read_csv(raw_path)
         except FileNotFoundError:
@@ -293,15 +318,18 @@ class data_store():
         '''
         Check that the directories exist, if not create them        
         '''
+
         if not os.path.isdir(self.json_path):
             try:
                 os.makedirs(self.json_path, 0o777)
             except OSError:
-                pass
+                mb.showinfo(title="Database Info",
+                            message=f"Database location Error \n{self.json_path}\nChecking system files.")
 
             else:
                 mb.showinfo(title="Database Info",
                             message=f"Successfully created the directory \n{self.json_path}\nImporting system files. Please wait.")
+
 
                 # path = "https://dtxmedical.sharepoint.com/:u:/s/SharedNoSecurity/Ef_r7mG-GqtJrIVHHvImXBkBqJKvKQwgvnc-ru3kjdphlQ?e=Mhy3Cy&download=1"
                 # webbrowser.open(path)
@@ -330,11 +358,12 @@ class data_store():
                 # except:
                 #     pass
 
-
+    def get_data_file_location(self):
+        return self.json_path
 
     def reset_training_file(self):
-        train_path = os.path.abspath(self.json_path + '.train.json')
-        doc_path = os.path.abspath(self.json_path + '.doc.json')
+        train_path = os.path.abspath(self.json_path + '\.train.json')
+        doc_path = os.path.abspath(self.json_path + '\.doc.json')
         if os.path.exists(train_path):
             os.remove(train_path)
         if os.path.exists(doc_path):
@@ -351,3 +380,45 @@ class data_store():
             else:
                 result = False
         return result
+
+    def find_data_files(self):
+        if self.data_path == "":
+            self.data_path = self.search_path()
+        else:
+            return self.data_path
+
+    def find_json_files(self):
+        if self.json_path == "":
+            self.json_path = self.search_data_path()
+        else:
+            return self.json_path
+
+    def search_path(self):
+        name = "Deltex Medical"
+        file = "Training - Documents"
+        location = "Training Database"
+        training_files = "Files"
+        endpoint = "Docs"
+        for root, dirs, files in os.walk(self.base_path):
+            if name in root:
+                if file in root:
+                    if location in root:
+                        if training_files in root:
+                            if endpoint in root:
+                                return root
+
+
+    def search_data_path(self):
+        name = "Deltex Medical"
+        file = "Shared No Security - Documents"
+        location = "Brian Fleming"
+        data_files = "Training Database"
+        endpoint = "DataFiles"
+
+        for root, dirs, files in os.walk(self.base_path):
+            if name in root:
+                if file in root:
+                    if location in root:
+                        if data_files in root:
+                            if endpoint in root:
+                                return root

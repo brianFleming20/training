@@ -54,10 +54,19 @@ class AddNewUser(tk.Frame):
         self.admin_state = IntVar()
 
     def refresh_window(self):
+        ##################################################################
+        # Sets the date now                                              #
+        ##################################################################
         self.time.set(TR.get_date_now())
         self.data.clear()
         self.canvas_back.delete('all')
+        ##################################################################
+        # Gets the logged in user                                        #
+        ##################################################################
         self.logged_in = TR.get_user(TR.get_logged_in_user())
+        ##################################################################
+        # Sets up the display for adding a user                          #
+        ##################################################################
         Button(self.canvas_btndis, text="Show Users", command=self.show_users, width=12, bg='#54BAB9').place(x=20,
                                                                                                              y=160)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
@@ -68,7 +77,9 @@ class AddNewUser(tk.Frame):
         Label(self.canvas_back, text="New Password ", bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50, y=180)
         Label(self.canvas_back, text="Email address",bg="#E9DAC1").place(x=50, y=250)
-
+        ####################################################################
+        # Gets the user interaction data                                   #
+        ####################################################################
         name = Entry(self.canvas_back, textvariable=self.name, width=35)
         name.place(x=210, y=100)
         password = Entry(self.canvas_back, textvariable=self.passw, width=25)
@@ -77,14 +88,20 @@ class AddNewUser(tk.Frame):
         conf_password.place(x=210, y=180)
         email = Entry(self.canvas_back, textvariable=self.email, width=40)
         email.place(x=210, y=260)
-
+        #######################################################################
+        # Sets up and checks for the logged in user is a trainer and sets     #
+        # the checkbox to the users trainer state                             #
+        #######################################################################
         self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
                                        variable=self.admin_state, command=self.update_overwrite, font=("Courier", 10))
         self.admin_state.get()
         self.checkbutton.place(x=80, y=520)
-        btn5 = Button(self.canvas_back, text="Add User", command=self.add_user, width=12, bg='#54BAB9')
+        btn5 = Button(self.canvas_back, text="Add User", command=self.show_users_screen, width=12, bg='#54BAB9')
         btn5.place(x=680, y=500)
-
+        #######################################################################
+        # Sets up and checks for the logged in user is an admin and sets      #
+        # the checkbox to the users admin state                               #
+        #######################################################################
         if self.logged_in['is_trainer']:
             self.adminbutton = Checkbutton(self.canvas_back, text="   Admin    ",
                                            variable=self.administrator_state, command=self.update_admin,
@@ -128,11 +145,13 @@ class AddNewUser(tk.Frame):
         encrypt_password = cryptocode.encrypt(self.passw.get(), ENTRY)
         if self.name.get() == "" or self.passw.get() == "" or self.email.get() == "":
             mb.showerror(title="Entry Error", message="Some of the fields are empty, \ntry again.")
+            return False
         else:
             if self.create_user(self.name.get(), self.passw.get(), self.conf_pass.get(),
                                 self.email.get(), self.admin, encrypt_password,
                                 self.administrator):
-                self.control.show_frame(ShowUsers)
+                return True
+
             else:
                 mb.showerror(title="User Error", message="User not created.")
                 return False
@@ -146,6 +165,10 @@ class AddNewUser(tk.Frame):
         else:
             mb.showerror(title="User Error", message="Your passwords don't match.")
             return False
+
+    def show_users_screen(self):
+        if self.add_user():
+            self.control.show_frame(ShowUsers)
 
 
 class ShowUsers(tk.Frame):
@@ -427,7 +450,7 @@ class addNewDocument(tk.Frame):
         self.doc_iss.place(x=210, y=180)
 
         Button(self.canvas_back, text="Add Document", width=12,
-               command=self.add_new_document,
+               command=self.show_user_window,
                bg='#54BAB9', ).place(x=680, y=500)
 
     def return_to_home(self):
@@ -439,18 +462,23 @@ class addNewDocument(tk.Frame):
     def add_new_document(self):
         if self.name.get() == "" or self.doc_issue.get() == "" or self.doc_reference.get() == "":
             mb.showerror(title="Entry Error", message="Some of your inputs are empty, \ntry again.")
+            return False
         else:
             self.add_doc()
             self.name.set("")
             self.doc_reference.set("")
             self.doc_issue.set(0)
             mb.showinfo(title="Document", message="New document has been added.")
-            self.control.show_frame(ShowUsers)
+            return True
 
     def add_doc(self):
         document = DOC.MakeDoc(name=self.name.get(), issue=self.doc_issue.get(), ref=self.doc_reference.get())
         TR.add_document(document)
-        return True
+
+
+    def show_user_window(self):
+        if self.add_new_document():
+            self.control.show_frame(ShowUsers)
 
 
 

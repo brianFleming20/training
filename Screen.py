@@ -388,14 +388,12 @@ class main_screen(tk.Frame):
         training_events = TR.get_all_training()
         for user, event in training_events.items():
             for ref, items in event.items():
-                print(items)
                 if ref[:9] == doc:
                     self.doc_no.insert(END, ref)
                     self.doc_train.insert(END, items['trained_on'])
                     self.doc_expire.insert(END, items['review_date'])
                     self.doc_note.insert(END, items['note'])
                     self.doc_name.insert(END, items['name'])
-                    print(f"trainer = {items['name']}")
                     item = TR.get_a_document(ref[:9])
                     self.doc_issue.insert(END, item['issue'])
                     self.doc_users.insert(END, user)

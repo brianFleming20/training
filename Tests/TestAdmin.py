@@ -23,13 +23,15 @@ class AdminTests(unittest.TestCase):
         self.show.documents = Listbox(self.parent, exportselection=False)
         self.show.users = Listbox(self.parent, exportselection=False)
 
+    def show_users_screen(self):
+        pass
+
     def test_add_user(self):
         print("Test add new user")
         name = "Alan"
         password = "letmein"
         conf_pass = "letmein"
         email = "my new email"
-        encrypt = "testtesttest"
         self.adduser.name.set(name)
         self.adduser.passw.set(password)
         self.adduser.conf_pass.set(conf_pass)
@@ -37,7 +39,7 @@ class AdminTests(unittest.TestCase):
         self.adduser.update_overwrite()
         self.adduser.update_admin()
 
-        result = self.adduser.add_user( encrypt)
+        result = self.adduser.add_user()
 
         self.assertEqual(result, True)
 
@@ -47,11 +49,14 @@ class AdminTests(unittest.TestCase):
         password = "letmein"
         conf_pass = "letmeout"
         email = "my new email"
-        encrypt = "testtesttest"
-        admin = False
-        administrator = 0
+        self.adduser.name.set(name)
+        self.adduser.passw.set(password)
+        self.adduser.conf_pass.set(conf_pass)
+        self.adduser.email.set(email)
+        self.adduser.update_overwrite()
+        self.adduser.update_admin()
 
-        result = self.adduser.create_user(name, password, conf_pass, email, admin, encrypt, administrator)
+        result = self.adduser.add_user()
         self.assertEqual(result, False)
 
     def test_name_missing(self):
@@ -60,14 +65,18 @@ class AdminTests(unittest.TestCase):
         password = "letmein"
         conf_pass = "letmein"
         email = "my new email"
-        encrypt = "testtesttest"
-        admin = False
-        administrator = 0
+        self.adduser.name.set(name)
+        self.adduser.passw.set(password)
+        self.adduser.conf_pass.set(conf_pass)
+        self.adduser.email.set(email)
+        self.adduser.update_overwrite()
+        self.adduser.update_admin()
 
         self.adduser.name.set(name)
 
-        result = self.adduser.add_user( password, conf_pass, email, admin, encrypt, administrator)
+        result = self.adduser.add_user()
         self.assertEqual(result, False)
+
 
     def test_no_email(self):
         print("test no email")
@@ -75,11 +84,14 @@ class AdminTests(unittest.TestCase):
         password = "letmein"
         conf_pass = "letmeout"
         email = ""
-        encrypt = "testtesttest"
-        admin = False
-        administrator = 0
+        self.adduser.name.set(name)
+        self.adduser.passw.set(password)
+        self.adduser.conf_pass.set(conf_pass)
+        self.adduser.email.set(email)
+        self.adduser.update_overwrite()
+        self.adduser.update_admin()
 
-        result = self.adduser.create_user(name, password, conf_pass, email, admin, encrypt, administrator)
+        result = self.adduser.add_user()
         self.assertEqual(result, False)
 
 

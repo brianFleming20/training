@@ -272,7 +272,7 @@ class show_event_window(tk.Frame):
                     if ref != "Login" and TR.get_email_date(items['review_date']):
                         text_area.insert(INSERT,
                                          f"{user :<18s}{items['name']:^55s}{items['review_date']:^8}\n")
-                    complete = True
+                        complete = True
 
         text_area.config(state=DISABLED)
         return complete

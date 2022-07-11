@@ -125,8 +125,9 @@ class Training:
                                       note=note)
             training_to_file = [doc_data['issue'], user_data['name'], level, trainer, self.get_date_now(),
                                 self.get_review_date(), self.get_logged_in_user(), self.get_date_now(), note]
-            DS.add_training_to_user(training)
-            result = DS.update_training_file(training_to_file, document)
+            result = DS.add_training_to_user(training)
+            # result = DS.update_training_file(training_to_file, document)
+
             return result
         else:
             return False

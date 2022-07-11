@@ -86,7 +86,7 @@ class TrainingTests(unittest.TestCase):
     def test_save_user(self):
         print("Save a user to file")
 
-        result = TR.save_user(self.b_user)
+        TR.save_user(self.b_user)
 
         name = "Hendryk"
         expected = "no email yet"
@@ -136,6 +136,8 @@ class TrainingTests(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+
+
     def test_get_user_training(self):
         print("Get a training record")
         name = "Brian Fleming"
@@ -177,6 +179,7 @@ class TrainingTests(unittest.TestCase):
         date4 = "15/06/22"
         date5 = DT.datetime.now()
         date6 = 0.0
+        date7 = ""
 
         expected = False
         expected_today = True
@@ -204,6 +207,10 @@ class TrainingTests(unittest.TestCase):
         check6 = TR.check_date_format(date6)
         result6 = TR.get_email_date(check6)
         self.assertEqual(expected_today,result6)
+
+        check7 = TR.check_date_format(date7)
+        result7 = TR.get_email_date(check7)
+        self.assertEqual(False,result7)
 
 
 if __name__ == '__main__':
