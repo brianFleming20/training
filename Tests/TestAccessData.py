@@ -24,7 +24,7 @@ class remoteDataTests(unittest.TestCase):
                                      "Deltex Medical\Training - Documents\Training Database\Files", "")
         raw_path = os.path.join(self.path_doc, "TrainingDocs.csv")
         self.path_doc_json = os.path.join("C:\\Users", os.getenv('username'),
-                                          "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database",
+                                          "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database\DataFiles",
                                           "")
         AD.doc_names = pd.read_csv(raw_path)
 
@@ -48,6 +48,7 @@ class remoteDataTests(unittest.TestCase):
 
     def test_one_dataframe(self):
         print("Test the dataframe save method")
+
         ref_number = '9070-1203.csv'
         raw_path = os.path.join(self.path, ref_number)
         header10 = ["Issue", "Trainee", "Level", "Trainer", "Date_Trained", "Review_date", "Logged_by",
@@ -60,10 +61,10 @@ class remoteDataTests(unittest.TestCase):
 
         self.assertEqual(True, result)
 
-        if not os.path.abspath(self.path_doc_json + '.file.user'):
+        if not os.path.abspath(self.path_doc_json + '\.file.user'):
             json_path = False
         else:
-            json_path = os.path.abspath(self.path_doc_json + '.file.user')
+            json_path = os.path.abspath(self.path_doc_json + '\.file.user')
         print(json_path)
 
         with open(json_path, 'r') as user_file:
@@ -72,6 +73,12 @@ class remoteDataTests(unittest.TestCase):
         for user,data in users.items():
             if user == 'Grant':
                 self.assertEqual(user, expected)
+
+    def test_progress_bar(self):
+        print("Test progress bar")
+
+        AD.get_user_info()
+
 
 
 

@@ -4,6 +4,8 @@ from tkinter import messagebox as mb
 import pandas as pd
 import cryptocode
 import csv
+from tkinter import *
+from tkinter import ttk
 
 KEY = "ByH1KHdo7y30I6aN"
 USERNAME = "brian.fleming@dtxmedical.onmicrosoft.com"
@@ -13,13 +15,14 @@ PASSWORD = "Manakin88%G"
 class data_store():
 
     def __init__(self):
+        self.total = 0.1
         self.data = []
         self.base_path = os.path.abspath("C:\\Users")
-        self.file_data = os.path.join(self.base_path, os.getenv('username'))
+        self.file_data = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
         self.data_path = ""
         self.json_path = ""
         self.read_data_file_locations()
-        self.check_directories()
+        # self.check_directories()
 
 
     def write_user(self, user):
@@ -43,6 +46,7 @@ class data_store():
 
     def write_data_file_locations(self):
         raw_path = os.path.join(self.file_data, "DataLocation.json")
+        self.show_prgress_screen("Getting file locations... ")
         data = self.search_data_path()
         data_file = self.search_path()
         file_obj = {
@@ -51,6 +55,7 @@ class data_store():
         }
         with open(raw_path, 'w') as user_file:
             json.dump(file_obj, user_file, indent=4)
+        self.destroy_window()
 
     def read_data_file_locations(self):
         raw_path = os.path.join(self.file_data, "DataLocation.json")
@@ -61,7 +66,6 @@ class data_store():
             self.json_path = load_data['location1']
             self.data_path = load_data['location2']
         else:
-            mb.showinfo(title="Creating file locations",message="Please wait until finished...")
             self.write_data_file_locations()
 
 
@@ -195,9 +199,9 @@ class data_store():
                     else:
                         return False
 
-    def update_training_file(self, training_file, doc_ref):
-        result = self.add_training_to_file(training_file, doc_ref)
-        return result
+    # def update_training_file(self, training_file, doc_ref):
+    #     result = self.add_training_to_file(training_file, doc_ref)
+    #     return result
 
     def create_user_dict(self, user):
         new_data = {
@@ -248,17 +252,32 @@ class data_store():
         }
         return new_doc
 
-    def add_training_to_file(self, training_data, ref):
-        file_loc = f"{ref}.csv"
-        raw_path = os.path.join(self.data_path, file_loc)
-        data_path = os.listdir(self.data_path)
-        if file_loc in data_path:
-            with open(raw_path, 'a', newline='') as file:
-                writer = csv.writer(file, delimiter=',')
-                writer.writerow(training_data)
-            return True
-        else:
-            return False
+    # def add_training_to_file(self, training_data, ref):
+    #     file_loc = f"{ref}.csv"
+    #     data_path = os.path.join("C:\\Users", os.getenv('username'),
+    #                              "Desktop\\Training\\Docs", "")
+    #     raw_path = os.path.join(data_path, file_loc)
+    #     data_path = os.listdir(data_path)
+    #     if file_loc in data_path:
+    #         with open(raw_path, 'a', newline='') as file:
+    #             writer = csv.writer(file, delimiter=',')
+    #             writer.writerow(training_data)
+    #         return True
+    #     else:
+    #         return False
+
+    # def remove_training_line(self, location,ref):
+    #     file_loc = f"{ref}.csv"
+    #     data_path = location
+    #     raw_path = os.path.join(data_path, file_loc)
+    #     data_path = os.listdir(data_path)
+    #     if file_loc in data_path:
+    #         with open(raw_path, 'r') as file:
+    #             lines = file.readlines()
+    #     lines = lines[:-1]
+    #     with open(raw_path, 'w', newline='') as file:
+    #         for line in lines:
+    #             file.write(line)
 
     def get_login_data(self):
         raw_path = os.path.join(self.data_path, "Login.csv")
@@ -320,15 +339,9 @@ class data_store():
         '''
 
         if not os.path.isdir(self.json_path):
-            try:
-                os.makedirs(self.json_path, 0o777)
-            except OSError:
-                mb.showinfo(title="Database Info",
-                            message=f"Database location Error \n{self.json_path}\nChecking system files.")
 
-            else:
-                mb.showinfo(title="Database Info",
-                            message=f"Successfully created the directory \n{self.json_path}\nImporting system files. Please wait.")
+            os.makedirs(self.json_path, 0o777)
+
 
 
                 # path = "https://dtxmedical.sharepoint.com/:u:/s/SharedNoSecurity/Ef_r7mG-GqtJrIVHHvImXBkBqJKvKQwgvnc-ru3kjdphlQ?e=Mhy3Cy&download=1"
@@ -392,6 +405,7 @@ class data_store():
             self.json_path = self.search_data_path()
         else:
             return self.json_path
+        self.check_directories()
 
     def search_path(self):
         name = "Deltex Medical"
@@ -400,6 +414,7 @@ class data_store():
         training_files = "Files"
         endpoint = "Docs"
         for root, dirs, files in os.walk(self.base_path):
+            self.increase_total(0.01)
             if name in root:
                 if file in root:
                     if location in root:
@@ -414,11 +429,48 @@ class data_store():
         location = "Brian Fleming"
         data_files = "Training Database"
         endpoint = "DataFiles"
-
         for root, dirs, files in os.walk(self.base_path):
+            self.increase_total(0.01)
             if name in root:
                 if file in root:
                     if location in root:
                         if data_files in root:
                             if endpoint in root:
                                 return root
+
+
+    def show_prgress_screen(self, title):
+        self.window = Tk()
+        self.window.title("Please wait")
+        w = 330  # width for the Tk root
+        h = 150  # height for the Tk root
+
+        # calculate x and y coordinates for the Tk root window
+        x = (1000 / 2) - (w / 2)
+        y = (800 / 2) - (h / 2)
+
+        # set the dimensions of the screen
+        # and where it is placed
+        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.window.attributes('-topmost', True)
+        Label(self.window, text=title).place(x=90, y=35)
+        # progressbar
+        self.pb = ttk.Progressbar(
+            self.window,
+            orient='horizontal',
+            mode='determinate',
+            length=280
+        )
+        # place the progressbar
+        self.pb.place(x=20, y=100)
+        Tk.update(self.window)
+
+    def destroy_window(self):
+        self.pb['value'] = 100
+        self.window.destroy()
+
+    def increase_total(self,num):
+        self.total += num
+        if self.pb['value'] < 100:
+            self.pb['value'] = self.total
+            self.window.update_idletasks()

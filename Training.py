@@ -33,6 +33,8 @@ class Training:
         return date_convert
 
     def check_date_format(self, review):
+        if review == "":
+            review = DT.datetime.strftime(DT.datetime.now(), "%d/%m/%Y")
         if type(review) == str:
             if len(review) < 9:
                 mon = review[:6]
@@ -117,14 +119,14 @@ class Training:
         DS.write_user_admin(user.name, password, admin)
 
     def register_trained(self, document, user, level,trainer, note):
-        doc_data = self.get_a_document(document)
-        user_data = self.get_user(user)
+        # doc_data = self.get_a_document(document)
+        # user_data = self.get_user(user)
         if document in self.get_documents():
             training = CreateTraining(username=user, doc_ref=document, train_date=self.get_date_now(),trainer=trainer,
                                       review=self.get_review_date(), level=level, logger=self.get_logged_in_user(),
                                       note=note)
-            training_to_file = [doc_data['issue'], user_data['name'], level, trainer, self.get_date_now(),
-                                self.get_review_date(), self.get_logged_in_user(), self.get_date_now(), note]
+            # training_to_file = [doc_data['issue'], user_data['name'], level, trainer, self.get_date_now(),
+            #                     self.get_review_date(), self.get_logged_in_user(), self.get_date_now(), note]
             result = DS.add_training_to_user(training)
             # result = DS.update_training_file(training_to_file, document)
 

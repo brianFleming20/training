@@ -5,6 +5,8 @@ import User
 import Login
 import DataStore
 import datetime as DT
+import csv
+import os
 
 TR = Training.Training()
 TE = Training
@@ -123,18 +125,24 @@ class TrainingTests(unittest.TestCase):
 
     def test_add_training(self):
         print("Resister a training record")
-
+        file_location = os.path.join("C:\\Users", os.getenv('username'),
+                                 "Desktop\\Training\\Docs", "")
         expected = True
         document = "9070-1203"
         user = "Brian Fleming"
         level = 3
         trainer = "Lee"
         password = "password"
+        issue = 1
+        note = "a note"
         LG.Login(user, password)
+        training_to_file = [issue, user, level, trainer, TR.get_date_now(),
+                            TR.get_review_date(), TR.get_logged_in_user(), TR.get_date_now(), note]
 
-        result = TR.register_trained(document,user,level,trainer, "Note")
+        # result = DS.add_training_to_file(training_to_file,document)
 
-        self.assertEqual(result, expected)
+        # self.assertEqual(result, expected)
+        # DS.remove_training_line(file_location,document)
 
 
 
@@ -153,7 +161,7 @@ class TrainingTests(unittest.TestCase):
     def test_get_email_date(self):
         print("Test getting email date")
 
-        review_date = "28-06-2022"
+        review_date = "10-07-2022"
 
         expected_review = True
 
@@ -209,8 +217,9 @@ class TrainingTests(unittest.TestCase):
         self.assertEqual(expected_today,result6)
 
         check7 = TR.check_date_format(date7)
+        print(check7)
         result7 = TR.get_email_date(check7)
-        self.assertEqual(False,result7)
+        self.assertEqual(expected_today,result7)
 
 
 if __name__ == '__main__':

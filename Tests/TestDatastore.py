@@ -70,7 +70,7 @@ class DatastoreTests(unittest.TestCase):
         name = "Jo-Jo"
 
         result = DS.get_user_admin_status(name)
-        DS.read_data_file_locations()
+        DS.write_data_file_locations()
 
         self.assertEqual(result, False)
 

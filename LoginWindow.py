@@ -67,10 +67,10 @@ class LoginWindow(tk.Frame):
         # When the working version is released, the username and password will be    #
         # replaced with the user input fields.                                       #
         ##############################################################################
-        username = "Lee Lindfield"
-        password = "password"
-        # username = self.username.get()
-        # password = self.password.get()
+        # username = "Lee Lindfield"
+        # password = "password"
+        username = self.username.get()
+        password = self.password.get()
         ##################################################
         # Send the user information to the login checker #
         # If it succeeds, the main screen will be shown  #

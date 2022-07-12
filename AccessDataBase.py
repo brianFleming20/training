@@ -57,7 +57,6 @@ class GetExternalData:
         # with zeros.                                        #
         ######################################################
         data = data.fillna(0)
-        self.total += 0.75
         #########################################
         # Returns the filtered data.            #
         #########################################
@@ -132,30 +131,8 @@ class GetExternalData:
 
     def get_user_info(self):
         DS.reset_training_file()
-        self.window = Tk()
-        self.window.title("Please wait")
-        w = 330  # width for the Tk root
-        h = 150  # height for the Tk root
 
-        # calculate x and y coordinates for the Tk root window
-        x = (1000 / 2) - (w / 2)
-        y = (800 / 2) - (h / 2)
-
-        # set the dimensions of the screen
-        # and where it is placed
-        self.window.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        self.window.attributes('-topmost', True)
-        Label(self.window, text="Building database, \nThis may take some time.").place(x=90, y=35)
-        # progressbar
-        self.pb = ttk.Progressbar(
-            self.window,
-            orient='horizontal',
-            mode='determinate',
-            length=280
-        )
-        # place the progressbar
-        self.pb.place(x=20,y=100)
-        Tk.update(self.window)
+        DS.show_prgress_screen("Building database, \nThis may take some time.")
         path = os.path.join(self.path_doc_json, "train.json")
         if os.path.exists(path):
             os.remove(path)
@@ -169,18 +146,14 @@ class GetExternalData:
         # Sort through all of the training files data    #
         ##################################################
         for files in os.listdir(self.path):
+            DS.increase_total(0.75)
             data, file = self.get_data(files)
-            if self.pb['value'] < 100:
-                self.pb['value'] = self.total
-                self.window.update_idletasks()
             if files[:5] == "Login":
                 pass
             else:
                 self.search_data(data, file)
                 pass
-        self.pb['value'] = 100
-        time.sleep(1)
-        self.window.destroy()
+        DS.destroy_window()
 
 
 
