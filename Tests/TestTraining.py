@@ -73,8 +73,8 @@ class TrainingTests(unittest.TestCase):
         print("Get logged in user")
 
         name = "Brian Fleming"
-        password = "password"
-        admin = 1
+        password = "my-password"
+        admin = "1"
         LG.Login(name,password)
 
         result = TR.get_logged_in_user()

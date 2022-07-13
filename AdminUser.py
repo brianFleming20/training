@@ -270,12 +270,14 @@ class ShowUsers(tk.Frame):
         self.index = int(self.users.curselection()[0])
         data_user = self.users.get(self.index)
         INT.provide_interface([data_user])
-        training = TR.get_training_record(data_user,"3007-0000")
-        if "longer" in str(training['note']):
-            return False
-        else:
-            return True
-
+        training = TR.get_all_training()
+        for user,data in training.items():
+            if data_user == user:
+                for ref,item in data.items():
+                    if "longer" in str(item['note']) or "company" in str(item['note']):
+                        return False
+                    else:
+                        return True
 
 class EditUser(tk.Frame):
     def __init__(self, parent, controller):
@@ -309,6 +311,7 @@ class EditUser(tk.Frame):
         self.data.clear()
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
+        self.email.set("")
         Button(self.canvas_btndis, text="Show User", command=self.show_users, width=12, bg='#54BAB9').place(x=20, y=80)
         btn1 = Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9')
         btn1.place(x=20,y=150)
@@ -393,11 +396,11 @@ class EditUser(tk.Frame):
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
             update_user.is_trainer = self.admin
-            update_user.password = encrypt_password
             update_user.email = self.email.get()
             if password != "":
                 TR.update_password(update_user.name, encrypt_password)
             return update_user
+
         else:
             mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
 
@@ -434,7 +437,7 @@ class addNewDocument(tk.Frame):
     def refresh_window(self):
         self.time.set(TR.get_date_now())
         Label(self.canvas_srdis, text="Add a new document").place(x=10, y=15)
-        Button(self.canvas_btndis, text="View Documents",
+        Button(self.canvas_btndis, text="Show Users",
                command=self.documents, width=12, bg='#54BAB9').place(x=20, y=80)
         Button(self.canvas_btndis, text="Main", width=12,
                command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)

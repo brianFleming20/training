@@ -23,7 +23,7 @@ class LoginTests(unittest.TestCase):
         print("\nTest user login")
 
         name = "Brian Fleming"
-        password = "password"
+        password = "my-password"
         user = UL.Login(name,password)
         print(user.name)
 

@@ -2,7 +2,7 @@
 '''
 Send an email to the user on training review date reached or near.
 '''
-
+import os
 
 import Training
 import smtplib

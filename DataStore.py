@@ -130,8 +130,10 @@ class data_store():
                 json.dump(doc_json, doc_file, indent=4)
         else:
             data.update(doc_json)
+            print(data)
             with open(docPath, 'w') as doc_file:
                 json.dump(data, doc_file, indent=4)
+            return True
 
     def dump_documents(self, docs):
         fullPath = os.path.abspath(self.json_path + '\.doc.json')
@@ -286,7 +288,7 @@ class data_store():
         try:
             data = pd.read_csv(raw_path)
         except FileNotFoundError:
-            title_names = ["Name", "Password", "Admin"]
+            title_names = ["Name", "Password", "admin"]
             create = pd.DataFrame(columns=title_names)
             create.to_csv(raw_path, index=False)
             return False
@@ -323,17 +325,18 @@ class data_store():
     def update_user(self, name, password, admin):
         raw_path = os.path.join(self.data_path, "Login.csv")
         data = pd.read_csv(raw_path)
-        result = None
-        encrypt2 = cryptocode.encrypt(password, KEY)
+        result = False
         output_data = data.to_dict(orient="records")
         for user in output_data:
             if user['Name'] == name:
-                data.loc[data['Name'] == name, 'Password'] = encrypt2
+                data.loc[data['Name'] == name, 'Password'] = password
                 data.loc[data['Name'] == name, 'admin'] = admin
-                result = encrypt2
+                result = password
             else:
                 result = False
+        data.to_csv(raw_path, mode='w', index=False)
         return result
+
 
     def check_directories(self):
         '''

@@ -28,7 +28,7 @@ class DatastoreTests(unittest.TestCase):
     def test_get_user_admin(self):
         print("Test user admin status")
         name = "Brian Fleming"
-        expected = 1
+        expected = "1"
 
         result = DS.get_user_admin_status(name)
 
@@ -39,7 +39,7 @@ class DatastoreTests(unittest.TestCase):
 
         name = "Lee Lindfield"
         password = "password"
-        admin = 1
+        admin = "1"
 
         expected = False
 
@@ -51,7 +51,7 @@ class DatastoreTests(unittest.TestCase):
         print("Test user login data")
 
         name = "Brian Fleming"
-        password = "password"
+        password = "my-password"
 
         LG.Login(name,password)
 
@@ -104,10 +104,11 @@ class DatastoreTests(unittest.TestCase):
     def test_4_update_user(self):
         print("Test update password")
         name = "Brian Fleming"
-        password = "my password"
+        password = "my-password"
         admin = 1
-        print(DS.json_path)
-        pw = DS.update_user(name, password, admin)
+        encrypted_password = cryptocode.encrypt(password,KEY)
+        pw = DS.update_user(name, encrypted_password, admin)
+
         result = cryptocode.decrypt(pw,KEY)
 
         self.assertEqual(result, password)
@@ -204,6 +205,10 @@ class DatastoreTests(unittest.TestCase):
         trainer = "Hendryk"
         level = 3
         note = "no status"
+        name = "Brian Fleming"
+        password = "my-password"
+
+        LG.Login(name, password)
         doc_number = document.reference_number
         result1 = TR.register_trained(doc_number,user.name,level,trainer,note)
 

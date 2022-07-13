@@ -9,16 +9,19 @@ Created on 9 March 2022
 '''
 
 import tkinter as tk
+import tkinter.messagebox
 from tkinter import *
 import Login
 import Screen
 import User
 import interface
+import Training
 
 UL = Login
 SC = Screen
 US = User
 INT = interface.interface()
+TR = Training.Training()
 
 
 class LoginWindow(tk.Frame):
@@ -71,8 +74,10 @@ class LoginWindow(tk.Frame):
         # password = "password"
         username = self.username.get().title()
         password = self.password.get()
-        if username == "Lee":
-            username = "Lee Lindfield"
+        for user in TR.get_all_users():
+            if username in user:
+                username = user
+
         ##################################################
         # Send the user information to the login checker #
         # If it succeeds, the main screen will be shown  #

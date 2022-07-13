@@ -161,13 +161,15 @@ class AdminTests(unittest.TestCase):
     def test_update_user(self):
         print("Test update user")
         user = TR.get_blank_user()
-        user.name = "Fred"
+        user.name = "Alan"
         user.email = "none yet"
         user.is_trainer = False
-        expected = user.name
+        expected = user.email
         self.edit.set_for_test("password", 2, user.name)
-        result_user = self.edit.update_user()
-        result = result_user.name
+        self.edit.update_user()
+        TR.save_user(user)
+        username = TR.get_user(user.name)
+        result = username['email']
         self.assertEqual(expected, result)
 
     def test_add_new_document(self):
@@ -176,9 +178,12 @@ class AdminTests(unittest.TestCase):
         self.add_doc.doc_issue.set(5)
         self.add_doc.doc_reference.set("1234-5678")
 
-        result1 = self.add_doc.add_doc()
+        self.add_doc.add_doc()
 
-        self.assertEqual(result1, True)
+        document = TR.get_a_document("1234-5678")
+        expected = document['name']
+
+        self.assertEqual(expected,"Da document")
 
         docs = TR.get_documents()
         for doc in docs:

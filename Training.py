@@ -203,7 +203,10 @@ class Training:
 
     def update_password(self, name, password):
         admin = DS.get_user_admin_status(name)
-        DS.update_user(name, password, admin)
+        if DS.update_user(name, password, admin):
+            return True
+        else:
+            return False
 
     def get_training_record(self, username, doc_ref):
         training_data = []
