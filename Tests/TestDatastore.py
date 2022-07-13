@@ -169,9 +169,9 @@ class DatastoreTests(unittest.TestCase):
         trainer = "Hendryk"
         level = 3
         note = "no status"
-
-        print(DS.get_data_file_location())
-        result = TR.register_trained(document, user, level, trainer, note)
+        doc_number = document.reference_number
+        # print(DS.get_data_file_location())
+        result = TR.register_trained(doc_number, user, level, trainer, note)
 
         training_to_file = [document.issue_number, user.name, level, trainer, TR.get_date_now(),
                             TR.get_review_date(), "System", TR.get_date_now(), note]
@@ -187,6 +187,8 @@ class DatastoreTests(unittest.TestCase):
 
         data_file = os.path.join(self.json_fake,"9070-1203.csv")
 
+        # DS.show_prgress_screen("Title")
+
         # with open(data_file, "a") as f:
         #     lines = f.readlines()
         #     lines = lines[:-1]
@@ -195,7 +197,23 @@ class DatastoreTests(unittest.TestCase):
         # for line in lines:
         #     cWriter.writerow(line)
 
+    def test_save_data_to_file(self):
+        print("Test save data to file")
+        document = MD.MakeDoc("Compressor Operation",1,"9070-2004")
+        user = U.User("Brian Fleming",False,"my-email@gmail.com")
+        trainer = "Hendryk"
+        level = 3
+        note = "no status"
+        doc_number = document.reference_number
+        result1 = TR.register_trained(doc_number,user.name,level,trainer,note)
 
+        username = user.name
+        training = TR.get_training_record(username,doc_number)
+        result2 = training['note']
+
+        self.assertEqual(result2,note)
+
+        self.assertEqual(result1,True)
 
 if __name__ == '__main__':
     unittest.main()

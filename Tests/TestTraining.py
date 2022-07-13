@@ -123,25 +123,25 @@ class TrainingTests(unittest.TestCase):
 
         self.assertGreater(result, expected)
 
-    def test_add_training(self):
-        print("Resister a training record")
-        file_location = os.path.join("C:\\Users", os.getenv('username'),
-                                 "Desktop\\Training\\Docs", "")
-        expected = True
-        document = "9070-1203"
-        user = "Brian Fleming"
-        level = 3
-        trainer = "Lee"
-        password = "password"
-        issue = 1
-        note = "a note"
-        LG.Login(user, password)
-        training_to_file = [issue, user, level, trainer, TR.get_date_now(),
-                            TR.get_review_date(), TR.get_logged_in_user(), TR.get_date_now(), note]
-
-        # result = DS.add_training_to_file(training_to_file,document)
-
-        # self.assertEqual(result, expected)
+    # def test_add_training(self):
+    #     print("Resister a training record")
+    #     file_location = os.path.join("C:\\Users", os.getenv('username'),
+    #                              "Desktop\\Training\\Docs", "")
+    #     expected = True
+    #     document = "9070-1203"
+    #     user = "Brian Fleming"
+    #     level = 3
+    #     trainer = "Lee"
+    #     password = "password"
+    #     issue = 1
+    #     note = "a note"
+    #     LG.Login(user, password)
+    #     training_to_file = [issue, user, level, trainer, TR.get_date_now(),
+    #                         TR.get_review_date(), TR.get_logged_in_user(), TR.get_date_now(), note]
+    #
+    #     result = DS.add_training_to_user(training_to_file)
+    #
+    #     self.assertEqual(result, expected)
         # DS.remove_training_line(file_location,document)
 
 
@@ -220,6 +220,13 @@ class TrainingTests(unittest.TestCase):
         print(check7)
         result7 = TR.get_email_date(check7)
         self.assertEqual(expected_today,result7)
+
+    def test_remove_user(self):
+        print("test show user no longer employee")
+
+        name = "Elayna Haines"
+
+        TR.record_user_left(name)
 
 
 if __name__ == '__main__':

@@ -266,10 +266,11 @@ class show_event_window(tk.Frame):
         text_area.insert(INSERT, f"{dash}\n")
         for user, event in TR.get_all_training().items():
             for ref, items in event.items():
-                if not items['note'] or type(items['note']) == str and "No longer an employee" in items['note']:
+                email_date = TR.get_email_date(items['review_date'])
+                if not items['note'] or type(items['note']) == str and "longer" in items['note'] or "company" in items['note']:
                     pass
                 else:
-                    if ref != "Login" and TR.get_email_date(items['review_date']):
+                    if ref != "Login" and email_date:
                         text_area.insert(INSERT,
                                          f"{user :<18s}{items['name']:^55s}{items['review_date']:^8}\n")
                         complete = True

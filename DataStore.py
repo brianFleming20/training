@@ -187,17 +187,17 @@ class data_store():
     def add_training_to_user(self, training_obj):
         train_path = os.path.abspath(self.find_json_files() + '\.train.json')
         the_values = self.create_new_train_items(training_obj)
-        if training_obj.username in self.get_all_training():
-            with open(train_path, 'r') as train_file:
-                train_data = json.load(train_file)
-                for the_user in train_data:
-                    if training_obj.username == the_user:
-                        for key, val in the_values.items():
-                            train_data[the_user][key] = val
-                            self.dump_training_data(train_data)
-                            return True
-                    else:
-                        return False
+        with open(train_path, 'r') as train_file:
+            train_data = json.load(train_file)
+        for the_user in train_data:
+            if training_obj.username == the_user:
+                for key, val in the_values.items():
+                    train_data[the_user][key] = val
+                    self.dump_training_data(train_data)
+                    return True
+
+
+
 
     # def update_training_file(self, training_file, doc_ref):
     #     result = self.add_training_to_file(training_file, doc_ref)
@@ -230,11 +230,13 @@ class data_store():
                     "trainer": record.trainer,
                     "review_date": record.review_date,
                     "entered_by": record.logger,
+                    "entered_on": record.trained_on,
                     "level": record.level,
                     "note": record.notes,
                 },
             }
         }
+        print(new_record)
         return new_record
 
     def create_new_train_items(self, record):
@@ -245,7 +247,7 @@ class data_store():
                 "trainer": record.trainer,
                 "review_date": record.review_date,
                 "entered_by": record.logger,
-                "entered_on": record.review_date,
+                "entered_on": record.trained_on,
                 "level": record.level,
                 "note": record.notes,
             },
@@ -446,8 +448,8 @@ class data_store():
         h = 150  # height for the Tk root
 
         # calculate x and y coordinates for the Tk root window
-        x = (1000 / 2) - (w / 2)
-        y = (800 / 2) - (h / 2)
+        x = (1400 / 2) - (w / 2)
+        y = (1100 / 2) - (h / 2)
 
         # set the dimensions of the screen
         # and where it is placed

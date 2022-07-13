@@ -202,7 +202,7 @@ class ShowUsers(tk.Frame):
         Button(self.canvas_btndis, text="Record Training", command=self.training, width=12, bg='#54BAB9').place(x=20,
                                                                                                                 y=220)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=550)
-        Label(self.canvas_srdis, text="New User").place(x=10, y=15)
+        Label(self.canvas_srdis, text=TR.get_logged_in_user()).place(x=10, y=15)
 
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
         Label(self.canvas_lists, text="Click on an item to edit",bg='#E9DAC1', font=("Courier", 14)).place(x=150, y=15)
@@ -261,13 +261,20 @@ class ShowUsers(tk.Frame):
 
 
     def edit_user(self, event):
-        self.edit_current_user(event)
-        self.control.show_frame(EditUser)
+        if self.edit_current_user(event):
+            self.control.show_frame(EditUser)
+        else:
+            mb.showinfo(title="User Notice",message="User no longer an employee")
 
     def edit_current_user(self, event):
         self.index = int(self.users.curselection()[0])
         data_user = self.users.get(self.index)
         INT.provide_interface([data_user])
+        training = TR.get_training_record(data_user,"3007-0000")
+        if "longer" in training['note']:
+            return False
+        else:
+            return True
 
 
 class EditUser(tk.Frame):
@@ -307,14 +314,14 @@ class EditUser(tk.Frame):
         btn1.place(x=20,y=150)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Edit User").place(x=10, y=15)
-        search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
-        search.place(x=300, y=15)
+        # search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
+        # search.place(x=300, y=15)
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
 
         Label(self.canvas_back, text="Username ", bg="#E9DAC1").place(x=50, y=100)
         Label(self.canvas_back, text="New Password ", bg="#E9DAC1").place(x=50, y=140)
         Label(self.canvas_back, text="Confirm Password ", bg="#E9DAC1").place(x=50, y=180)
-        Label(self.canvas_back, text="Change Competency level ", bg="#E9DAC1").place(x=50, y=220)
+
         Label(self.canvas_back, text="Change Email address ", bg="#E9DAC1").place(x=50, y=260)
 
         self.name.set(self.data[0])
@@ -323,8 +330,7 @@ class EditUser(tk.Frame):
         password.place(x=210, y=140)
         conf = Entry(self.canvas_back, textvariable=self.conf_pass, width=30)
         conf.place(x=210, y=180)
-        comp = Entry(self.canvas_back, textvariable=self.comp, width=15)
-        comp.place(x=210, y=220)
+
         email = Entry(self.canvas_back, textvariable=self.email, width=40)
         email.place(x=210, y=260)
 
@@ -342,11 +348,10 @@ class EditUser(tk.Frame):
 
         user_password = TR.get_user_password(self.name.get())
         if user_password:
-            try:
-                self.comp.set(user['level'])
-                self.email.set(user['email'])
-            except:
-                pass
+            # try:
+            self.email.set(user['email'])
+            # except:
+            #     pass
         else:
             mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries,"
                                                      "\nPlease complete..")
@@ -386,11 +391,11 @@ class EditUser(tk.Frame):
             encrypt_password = cryptocode.encrypt(password, ENTRY)
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
-            update_user.level = self.comp.get()
             update_user.is_trainer = self.admin
             update_user.password = encrypt_password
             update_user.email = self.email.get()
-            TR.update_password(update_user.name, encrypt_password)
+            if password != "":
+                TR.update_password(update_user.name, encrypt_password)
             return update_user
         else:
             mb.showerror(title="Password Error", message="Your passwords are not the same, \ntry again.")
@@ -610,8 +615,9 @@ class RecordTraining(tk.Frame):
 
     def register_training(self):
         value = self.cb.get()
-        if TR.register_trained(self.doc_reference, self.name.get(), value,self.trainer.get(), self.note.get('1.0', END)):
+        if TR.register_trained(self.doc_reference.get(), self.name.get(), value,self.trainer.get(), self.note.get('1.0', END)):
             mb.showinfo(title="Training Info", message="Training registered to system.")
+            self.control.show_frame(ShowUsers)
         else:
             mb.showerror(title="Training Info", message="Something went wrong \n Training not registered to system.")
 
