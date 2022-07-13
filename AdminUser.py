@@ -271,7 +271,7 @@ class ShowUsers(tk.Frame):
         data_user = self.users.get(self.index)
         INT.provide_interface([data_user])
         training = TR.get_training_record(data_user,"3007-0000")
-        if "longer" in training['note']:
+        if "longer" in str(training['note']):
             return False
         else:
             return True
@@ -368,9 +368,10 @@ class EditUser(tk.Frame):
         self.control.show_frame(AddNewUser)
 
     def delete_user(self):
-        if mb.askyesno(title="Delete User",message=f"Are you sure you want to remove \n{self.name.get()} \nfrom the system?"):
+        if mb.askyesno(title="Delete User",message=f"Are you sure you want to notify \n{self.name.get()} \nthe system?"):
             result = TR.delete_user(self.name.get())
             if result:
+                mb.showinfo(title="User",message="System notified as no longer an employee.")
                 self.control.show_frame(ShowUsers)
             else:
                 mb.showerror(title="Selection Error", message="Please select a user.")

@@ -69,8 +69,10 @@ class LoginWindow(tk.Frame):
         ##############################################################################
         # username = "Lee Lindfield"
         # password = "password"
-        username = self.username.get()
+        username = self.username.get().title()
         password = self.password.get()
+        if username == "Lee":
+            username = "Lee Lindfield"
         ##################################################
         # Send the user information to the login checker #
         # If it succeeds, the main screen will be shown  #
