@@ -8,7 +8,7 @@ Training is due for [user] on [document] with reference number of [ref].
 ************************************************************************************************
 
 ********************************************************
-The training wil runs out on [expire] 
+The training will runs out on [expire]
 ********************************************************
 
 Please take action to contact [user].

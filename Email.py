@@ -23,7 +23,7 @@ class send_emails():
                 "[NAME]", a_user).replace("[document]",doc_name).replace(
                 "[ref]",doc_ref).replace("[expire]",review).replace(
                 "[trainer]",trainer).replace("[email]",email)
-
+        # print(new_contents)
         if self.send_email(new_contents,email):
             return True
         else:
@@ -39,6 +39,7 @@ class send_emails():
                 "[NAME]", trainer).replace("[document]",doc_name).replace(
                 "[ref]",doc_ref).replace("[expire]",review).replace(
                 "[user]",a_user).replace("[email]",trainer_email)
+        # print(new_contents)
         if self.send_email(new_contents,trainer_email):
             return True
         else:

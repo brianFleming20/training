@@ -130,7 +130,6 @@ class data_store():
                 json.dump(doc_json, doc_file, indent=4)
         else:
             data.update(doc_json)
-            print(data)
             with open(docPath, 'w') as doc_file:
                 json.dump(data, doc_file, indent=4)
             return True

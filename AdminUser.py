@@ -477,7 +477,6 @@ class addNewDocument(tk.Frame):
             self.name.set("")
             self.doc_reference.set("")
             self.doc_issue.set(0)
-            mb.showinfo(title="Document", message="New document has been added.")
             return True
 
     def add_doc(self):
