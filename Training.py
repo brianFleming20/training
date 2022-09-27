@@ -208,6 +208,10 @@ class Training:
         else:
             return False
 
+    def update_admin(self,name,admin):
+        return DS.update_admin_state(name,admin)
+
+
     def get_training_record(self, username, doc_ref):
         training_data = []
         training = self.get_all_training()

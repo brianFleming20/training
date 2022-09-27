@@ -28,6 +28,7 @@ class AddNewUser(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.trainerbutton = None
         self.adminbutton = None
         self.checkbutton = None
         self.logged_in = None
@@ -48,10 +49,10 @@ class AddNewUser(tk.Frame):
         self.document = StringVar()
         self.email = StringVar()
         self.data = []
-        self.admin = False
-        self.administrator = False
+        self.trainer = False
+        self.administrator = "0"
         self.administrator_state = IntVar()
-        self.admin_state = IntVar()
+        self.trainer_state = IntVar()
 
     def refresh_window(self):
         ##################################################################
@@ -92,45 +93,50 @@ class AddNewUser(tk.Frame):
         # Sets up and checks for the logged in user is a trainer and sets     #
         # the checkbox to the users trainer state                             #
         #######################################################################
-        self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
-                                       variable=self.admin_state, command=self.update_overwrite, font=("Courier", 10))
-        self.admin_state.get()
-        self.checkbutton.place(x=80, y=520)
+        self.adminbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
+                                       variable=self.trainer_state, command=self.update_overwrite, font=("Courier", 10))
+        self.trainer_state.get()
+        self.adminbutton.place(x=80, y=520)
         btn5 = Button(self.canvas_back, text="Add User", command=self.show_users_screen, width=12, bg='#54BAB9')
         btn5.place(x=680, y=500)
         #######################################################################
         # Sets up and checks for the logged in user is an admin and sets      #
         # the checkbox to the users admin state                               #
         #######################################################################
-        if self.logged_in['is_trainer']:
-            self.adminbutton = Checkbutton(self.canvas_back, text="   Admin    ",
-                                           variable=self.administrator_state, command=self.update_admin,
-                                           font=("Courier", 10))
-            self.administrator_state.get()
-            self.adminbutton.place(x=80, y=480)
+        # if self.logged_in['is_trainer']:
+        #     self.trainerbutton = Checkbutton(self.canvas_back, text="   Admin    ",
+        #                                    variable=self.administrator_state, command=self.update_admin,
+        #                                    font=("Courier", 10))
+        #     self.administrator_state.get()
+        #     self.trainerbutton.place(x=80, y=480)
 
     def set_admin_state(self, state):
-        self.admin_state.set(state)
+        self.trainer_state.set(state)
 
     # this represents the user as a trainer
     def update_overwrite(self):
-        if not self.admin:
-            self.admin = True
+        if not self.trainer:
+            self.trainer = True
+            self.trainerbutton = Checkbutton(self.canvas_back, text="   Admin    ",
+                                                 variable=self.administrator_state, command=self.update_admin,
+                                                 font=("Courier", 10))
+            self.administrator_state.get()
+            self.trainerbutton.place(x=80, y=480)
         else:
-            self.admin = False
+            self.trainer = False
 
     # this represents as an administrator
     def get_admin(self):
-        return self.admin
+        return self.trainer
 
     def get_admin_state(self):
-        return self.admin_state.get()
+        return self.trainer_state.get()
 
     def update_admin(self):
         if not self.administrator:
-            self.administrator = 1
+            self.administrator = "1"
         else:
-            self.administrator = 0
+            self.administrator = "0"
 
     def get_administrator(self):
         return self.administrator
@@ -148,7 +154,7 @@ class AddNewUser(tk.Frame):
             return False
         else:
             if self.create_user(self.name.get(), self.passw.get(), self.conf_pass.get(),
-                                self.email.get(), self.admin, encrypt_password,
+                                self.email.get(), self.trainer, encrypt_password,
                                 self.administrator):
                 return True
 
@@ -156,9 +162,9 @@ class AddNewUser(tk.Frame):
                 mb.showerror(title="User Error", message="User not created.")
                 return False
 
-    def create_user(self, name, password, conf_pass, email, admin,encrypt,administrator):
+    def create_user(self, name, password, conf_pass, email, trainer,encrypt,administrator):
         if password == conf_pass:
-            user = UR.User(name=name,is_trainer=admin, email=email)
+            user = UR.User(name=name,is_trainer=trainer, email=email)
             TR.save_user(user)
             TR.save_user_login(user, encrypt, administrator)
             return True
@@ -224,7 +230,7 @@ class ShowUsers(tk.Frame):
             self.documents.insert(END, f"{ref} - {doc['name']} - {doc['issue']}")
             self.documents.bind('<<ListboxSelect>>', self.edit_doc)
 
-        admin = TR.get_user_admin()
+        admin = int(TR.get_user_admin())
         if admin:
             btn1.config(state=NORMAL)
             btn2.config(state=NORMAL)
@@ -274,18 +280,19 @@ class ShowUsers(tk.Frame):
         for user,data in training.items():
             if data_user == user:
                 for ref,item in data.items():
+                    print(item)
                     if "longer" in str(item['note']) or "company" in str(item['note']):
                         return False
-                    else:
-                        return True
+        return True
 
 class EditUser(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
         self.checkbutton = None
-        self.admin_state = BooleanVar()
+        self.trainer_state = BooleanVar()
         self.control = controller
-
+        self.administrator_state = IntVar()
+        self.administrator = "0"
         self.canvas_btndis = Canvas(self, bg="#E9DAC1", width=120, height=630)
         self.canvas_btndis.place(x=840, y=10)
         self.canvas_srdis = Canvas(self, bg="#E9DAC1", width=810, height=50)
@@ -303,7 +310,7 @@ class EditUser(tk.Frame):
         self.email = StringVar()
         self.trainer = StringVar()
         self.comp = IntVar()
-        self.admin = False
+        self.trainer = False
         self.data = []
 
     def refresh_window(self):
@@ -313,12 +320,10 @@ class EditUser(tk.Frame):
         self.canvas_back.delete('all')
         self.email.set("")
         Button(self.canvas_btndis, text="Show User", command=self.show_users, width=12, bg='#54BAB9').place(x=20, y=80)
-        btn1 = Button(self.canvas_btndis, text="Remove User", command=self.delete_user, width=12, bg='#54BAB9')
+        btn1 = Button(self.canvas_btndis, text="User left company", command=self.delete_user, width=12, bg='#54BAB9')
         btn1.place(x=20,y=150)
         Button(self.canvas_btndis, text="Main", width=12, command=self.return_to_home, bg='#54BAB9').place(x=20, y=500)
         Label(self.canvas_srdis, text="Edit User").place(x=10, y=15)
-        # search = Entry(self.canvas_srdis, textvariable=self.serach_item, width=25)
-        # search.place(x=300, y=15)
         Label(self.canvas_srdis, textvariable=self.time).place(x=700, y=18)
 
         Label(self.canvas_back, text="Username ", bg="#E9DAC1").place(x=50, y=100)
@@ -338,23 +343,28 @@ class EditUser(tk.Frame):
         email.place(x=210, y=260)
 
         self.checkbutton = Checkbutton(self.canvas_back, text="   Trainer    ",
-                                       variable=self.admin_state, command=self.update_trainer, font=("Courier", 10))
-        self.admin_state.get()
+                                       variable=self.trainer_state, command=self.update_trainer, font=("Courier", 10))
+        self.trainer_state.get()
         self.checkbutton.place(x=80, y=520)
+        self.trainerbutton = Checkbutton(self.canvas_back, text="   Admin    ",
+                                         variable=self.administrator_state, command=self.update_admin,
+                                         font=("Courier", 10))
+        self.administrator_state.get()
+        self.trainerbutton.place(x=80, y=480)
+
         user = TR.get_user(self.name.get())
-        self.admin_state.set(user['is_trainer'])
+        self.trainer_state.set(user['is_trainer'])
         admin = TR.get_user_admin()
         if admin:
             btn1.config(state=NORMAL)
+            self.trainerbutton.config(state=NORMAL)
         else:
             btn1.config(state=DISABLED)
-
+            self.trainerbutton.config(state=DISABLED)
+        self.administrator_state.set(admin)
         user_password = TR.get_user_password(self.name.get())
         if user_password:
-            # try:
             self.email.set(user['email'])
-            # except:
-            #     pass
         else:
             mb.showerror(title="User Error", message="User cannot be displayed fully,\nmissing entries,"
                                                      "\nPlease complete..")
@@ -381,13 +391,10 @@ class EditUser(tk.Frame):
 
 
     def update_trainer(self):
-        if not self.admin:
-            self.admin = True
-        else:
-            self.admin = False
+        pass
 
     def get_admin(self):
-        return self.admin
+        return self.trainer_state.get()
 
     def update_user(self):
         password = self.passw.get()
@@ -395,7 +402,7 @@ class EditUser(tk.Frame):
             encrypt_password = cryptocode.encrypt(password, ENTRY)
             update_user = TR.get_blank_user()
             update_user.name = self.name.get()
-            update_user.is_trainer = self.admin
+            update_user.is_trainer = self.trainer_state.get()
             update_user.email = self.email.get()
             if password != "":
                 TR.update_password(update_user.name, encrypt_password)
@@ -407,6 +414,7 @@ class EditUser(tk.Frame):
     def update(self):
         update_user = self.update_user()
         TR.save_user(update_user)
+        TR.update_admin(self.name.get(),self.administrator_state.get())
         self.control.show_frame(ShowUsers)
 
     def set_for_test(self, password, level,name):
@@ -415,9 +423,15 @@ class EditUser(tk.Frame):
         self.comp.set(level)
         self.name.set(name)
 
+    def update_admin(self):
+        pass
+
+
+    def get_admin_state(self):
+        return self.administrator_state.get()
+
 
 class addNewDocument(tk.Frame):
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
         self.control = controller
@@ -487,6 +501,7 @@ class addNewDocument(tk.Frame):
     def show_user_window(self):
         if self.add_new_document():
             self.control.show_frame(ShowUsers)
+
 
 
 

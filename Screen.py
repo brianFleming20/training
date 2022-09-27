@@ -21,6 +21,7 @@ import LoginWindow as UL
 import AdminUser
 import Email
 import AccessDataBase
+import itertools
 
 DSP = DisplayScreens
 TR = Training.Training()
@@ -41,6 +42,10 @@ class main_screen(tk.Frame):
         # is collected and transferred.                       #
         #######################################################
         tk.Frame.__init__(self, parent, bg='#F7ECDE')
+        self.show_items = None
+        self.idx = None
+        self.ws = self.winfo_screenwidth()
+        self.hs = self.winfo_screenheight()
         self.canvas_top = None
         self.index = -1
         self.document_name = None
@@ -49,7 +54,7 @@ class main_screen(tk.Frame):
         self.canvas_search = None
         self.canvas_button = None
         self.control = controller
-        self.base = Canvas(self,bg="#FBF8F1",width=980, height=680)
+        self.base = Canvas(self, bg="#FBF8F1", width=self.ws - 10, height=self.hs - 10)
         self.base.place(x=10, y=10)
         self.serach_item = StringVar()
         self.search_doc = StringVar()
@@ -61,6 +66,9 @@ class main_screen(tk.Frame):
         self.search_document = StringVar()
         self.search_name = ""
         self.finish = False
+        self.anchor_button_top = self.hs / 8
+        self.list_limit = 0
+        self.focus_box = None
 
     def refresh_window(self):
         ##########################################################################
@@ -71,21 +79,22 @@ class main_screen(tk.Frame):
         # training review dates.                                                 #
         ##########################################################################
         self.index = -1
-        Canvas(self,bg="#E9DAC1",width=970, height=680).place(x=10, y=10)
-        self.canvas_button = Canvas(self,bg="#F7ECDE",width=120,height=630)
-        self.canvas_button.place(x=840,y=10)
-        self.canvas_search = Canvas(self,bg="#F7ECDE", width=810,height=50)
-        self.canvas_search.place(x=10,y=10)
-        self.canvas_lists = Canvas(self, bg="#F7ECDE", width=810,height=560)
-        self.canvas_lists.place(x=10,y=80)
-        self.canvas_top = Canvas(self, bg="#C2DED1", width=810, height=240)
-        self.canvas_top.place(x=10, y=80)
-        Button(self.canvas_button,text="Selected user", width=12, command=self.display_user,bg='#54BAB9').place(x=20,y=80)
-        self.admin = Button(self.canvas_button,text="Admin", width=12, command=self.admin_user,bg='#54BAB9')
-        self.admin.place(x=20,y=160)
+        self.show_items = {}
+        Canvas(self, bg="#E9DAC1",width=self.ws - 10, height=self.hs - 10).place(x=10, y=10)
+        self.canvas_button = Canvas(self, bg="#F7ECDE", width=self.ws / 8, height=self.hs - (self.hs / 5))
+        self.canvas_button.place(x=self.ws - (self.ws / 4.5), y=self.anchor_button_top)
+        self.canvas_search = Canvas(self, bg="#F7ECDE", width=self.ws - (self.ws / 8.5), height=self.hs / 10)
+        self.canvas_search.place(x=10, y=15)
+        self.canvas_lists = Canvas(self, bg="#F7ECDE", width=self.ws / 1.3, height=self.hs / 1.25)
+        self.canvas_lists.place(x=10, y=self.anchor_button_top)
+        self.canvas_top = Canvas(self, bg="#C2DED1", width=self.ws / 1.3, height=self.hs / 3.7)
+        self.canvas_top.place(x=10, y=self.anchor_button_top)
+        Button(self.canvas_button, text="Selected user", font=('Arial', 14), width=12, command=self.display_user, bg='#54BAB9').place(x=20, y=80)
+        self.admin = Button(self.canvas_button,text="Admin", font=('Arial', 14), width=12, command=self.admin_user, bg='#54BAB9')
+        self.admin.place(x=20, y=160)
 
-        Button(self.canvas_button,text="Events", width=12, command=self.display_events,bg='#54BAB9').place(x=20,y=240)
-        Button(self.canvas_button,text="Log Out", width=12, command=self.log_out,bg='#54BAB9').place(x=20,y=500)
+        Button(self.canvas_button, text="Events", font=('Arial', 14), width=12, command=self.display_events, bg='#54BAB9').place(x=20, y=240)
+        Button(self.canvas_button, text="Log Out", font=('Arial', 14), width=12, command=self.log_out, bg='#54BAB9').place(x=20, y=500)
         #################################################################
         # Drown down menu for the user to choose a trainee's name       #
         #################################################################
@@ -93,26 +102,27 @@ class main_screen(tk.Frame):
         self.search_doc.set("")
         self.search_item.set("Choose")
         search_name = OptionMenu(self.canvas_top, self.search_item, *names)
+        search_name.config(font=('Courier', 14))
         search_name.place(x=80, y=80)
         ##################################################################
         # Labels for the screen and the user that is logged in.          #
         # The document name is lined out first of all, then added when   #
         # the document reference number is complete.                     #
         ##################################################################
-        Label(self.canvas_search, text="Logged in -", bg="#F7ECDE").place(x=10, y=15)
+        Label(self.canvas_search, text="Logged in -", font=('Courier', 14), bg="#F7ECDE").place(x=10, y=15)
         Label(self.canvas_top, text="Search", font=("Courier", 16), bg="#C2DED1").place(x=350, y=15)
         Label(self.canvas_top, text="Name", bg="#C2DED1").place(x=30, y=80)
-        Label(self.canvas_top, text="Document Number", bg="#C2DED1").place(x=270, y=80)
-        Label(self.canvas_top, text="Document Name", bg="#C2DED1").place(x=270, y=120)
+        Label(self.canvas_top, text="Document Number", font=('Courier', 14), bg="#C2DED1").place(x=450, y=80)
+        Label(self.canvas_top, text="Document Name", font=('Courier', 14), bg="#C2DED1").place(x=450, y=120)
 
         self.document_name = Label(self.canvas_top, textvariable=self.search_document, bg="#C2DED1")
-        self.document_name.place(x=390, y=120)
-        doc = Entry(self.canvas_top, textvariable=self.search_doc, width=25)
-        doc.place(x=390, y=80)
-        btn1 = Button(self.canvas_top, text="Search", command=self.search_data, width=8, bg='#54BAB9')
-        btn1.place(x=630, y=180)
-        btn2 = Button(self.canvas_top, text="Clear search", command=self.refresh_window, width=10, bg="#54BAB9")
-        btn2.place(x=720,y=180)
+        self.document_name.place(x=650, y=120)
+        doc = Entry(self.canvas_top, textvariable=self.search_doc, font=('Courier', 14), width=25)
+        doc.place(x=650, y=80)
+        btn1 = Button(self.canvas_top, text="Search", command=self.search_data, font=('Courier', 14), bg='#54BAB9')
+        btn1.place(x=630, y=170)
+        btn2 = Button(self.canvas_top, text="Clear search", command=self.refresh_window, font=('Courier', 14), bg="#54BAB9")
+        btn2.place(x=780, y=170)
         self.search_document.set("----------------")
         ################################################################
         # Sets up the keys for the document numbers to be background   #
@@ -120,9 +130,9 @@ class main_screen(tk.Frame):
         # Needs training is blue, overdue training is red and          #
         # is trained is green.                                         #
         ################################################################
-        Label(self.canvas_top,text="Needs training soon", bg="#3AB0FF").place(x=10, y=160)
-        Label(self.canvas_top,text="Overdue training      ", bg="#F24C4C").place(x=10, y=183)
-        Label(self.canvas_top,text="Trained                      ", bg="#A0D995").place(x=10, y=137)
+        Label(self.canvas_top, text="Needs training soon", bg="#3AB0FF").place(x=10, y=160)
+        Label(self.canvas_top, text="Overdue training      ", bg="#F24C4C").place(x=10, y=183)
+        Label(self.canvas_top, text="Trained                      ", bg="#A0D995").place(x=10, y=137)
         ################################################################
         # If the logged in user is not an administrator, then the      #
         # admin functions button is disabled.                          #
@@ -139,13 +149,14 @@ class main_screen(tk.Frame):
         #################################################################
         self.time.set(TR.get_date_now())
         logged_in_user = TR.get_logged_in_user()
-        Label(self.canvas_search, text=logged_in_user, bg="#F7ECDE").place(x=80,y=15)
-        Label(self.canvas_search, text="Date", bg="#F7ECDE").place(x=640, y=18)
-        Label(self.canvas_search,textvariable=self.time, bg="#F7ECDE").place(x=700,y=18)
+        Label(self.canvas_search, text=logged_in_user, font=('Courier', 14),bg="#F7ECDE").place(x=150,y=15)
+        Label(self.canvas_search, text="Date",font=('Courier', 14), bg="#F7ECDE").place(x=640, y=18)
+        Label(self.canvas_search, textvariable=self.time, font=('Courier', 14), bg="#F7ECDE").place(x=700, y=18)
         ##################################################################
         # Start of the main display screen with the titles of the lists  #
         ##################################################################
-        Label(self.canvas_top, text="  Document No.       Document Name                Issue               Users           Date Trained       Level       Expire Date        Trainer                   Notes                            ").place(x=3,y=220)
+        Label(self.canvas_top,
+              text=" Document No.      Document Name            Issue     Name           Date Trained      Level    Expire Date     Trainer       Notes    ", font=('Courier', 10)).place(x=3,y=220)
         self.show_lists()
         self.fill_form()
 
@@ -163,6 +174,7 @@ class main_screen(tk.Frame):
         # als a trainer to others. This gives a complete view of the   #
         # name selected.                                               #
         ################################################################
+
         self.show_lists()
         if self.finish:
             self.fill_docs_list(self.get_document_requested())
@@ -181,7 +193,6 @@ class main_screen(tk.Frame):
             for doc, data in item.items():
                 if self.search_doc.get() == doc:
                     return doc[:9]
-
 
     def get_selected_name(self):
         for name, item in TR.get_all_training().items():
@@ -210,6 +221,7 @@ class main_screen(tk.Frame):
         else:
             self.search_document.set(doc['name'])
             self.finish = True
+            self.search_item.set("Choose")
         Tk.update(self)
         self.fill_form()
 
@@ -220,13 +232,14 @@ class main_screen(tk.Frame):
                 message=f"Selected option: {selection}"
                 )
 
-
     def display_user(self):
-        if self.index == -1:
-            mb.showerror(title="Selection Error",message="Please select a row.")
+        if self.doc_no.size() == 0:
+            mb.showerror(title="Selection Error", message="Please select a row.")
         else:
             self.control.show_frame(DSP.show_user_window)
 
+    def display_document_window(self):
+        self.control.show_frame(DSP.show_document_window)
 
     def display_events(self):
         ##########################################################
@@ -234,19 +247,19 @@ class main_screen(tk.Frame):
         ##########################################################
         self.control.show_frame(DSP.show_event_window)
 
-
-
     def log_out(self):
-        shut = mb.askyesno("Log Out","Do you wish to proceed?")
+        shut = mb.askyesno("Log Out", "Do you wish to proceed?")
         #################################
         # Clear screen and distroy app  #
         #################################
         if shut:
+            self.canvas_search.destroy()
+            self.canvas_lists.destroy()
+            self.canvas_button.destroy()
+            self.canvas_top.destroy()
             self.control.show_frame(UL.LoginWindow)
 
-        
-
-    def onselect(self,event):
+    def onselect(self, event):
         ######################################################
         # Receives the selected lists common index data.     #
         # Then transfers the data to the user screen         #
@@ -254,38 +267,37 @@ class main_screen(tk.Frame):
         w = event.widget
         self.form_data.clear()
         if self.index == -1:
-            try:
-                idx = int(self.doc_no.curselection()[0])
-                self.index = idx
-                num = self.doc_no.get(idx)
-                self.form_data.insert(0, num)
-                name = self.doc_name.get(idx)
-                self.form_data.insert(1, name)
-                self.doc_name.selection_set(idx)
-                issue = self.doc_issue.get(idx)
-                self.form_data.insert(2, issue)
-                self.doc_issue.selection_set(idx)
-                user = self.doc_users.get(idx)
-                self.form_data.insert(3, user)
-                self.doc_users.selection_set(idx)
-                date_train = self.doc_train.get(idx)
-                self.form_data.insert(4, date_train)
-                self.doc_train.selection_set(idx)
-                level = self.doc_level.get(idx)
-                self.form_data.insert(5, level)
-                self.doc_level.selection_set(idx)
-                expire = self.doc_expire.get(idx)
-                self.form_data.insert(6, expire)
-                self.doc_expire.selection_set(idx)
-                trainer = self.doc_trainer.get(idx)
-                self.form_data.insert(7, trainer)
-                self.doc_trainer.selection_set(idx)
-                note = self.doc_note.get(idx)
-                self.form_data.insert(8, note)
-                self.doc_note.selection_set(idx)
-                INT.provide_interface(self.form_data)
-            except IndexError:
-                self.show_lists()
+            self.idx = int(self.doc_no.curselection()[0])
+            self.index = self.idx
+            num = self.doc_no.get(self.idx)
+            self.form_data.insert(0, num)
+            self.doc_no.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            name = self.doc_name.get(self.idx)
+            self.form_data.insert(1, name)
+            self.doc_name.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            issue = self.doc_issue.get(self.idx)
+            self.form_data.insert(2, issue)
+            self.doc_issue.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            user = self.doc_users.get(self.idx)
+            self.form_data.insert(3, user)
+            self.doc_users.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            date_train = self.doc_train.get(self.idx)
+            self.form_data.insert(4, date_train)
+            self.doc_train.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            level = self.doc_level.get(self.idx)
+            self.form_data.insert(5, level)
+            self.doc_level.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            expire = self.doc_expire.get(self.idx)
+            self.form_data.insert(6, expire)
+            self.doc_expire.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            trainer = self.doc_trainer.get(self.idx)
+            self.form_data.insert(7, trainer)
+            self.doc_trainer.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            note = self.doc_note.get(self.idx)
+            self.form_data.insert(8, note)
+            self.doc_note.itemconfig(self.idx, {"bg": "#5CB8E4"})
+            INT.provide_interface(self.form_data)
+
         else:
             self.index = -1
             #############################################################
@@ -301,133 +313,217 @@ class main_screen(tk.Frame):
                 self.fill_users_lists(self.search_item.get())
       
     def show_lists(self):
+        list_width = 12
+        list_height = 24
+        list_index = list_width * 5.4
+        self.idx = 0
         ######################################################################
         # Shows the data lists for the training data to be displayed .       #
         ######################################################################
-        self.doc_no = Listbox(self.canvas_lists ,exportselection=False)
+        self.doc_no = Listbox(self.canvas_lists, exportselection=False)
         self.doc_no.place(x=5, y=250)
-        self.doc_no.config(height=19, width=15, bg="#E9DAC1")
+        self.doc_no.config(height=list_height, width=list_width + 3, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_name = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_name.place(x=100, y=250)
-        self.doc_name.config(height=19, width=20, bg="#E9DAC1")
+        self.doc_name = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_name.place(x=list_index * 2.2, y=250)
+        self.doc_name.config(height=list_height, width=23, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_issue = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_issue.place(x=225, y=250)
-        self.doc_issue.config(height=19, width=10, bg="#E9DAC1")
+        self.doc_issue = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_issue.place(x=list_index * 5.5, y=250)
+        self.doc_issue.config(height=list_height, width=6, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_users = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_users.place(x=290, y=250)
-        self.doc_users.config(height=19, width=15, bg="#E9DAC1")
+        self.doc_users = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_users.place(x=list_index * 6.4, y=250)
+        self.doc_users.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_train = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_train.place(x=385, y=250)
-        self.doc_train.config(height=19, width=12, bg="#E9DAC1")
+        self.doc_train = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_train.place(x=list_index * 8.3, y=250)
+        self.doc_train.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_level = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_level.place(x=462, y=250)
-        self.doc_level.config(height=19, width=8, bg="#E9DAC1")
+        self.doc_level = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_level.place(x=list_index * 10.2, y=250)
+        self.doc_level.config(height=list_height, width=list_width - 5, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_expire = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_expire.place(x=515, y=250)
-        self.doc_expire.config(height=19, width=10, bg="#E9DAC1")
+        self.doc_expire = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_expire.place(x=list_index * 11.3, y=250)
+        self.doc_expire.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_trainer = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_trainer.place(x=580, y=250)
-        self.doc_trainer.config(height=19, width=12, bg="#E9DAC1")
+        self.doc_trainer = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_trainer.place(x=list_index * 13.2, y=250)
+        self.doc_trainer.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
-        self.doc_note = Listbox(self.canvas_lists,exportselection=False)
-        self.doc_note.place(x=658, y=250)
-        self.doc_note.config(height=19, width=20, bg="#E9DAC1")
-        ###############################################################
-        # Binding the selected items to the lists and to the mouse    #
-        # wheel.                                                      #
-        ###############################################################
-        self.doc_no.bind('<<ListboxSelect>>', self.onselect)
-        self.doc_users.bind('<<ListboxSelect>>', self.onselect)
-        self.doc_name.bind('<<ListboxSelect>>', self.onselect)
-        self.doc_no.bind("<MouseWheel>", self.OnMouseWheel)
+        self.doc_note = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_note.place(x=list_index * 15.1, y=250)
+        self.doc_note.config(height=list_height, width=list_width + 1, bg="#E9DAC1", font=('Courier', 12))
 
-     
+    def OnEntryDown(self, event):
+        self.focus_box = event.widget
+        if self.idx < self.list_limit:
+            self.idx += 1
+            self.doc_name.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_issue.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_users.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_train.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_level.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_expire.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_trainer.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+            self.doc_note.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
+        else:
+            self.idx = self.list_limit
 
-    def fill_users_lists(self,name):
+        if self.idx > 23:
+            lower = self.idx - 23
+            self.focus_box = event.widget
+            self.show_list(lower, self.idx)
+        self.show_selected()
+
+    def OnEntryUp(self, event):
+        if self.idx > 0:
+            self.idx -= 1
+            self.doc_name.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_issue.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_users.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_train.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_level.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_expire.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_trainer.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+            self.doc_note.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
+        else:
+            self.idx = 0
+
+        if self.idx > 23:
+            lower = self.idx - 23
+            self.focus_box = event.widget
+            self.show_list(lower, self.idx)
+        self.show_selected()
+
+    def selection_stop(self, event):
+        self.display_document_window()
+
+    def fill_users_lists(self, name):
+        upper = 24
+        lower = 0
+        self.show_items = {}
+        self.search_document.set("----------------")
+        self.search_doc.set("")
         ########################################################
         # Fill the lists using the username filter.            #
         ########################################################
-        index = 0
         training_events = TR.get_all_training()
-        for user,event in training_events.items():
+        for user, event in training_events.items():
             if user == name:
-                for ref,items in event.items():
-                    self.doc_no.insert(END, ref)
-                    self.doc_train.insert(END, items['trained_on'])
-                    self.doc_expire.insert(END, items['review_date'])
-                    self.doc_note.insert(END, items['note'])
-                    self.doc_name.insert(END, items['name'])
-                    user_item = TR.get_a_document(ref)
-                    self.doc_issue.insert(END, user_item['issue'])
-                    self.doc_users.insert(END, user)
-                    self.doc_level.insert(END, items['level'])
-                    self.doc_trainer.insert(END, items['trainer'])
-                    if TR.get_email_date(items['review_date']):
-                        self.doc_no.itemconfig(index,{"bg":"#3AB0FF"})
-                    if TR.get_overdue_train(items['review_date']):
-                        self.doc_no.itemconfig(index,{"bg":"#F24C4C"})
-                    if TR.get_trained(items['review_date']):
-                        self.doc_no.itemconfig(index,{"bg":"#A0D995"})
-                    Label(self.canvas_top, text="Select a document reference number to show details",
-                          bg="#C2DED1").place(x=250, y=183)
-                    index += 1
+                for ref, items in event.items():
+                    name = {"User": user}
+                    items.update(name)
+                    new_item = {ref: items}
+                    self.show_items.update(new_item)
+        self.list_limit = len(self.show_items) - 1
+        self.show_list(lower, upper)
+        self.doc_no.select_set(0)
+        self.idx = int(self.doc_no.curselection()[0])
+        self.doc_note.bind('<Down>', self.OnEntryDown)
+        self.doc_note.bind('<Up>', self.OnEntryUp)
+        self.doc_note.bind('<Return>', self.selection_stop)
+        self.doc_note.focus_set()
+        self.show_selected()
 
+    def show_list(self, lower, upper):
+        index = 0
+        self.finish = False
+        dict_slice = dict(itertools.islice(self.show_items.items(), lower, upper))
+        for ref, items in dict_slice.items():
+            self.doc_no.insert(index, ref[:-2])
+            self.doc_train.insert(index, items['trained_on'])
+            self.doc_expire.insert(index, items['review_date'])
+            self.doc_name.insert(index, items['name'])
+            user_item = TR.get_a_document(ref[:-2])
+            if not user_item:
+                user_item = TR.get_a_document(ref)
+            self.doc_issue.insert(index, user_item['issue'])
+            if not items['trainer']:
+                trainer = "---"
+            else:
+                trainer = items['trainer']
+            user = items['User']
+            self.doc_users.insert(index, user)
+            self.doc_level.insert(index, items['level'])
+
+            self.doc_trainer.insert(index, trainer)
+            if TR.get_email_date(items['review_date']):
+                self.doc_no.itemconfig(index, {"bg": "#3AB0FF"})
+            if TR.get_overdue_train(items['review_date']):
+                self.doc_no.itemconfig(index, {"bg": "#F24C4C"})
+            if TR.get_trained(items['review_date']):
+                self.doc_no.itemconfig(index, {"bg": "#A0D995"})
+            index += 1
+            if self.idx > 23:
+                self.focus_box.insert(index, items['note'])
+            else:
+                self.doc_note.insert(index, items['note'])
+
+    def show_selected(self):
+        index = self.idx
+        if self.idx > 23:
+            index = 23
+        num = self.doc_no.get(index)
+        self.form_data.insert(0, num)
+        name = self.doc_name.get(index)
+        self.form_data.insert(1, name)
+        self.doc_name.itemconfig(index, {"bg": "#5CB8E4"})
+        issue = self.doc_issue.get(index)
+        self.form_data.insert(2, issue)
+        self.doc_issue.itemconfig(index, {"bg": "#5CB8E4"})
+        user = self.doc_users.get(index)
+        self.form_data.insert(3, user)
+        self.doc_users.itemconfig(index, {"bg": "#5CB8E4"})
+        date_train = self.doc_train.get(index)
+        self.form_data.insert(4, date_train)
+        self.doc_train.itemconfig(index, {"bg": "#5CB8E4"})
+        level = self.doc_level.get(index)
+        self.form_data.insert(5, level)
+        self.doc_level.itemconfig(index, {"bg": "#5CB8E4"})
+        expire = self.doc_expire.get(index)
+        self.form_data.insert(6, expire)
+        self.doc_expire.itemconfig(index, {"bg": "#5CB8E4"})
+        trainer = self.doc_trainer.get(index)
+        self.form_data.insert(7, trainer)
+        self.doc_trainer.itemconfig(index, {"bg": "#5CB8E4"})
+        note = self.doc_note.get(index)
+        self.form_data.insert(8, note)
+        self.doc_note.itemconfig(index, {"bg": "#5CB8E4"})
+        INT.provide_interface(self.form_data)
+        Tk.update(self)
 
     def fill_docs_list(self, doc):
         ##############################################################
         # Fill the lists with document data from the document filter #
         ##############################################################
-        index = 0
+        upper = 24
+        lower = 0
+        index = 10
+        self.show_items = {}
+        self.search_item.set("Choose")
         training_events = TR.get_all_training()
         for user, event in training_events.items():
             for ref, items in event.items():
                 if ref[:9] == doc:
-                    self.doc_no.insert(END, ref)
-                    self.doc_train.insert(END, items['trained_on'])
-                    self.doc_expire.insert(END, items['review_date'])
-                    self.doc_note.insert(END, items['note'])
-                    self.doc_name.insert(END, items['name'])
-                    item = TR.get_a_document(ref[:9])
-                    self.doc_issue.insert(END, item['issue'])
-                    self.doc_users.insert(END, user)
-                    self.doc_level.insert(END, items['level'])
-                    if not items['trainer']:
-                        trainer = "---"
-                    else:
-                        trainer = items['trainer']
-                    self.doc_trainer.insert(END, trainer)
-                    if TR.get_email_date(items['review_date']):
-                        self.doc_no.itemconfig(index, {"bg": "#3AB0FF"})
-                    if TR.get_overdue_train(items['review_date']):
-                        self.doc_no.itemconfig(index, {"bg": "#F24C4C"})
-                    if TR.get_trained(items['review_date']):
-                        self.doc_no.itemconfig(index, {"bg":"#A0D995"})
-                    Label(self.canvas_top, text="Select a document reference number to show details",
-                          bg="#C2DED1").place(x=250, y=183)
+                    name = {"User": user}
+                    items.update(name)
+                    ref = f"{ref}{index}"
+                    new_item = {ref: items}
+                    self.show_items.update(new_item)
                     index += 1
 
+        self.list_limit = len(self.show_items) - 1
+        self.show_list(lower, upper)
+        self.doc_no.select_set(0)
+        self.idx = int(self.doc_no.curselection()[0])
+        self.doc_note.bind('<Down>', self.OnEntryDown)
+        self.doc_note.bind('<Up>', self.OnEntryUp)
+        self.doc_note.bind('<Return>', self.selection_stop)
+        self.doc_note.focus_set()
+        self.show_selected()
 
-    def OnMouseWheel(self, event):
-        #############################################################
-        # You can use the mouse wheel to move the lists up and down #
-        #############################################################
-        self.doc_no.yview("scroll", event.delta, "units")
-        self.doc_issue.yview("scroll", event.delta, "units")
-        self.doc_name.yview("scroll", event.delta, "units")
-        self.doc_users.yview("scroll", event.delta, "units")
-        self.doc_train.yview("scroll", event.delta, "units")
-        self.doc_trainer.yview("scroll", event.delta, "units")
-        self.doc_level.yview("scroll", event.delta, "units")
-        self.doc_expire.yview("scroll", event.delta, "units")
-        self.doc_note.yview("scroll", event.delta, "units")
-        return "break"
 
 class LoggedInUser():
     ###################################
@@ -439,7 +535,4 @@ class LoggedInUser():
 
     def get_logged_in_user(self):
         return logged_user[0]
-
-
-
     

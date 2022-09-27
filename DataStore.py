@@ -42,7 +42,7 @@ class data_store():
                 data.update(user_json)
                 with open(fullPath, 'w') as user_file:
                     json.dump(data, user_file, indent=4)
-            return True
+                    return True
 
     def write_data_file_locations(self):
         raw_path = os.path.join(self.file_data, "DataLocation.json")
@@ -67,7 +67,6 @@ class data_store():
             self.data_path = load_data['location2']
         else:
             self.write_data_file_locations()
-
 
     def write_user_admin(self, user, password, admin):
         self.save_data(user, password, admin)
@@ -175,7 +174,6 @@ class data_store():
             json.dump(data, train_file, indent=4)
 
     def get_all_training(self):
-
         trainPath = os.path.abspath(self.find_json_files() + '\.train.json')
         try:
             with open(trainPath, 'r') as train_file:
@@ -269,19 +267,6 @@ class data_store():
     #     else:
     #         return False
 
-    # def remove_training_line(self, location,ref):
-    #     file_loc = f"{ref}.csv"
-    #     data_path = location
-    #     raw_path = os.path.join(data_path, file_loc)
-    #     data_path = os.listdir(data_path)
-    #     if file_loc in data_path:
-    #         with open(raw_path, 'r') as file:
-    #             lines = file.readlines()
-    #     lines = lines[:-1]
-    #     with open(raw_path, 'w', newline='') as file:
-    #         for line in lines:
-    #             file.write(line)
-
     def get_login_data(self):
         raw_path = os.path.join(self.data_path, "Login.csv")
         try:
@@ -335,6 +320,15 @@ class data_store():
                 result = False
         data.to_csv(raw_path, mode='w', index=False)
         return result
+
+    def update_admin_state(self,name,admin):
+        raw_path = os.path.join(self.data_path, "Login.csv")
+        data = pd.read_csv(raw_path)
+        output_data = data.to_dict(orient="records")
+        for user in output_data:
+            if user['Name'] == name:
+                data.loc[data['Name'] == name, 'admin'] = admin
+        data.to_csv(raw_path, mode='w', index=False)
 
 
     def check_directories(self):

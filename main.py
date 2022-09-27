@@ -34,9 +34,10 @@ import os
 
 num = "3013-0036"
 Training_Version = f'Deltex Medical : Training Database V3.4 {num: >190s}   '
-w = 1000  # window width
-h = 700  # window height
+w = 1300  # window width
+h = 870  # window height
 LARGE_FONT = ("Verdana", 14)
+
 
 class WindowController(tk.Tk):
 
@@ -72,7 +73,8 @@ class WindowController(tk.Tk):
                   AU.EditUser,
                   AU.addNewDocument,
                   AU.editDocument,
-                  AU.RecordTraining
+                  AU.RecordTraining,
+                  DSP.show_document_window
                   ):
 
             frame = F(container, self)

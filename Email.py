@@ -9,6 +9,7 @@ import smtplib
 
 TR = Training.Training()
 
+
 class send_emails():
 
     def notify_training(self,a_user,doc_ref):

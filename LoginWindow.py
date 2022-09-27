@@ -29,6 +29,8 @@ class LoginWindow(tk.Frame):
         ##############################
         # Setup attributes of class  #
         ##############################
+        # ws = self.winfo_screenwidth()
+        # hs = self.winfo_screenheight()
         tk.Frame.__init__(self, parent, bg='#8D8DAA')
         self.control = controller
         self.canvas_name = Canvas()
@@ -38,8 +40,8 @@ class LoginWindow(tk.Frame):
         self.logged_in = False
         self.x = 350
         self.y1 = 225
-        self.y2 = 300
-        self.base = Canvas(self,bg="#FBF8F1",width=980, height=680)
+        self.y2 = 320
+        self.base = Canvas(self,bg="#FBF8F1",width=1280, height=830)
         self.base.place(x=10, y=10)
 
 
@@ -47,31 +49,32 @@ class LoginWindow(tk.Frame):
         ################################################################
         # Set up of the canvas screen locations for the login          #
         ################################################################
-        self.canvas_name = Canvas(self,bg="#E9DAC1",width=400, height=55)
+        self.canvas_name = Canvas(self,bg="#E9DAC1",width=500, height=85)
         self.canvas_name.place(x=self.x, y=self.y1)
-        self.canvas_pass = Canvas(self,bg="#E9DAC1",width=400, height=55)
+        self.canvas_pass = Canvas(self,bg="#E9DAC1",width=500, height=85)
         self.canvas_pass.place(x=self.x, y=self.y2)
-        Label(self,text="Training Database",font=("Courier", 22, 'bold')).place(x=330,y=80)
-        Label(self,text="Please Log in",font=("Courier", 16)).place(x=380,y=180)
-        Label(self.canvas_name, text="Username").place(x=20,y=16,width=80)
-        Label(self.canvas_pass, text="Password").place(x=20,y=16,width=80)
+        Label(self,text="Training Database",font=("Courier", 24, 'bold')).place(x=330,y=80)
+        Label(self,text="Please Log in",font=("Courier", 20)).place(x=380,y=180)
+        Label(self.canvas_name, text="Username", font=('Courier',18)).place(x=20,y=16)
+        Label(self.canvas_pass, text="Password", font=('Courier', 18)).place(x=20,y=16)
+        Button(self.base, text="Forgot password", command=self.forgot, bg="#FBF8F1").place(x=380, y=420)
 
         ##############################################################################
         # Get the username and the password from the user                            #
         ##############################################################################
-        name = Entry(self.canvas_name, textvariable=self.username,width=30)
-        name.place(x=150, y=16)
-        password = Entry(self.canvas_pass, textvariable=self.password, show="*",width=30)
-        password.place(x=150, y=16)
-        Button(self,text="Log in", width=30, command=self.user_login,bg='#54BAB9').place(x=600,y=500)
+        name = Entry(self.canvas_name, textvariable=self.username,width=25, font=('Courier', 16))
+        name.place(x=150, y=20)
+        password = Entry(self.canvas_pass, textvariable=self.password, show="*",width=25, font=('Courier', 16))
+        password.place(x=150, y=20)
+        Button(self,text="Log in", width=20, command=self.user_login,bg='#54BAB9', font=('Courier', 20)).place(x=600,y=500)
 
     def user_login(self):
         ##############################################################################
         # When the working version is released, the username and password will be    #
         # replaced with the user input fields.                                       #
         ##############################################################################
-        # username = "Lee Lindfield"
-        # password = "password"
+        # username = "Brian"
+        # password = "my-password"
         username = self.username.get().title()
         password = self.password.get()
         for user in TR.get_all_users():
@@ -92,3 +95,6 @@ class LoginWindow(tk.Frame):
             self.username.set("")
             self.password.set("")
             self.control.show_frame(SC.main_screen)
+
+    def forgot(self):
+        Label(self.base, text="Coming Soon").place(relx=0.4, rely=0.8)
