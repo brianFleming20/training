@@ -9,19 +9,21 @@ Created on 9 March 2022
 '''
 
 import tkinter as tk
-import tkinter.messagebox
 from tkinter import *
+from tkinter import messagebox as mb
 import Login
 import Screen
 import User
 import interface
 import Training
+import AdminUser
 
 UL = Login
 SC = Screen
 US = User
 INT = interface.interface()
 TR = Training.Training()
+AU = AdminUser
 
 
 class LoginWindow(tk.Frame):
@@ -49,6 +51,7 @@ class LoginWindow(tk.Frame):
         ################################################################
         # Set up of the canvas screen locations for the login          #
         ################################################################
+        self.username.set("")
         self.canvas_name = Canvas(self,bg="#E9DAC1",width=500, height=85)
         self.canvas_name.place(x=self.x, y=self.y1)
         self.canvas_pass = Canvas(self,bg="#E9DAC1",width=500, height=85)
@@ -66,9 +69,12 @@ class LoginWindow(tk.Frame):
         name.place(x=150, y=20)
         password = Entry(self.canvas_pass, textvariable=self.password, show="*",width=25, font=('Courier', 16))
         password.place(x=150, y=20)
-        Button(self,text="Log in", width=20, command=self.user_login,bg='#54BAB9', font=('Courier', 20)).place(x=600,y=500)
+        login_btn = Button(self,text="Log in", width=20, command=self.user_login, bg='#54BAB9', font=('Courier', 20))
+        login_btn.place(x=600,y=500)
+        password.bind('<Return>', self.user_login)
+        name.focus_set()
 
-    def user_login(self):
+    def user_login(self, event):
         ##############################################################################
         # When the working version is released, the username and password will be    #
         # replaced with the user input fields.                                       #
@@ -97,4 +103,26 @@ class LoginWindow(tk.Frame):
             self.control.show_frame(SC.main_screen)
 
     def forgot(self):
-        Label(self.base, text="Coming Soon").place(relx=0.4, rely=0.8)
+        # Label(self.base, text="Coming Soon").place(relx=0.4, rely=0.8)
+        found = False
+        if not self.username.get():
+            mb.showinfo(title="Username", message="Please enter your username to reset.")
+        else:
+            username = self.username.get().title()
+            for user in TR.get_all_users():
+                if username in user:
+                    username = user
+                    INT.provide_interface([username, True])
+                    user_data = UL.Login.get_user_data(self)
+                    for name in user_data:
+                        if name["Name"] == username:
+                            UL.Login.write_user(self, name['Name'], name['admin'])
+                    found = True
+            if not found:
+                self.username.set("")
+            else:
+                AU.EditUser.reset_password(self)
+                self.control.show_frame(AU.EditUser)
+
+            self.refresh_window()
+

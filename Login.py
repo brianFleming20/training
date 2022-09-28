@@ -37,7 +37,7 @@ class Login():
         # against the user input.                                           #
         #####################################################################
         self.reset_user()
-        user_data = DS.get_login_data()
+        user_data = self.get_user_data()
         for name in user_data:
             if name["Name"] == self.name:
                 plain_password = cryptocode.decrypt(name['Password'],ENTRY)
@@ -66,6 +66,6 @@ class Login():
         #############################################
         LI_user.clear()
 
-
-
+    def get_user_data(self):
+        return DS.get_login_data()
 

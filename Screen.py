@@ -114,6 +114,7 @@ class main_screen(tk.Frame):
         Label(self.canvas_top, text="Name", bg="#C2DED1").place(x=30, y=80)
         Label(self.canvas_top, text="Document Number", font=('Courier', 14), bg="#C2DED1").place(x=450, y=80)
         Label(self.canvas_top, text="Document Name", font=('Courier', 14), bg="#C2DED1").place(x=450, y=120)
+        Label(self.canvas_top, text="Use Return to show Document users", bg="#C2DED1").place(x=200, y=183)
 
         self.document_name = Label(self.canvas_top, textvariable=self.search_document, bg="#C2DED1")
         self.document_name.place(x=650, y=120)
@@ -155,6 +156,7 @@ class main_screen(tk.Frame):
         ##################################################################
         # Start of the main display screen with the titles of the lists  #
         ##################################################################
+        btn1.bind('<<Return>>', self.search_data)
         Label(self.canvas_top,
               text=" Document No.      Document Name            Issue     Name           Date Trained      Level    Expire Date     Trainer       Notes    ", font=('Courier', 10)).place(x=3,y=220)
         self.show_lists()
@@ -432,7 +434,7 @@ class main_screen(tk.Frame):
         self.finish = False
         dict_slice = dict(itertools.islice(self.show_items.items(), lower, upper))
         for ref, items in dict_slice.items():
-            self.doc_no.insert(index, ref[:-2])
+            self.doc_no.insert(index, ref)
             self.doc_train.insert(index, items['trained_on'])
             self.doc_expire.insert(index, items['review_date'])
             self.doc_name.insert(index, items['name'])

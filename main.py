@@ -33,7 +33,7 @@ import AdminUser as AU
 import os
 
 num = "3013-0036"
-Training_Version = f'Deltex Medical : Training Database V3.4 {num: >190s}   '
+Training_Version = f'Deltex Medical : Training Database V4.0 {num: >190s}   '
 w = 1300  # window width
 h = 870  # window height
 LARGE_FONT = ("Verdana", 14)

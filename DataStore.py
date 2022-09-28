@@ -3,7 +3,6 @@ import os
 from tkinter import messagebox as mb
 import pandas as pd
 import cryptocode
-import csv
 from tkinter import *
 from tkinter import ttk
 
