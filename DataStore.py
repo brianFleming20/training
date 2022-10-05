@@ -144,7 +144,8 @@ class data_store():
             with open(docPath, 'r') as docs_file:
                 docs_data = json.load(docs_file)
         except FileNotFoundError:
-            mb.showinfo(title="     Document Error ", message="Document not found.")
+            mb.showinfo(title="     Document Error ", message="Documents file empty.")
+            return False
         else:
             result = docs_data
         return result
@@ -178,7 +179,8 @@ class data_store():
             with open(trainPath, 'r') as train_file:
                 train_data = json.load(train_file)
         except FileNotFoundError:
-            mb.showinfo(title="     Training Error ", message="Training not found.")
+            mb.showinfo(title="     Training Error ", message="Training file empty.")
+            return False
         else:
             return train_data
 
@@ -234,7 +236,6 @@ class data_store():
                 },
             }
         }
-        print(new_record)
         return new_record
 
     def create_new_train_items(self, record):

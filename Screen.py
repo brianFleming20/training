@@ -191,15 +191,17 @@ class main_screen(tk.Frame):
                 self.fill_users_lists(self.get_selected_name())
 
     def get_document_requested(self):
-        for name, item in TR.get_all_training().items():
-            for doc, data in item.items():
-                if self.search_doc.get() == doc:
-                    return doc[:9]
+        if TR.get_all_training():
+            for name, item in TR.get_all_training().items():
+                for doc, data in item.items():
+                    if self.search_doc.get() == doc:
+                        return doc[:9]
 
     def get_selected_name(self):
-        for name, item in TR.get_all_training().items():
-            if self.search_item.get() == name:
-                return name
+        if TR.get_all_training():
+            for name, item in TR.get_all_training().items():
+                if self.search_item.get() == name:
+                    return name
 
     def fill_form(self):
         ##############################################################
@@ -217,13 +219,18 @@ class main_screen(tk.Frame):
         # The system look through the documents to find the reference #
         # number and gets the document name back.                     #
         ###############################################################
+
         doc = TR.get_a_document(self.search_doc.get())
         if not doc:
             pass
+            # print(f"No docs {doc}")
+            # self.update_system()
         else:
             self.search_document.set(doc['name'])
             self.finish = True
             self.search_item.set("Choose")
+        if not TR.get_all_training():
+            self.update_system()
         Tk.update(self)
         self.fill_form()
 
@@ -525,6 +532,10 @@ class main_screen(tk.Frame):
         self.doc_note.bind('<Return>', self.selection_stop)
         self.doc_note.focus_set()
         self.show_selected()
+
+    def update_system(self):
+        ADD.get_user_info()
+        self.refresh_window()
 
 
 class LoggedInUser():

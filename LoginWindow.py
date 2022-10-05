@@ -74,7 +74,7 @@ class LoginWindow(tk.Frame):
         password.bind('<Return>', self.user_login)
         name.focus_set()
 
-    def user_login(self, event):
+    def user_login(self):
         ##############################################################################
         # When the working version is released, the username and password will be    #
         # replaced with the user input fields.                                       #

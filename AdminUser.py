@@ -225,14 +225,13 @@ class ShowUsers(tk.Frame):
         self.documents.place(x=280, y=85)
         self.documents.config(height=20, width=52, bg="#E9DAC1", font=('Courier', 12))
 
-
         for no in TR.get_all_users():
             self.users.insert(END, no)
             self.users.bind('<<ListboxSelect>>', self.edit_user)
-
-        for ref, doc in TR.get_documents().items():
-            self.documents.insert(END, f"{ref} - {doc['name']} - {doc['issue']}")
-            self.documents.bind('<<ListboxSelect>>', self.edit_doc)
+        if TR.get_documents():
+            for ref, doc in TR.get_documents().items():
+                self.documents.insert(END, f"{ref} - {doc['name']} - {doc['issue']}")
+                self.documents.bind('<<ListboxSelect>>', self.edit_doc)
 
         admin = int(TR.get_user_admin())
         if admin:
@@ -268,6 +267,7 @@ class ShowUsers(tk.Frame):
 
     def display_update(self):
         AS.get_user_info()
+        self.refresh_window()
 
     def edit_user(self, event):
         if self.edit_current_user(event):
@@ -323,6 +323,7 @@ class EditUser(tk.Frame):
         self.data.extend(INT.extend_interface())
         self.canvas_back.delete('all')
         self.email.set("")
+        btn1 = None
         self.reset_pass = self.data[1]
         #######################################################
         # Shows the control buttons if the access to the      #

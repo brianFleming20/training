@@ -24,6 +24,7 @@ class GetExternalData:
                                     "Deltex Medical\Training - Documents\Training Database\Files", "")
         self.path_doc_json = os.path.join("C:\\Users", os.getenv('username'),
                                            "Deltex Medical\Shared No Security - Documents\Brian Fleming\Training Database", "")
+
         self.is_trainer = False
         self.doc_names = None
         self.total = 0.0
@@ -154,6 +155,7 @@ class GetExternalData:
                 self.search_data(data, file)
                 pass
         DS.destroy_window()
+
 
 
 

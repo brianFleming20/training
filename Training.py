@@ -72,8 +72,7 @@ class Training:
             return False
 
     def get_documents(self):
-        docs = DS.get_all_documents()
-        return docs
+        return DS.get_all_documents()
 
     def get_user_password(self, name):
         user_obj = DS.get_login_data()
@@ -86,10 +85,13 @@ class Training:
     def get_a_document(self, doc_ref):
         documents = self.get_documents()
         doc_items = None
-        for doc, item in documents.items():
-            if doc_ref == doc:
-                doc_items = item
-        return doc_items
+        if documents:
+            for doc, item in documents.items():
+                if doc_ref == doc:
+                    doc_items = item
+            return doc_items
+        else:
+            return documents
 
     def get_all_users(self):
         users = DS.read_users_data()
