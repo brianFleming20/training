@@ -105,7 +105,7 @@ class WindowController(tk.Tk):
         # Does the frame have a refresh method, if so call it.
         if hasattr(newFrame, 'refresh_window') and callable(getattr(newFrame, 'refresh_window')):
             self.frames[newFrame].refresh_window()
-            self.attributes('-topmost', True)
+            # self.attributes('-topmost', True)
 
 
 app = WindowController()

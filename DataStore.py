@@ -467,8 +467,12 @@ class data_store():
         self.pb['value'] = 100
         self.window.destroy()
 
-    def increase_total(self,num):
+    def increase_total(self, num):
         self.total += num
         if self.pb['value'] < 100:
             self.pb['value'] = self.total
             self.window.update_idletasks()
+
+    def get_user_email(self, user):
+        username = [each_user for each_user in self.read_users_data() if user in each_user]
+        return [item['email'] for name, item in self.read_users_data().items() if name == username[0]][0]

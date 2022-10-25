@@ -80,14 +80,13 @@ class main_screen(tk.Frame):
         ##########################################################################
         self.index = -1
         self.show_items = {}
-        Canvas(self, bg="#E9DAC1",width=self.ws - 10, height=self.hs - 10).place(x=10, y=10)
-        self.canvas_button = Canvas(self, bg="#F7ECDE", width=self.ws / 8, height=self.hs - (self.hs / 5))
-        self.canvas_button.place(x=self.ws - (self.ws / 4.5), y=self.anchor_button_top)
-        self.canvas_search = Canvas(self, bg="#F7ECDE", width=self.ws - (self.ws / 8.5), height=self.hs / 10)
+        self.canvas_button = Canvas(self, bg="#F7ECDE", width=self.ws / 8, height=self.hs - 50)
+        self.canvas_button.place(x=self.ws - (self.ws / 7), y=self.anchor_button_top)
+        self.canvas_search = Canvas(self, bg="#F7ECDE", width=self.ws - 30, height=self.hs / 10)
         self.canvas_search.place(x=10, y=15)
-        self.canvas_lists = Canvas(self, bg="#F7ECDE", width=self.ws / 1.3, height=self.hs / 1.25)
+        self.canvas_lists = Canvas(self, bg="#F7ECDE", width=self.ws / 1.2, height=self.hs / 1.25)
         self.canvas_lists.place(x=10, y=self.anchor_button_top)
-        self.canvas_top = Canvas(self, bg="#C2DED1", width=self.ws / 1.3, height=self.hs / 3.7)
+        self.canvas_top = Canvas(self, bg="#C2DED1", width=self.ws / 1.18, height=self.hs / 3.7)
         self.canvas_top.place(x=10, y=self.anchor_button_top)
         Button(self.canvas_button, text="Selected user", font=('Arial', 14), width=12, command=self.display_user, bg='#54BAB9').place(x=20, y=80)
         self.admin = Button(self.canvas_button,text="Admin", font=('Arial', 14), width=12, command=self.admin_user, bg='#54BAB9')
@@ -158,7 +157,7 @@ class main_screen(tk.Frame):
         ##################################################################
         btn1.bind('<<Return>>', self.search_data)
         Label(self.canvas_top,
-              text=" Document No.      Document Name            Issue     Name           Date Trained      Level    Expire Date     Trainer       Notes    ", font=('Courier', 10)).place(x=3,y=220)
+              text=" Document No.        Document Name              Issue       Name           Date Trained     Level    Expire Date       Trainer         Notes    ", font=('Courier', 10)).place(x=3,y=220)
         self.show_lists()
         self.fill_form()
 
@@ -223,8 +222,6 @@ class main_screen(tk.Frame):
         doc = TR.get_a_document(self.search_doc.get())
         if not doc:
             pass
-            # print(f"No docs {doc}")
-            # self.update_system()
         else:
             self.search_document.set(doc['name'])
             self.finish = True
@@ -322,47 +319,48 @@ class main_screen(tk.Frame):
                 self.fill_users_lists(self.search_item.get())
       
     def show_lists(self):
-        list_width = 12
+        list_width = 13
         list_height = 24
         list_index = list_width * 5.4
+        list_position = self.hs / 3.5
         self.idx = 0
         ######################################################################
         # Shows the data lists for the training data to be displayed .       #
         ######################################################################
         self.doc_no = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_no.place(x=5, y=250)
+        self.doc_no.place(x=5, y=list_position)
         self.doc_no.config(height=list_height, width=list_width + 3, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_name = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_name.place(x=list_index * 2.2, y=250)
-        self.doc_name.config(height=list_height, width=23, bg="#E9DAC1", font=('Courier', 12))
+        self.doc_name.place(x=list_index * 2.2, y=list_position)
+        self.doc_name.config(height=list_height, width=24, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_issue = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_issue.place(x=list_index * 5.5, y=250)
-        self.doc_issue.config(height=list_height, width=6, bg="#E9DAC1", font=('Courier', 12))
+        self.doc_issue.place(x=list_index * 5.5, y=list_position)
+        self.doc_issue.config(height=list_height, width=7, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_users = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_users.place(x=list_index * 6.4, y=250)
+        self.doc_users.place(x=list_index * 6.4, y=list_position)
         self.doc_users.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_train = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_train.place(x=list_index * 8.3, y=250)
+        self.doc_train.place(x=list_index * 8.3, y=list_position)
         self.doc_train.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_level = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_level.place(x=list_index * 10.2, y=250)
+        self.doc_level.place(x=list_index * 10.2, y=list_position)
         self.doc_level.config(height=list_height, width=list_width - 5, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_expire = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_expire.place(x=list_index * 11.3, y=250)
+        self.doc_expire.place(x=list_index * 11.3, y=list_position)
         self.doc_expire.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_trainer = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_trainer.place(x=list_index * 13.2, y=250)
+        self.doc_trainer.place(x=list_index * 13.2, y=list_position)
         self.doc_trainer.config(height=list_height, width=list_width, bg="#E9DAC1", font=('Courier', 12))
 
         self.doc_note = Listbox(self.canvas_lists, exportselection=False)
-        self.doc_note.place(x=list_index * 15.1, y=250)
+        self.doc_note.place(x=list_index * 15.1, y=list_position)
         self.doc_note.config(height=list_height, width=list_width + 1, bg="#E9DAC1", font=('Courier', 12))
 
     def OnEntryDown(self, event):

@@ -107,8 +107,8 @@ class GetExternalData:
                 #################################################################################
                 if doc_name_data['Document No.'].to_string(index=False) == doc_ref:
 
-                    user = US.User(row.Trainee, self.is_trainer, "No email yet")
-                    DS.write_user(user)
+                    # user = US.User(row.Trainee, self.is_trainer, "No email yet")
+                    # DS.write_user(user)
                     #######################################################################################
                     # Generate a document object saved to the local file and displayed on the main screen #
                     #######################################################################################
