@@ -12,6 +12,7 @@ user centered data or a document centered data.
 
 import tkinter as tk
 from tkinter import *
+from tkinter import ttk
 from tkinter import messagebox as mb
 import DisplayScreens
 import Training
@@ -99,10 +100,12 @@ class main_screen(tk.Frame):
         #################################################################
         names = TR.get_all_users()
         self.search_doc.set("")
-        self.search_item.set("Choose")
-        search_name = OptionMenu(self.canvas_top, self.search_item, *names)
-        search_name.config(font=('Courier', 14))
+        someStyle = ttk.Style()
+        someStyle.configure('my.TMenubutton', font=('Futura', 16))
+        search_name = ttk.OptionMenu(self.canvas_top, self.search_item, *names, style='my.TMenubutton')
+        search_name['menu'].configure(font=('Futura', 16))
         search_name.place(x=80, y=80)
+        self.search_item.set("Choose")
         ##################################################################
         # Labels for the screen and the user that is logged in.          #
         # The document name is lined out first of all, then added when   #
@@ -363,10 +366,15 @@ class main_screen(tk.Frame):
         self.doc_note.place(x=list_index * 15.1, y=list_position)
         self.doc_note.config(height=list_height, width=list_width + 1, bg="#E9DAC1", font=('Courier', 12))
 
+        self.doc_id = Listbox(self.canvas_lists, exportselection=False)
+        self.doc_id.place(x=list_index * 18, y=list_position)
+        self.doc_id.config(height=2, width=2)
+
     def OnEntryDown(self, event):
         self.focus_box = event.widget
-        if self.idx < self.list_limit:
+        if self.list_limit > self.idx:
             self.idx += 1
+        if self.idx < 23:
             self.doc_name.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
             self.doc_issue.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
             self.doc_users.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
@@ -375,18 +383,18 @@ class main_screen(tk.Frame):
             self.doc_expire.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
             self.doc_trainer.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
             self.doc_note.itemconfig(self.idx - 1, {"bg": "#E9DAC1"})
-        else:
-            self.idx = self.list_limit
 
         if self.idx > 23:
             lower = self.idx - 23
+            upper = self.idx
             self.focus_box = event.widget
-            self.show_list(lower, self.idx)
+            self.show_list(lower, upper)
         self.show_selected()
 
     def OnEntryUp(self, event):
         if self.idx > 0:
             self.idx -= 1
+        if self.idx < 23:
             self.doc_name.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
             self.doc_issue.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
             self.doc_users.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
@@ -395,20 +403,20 @@ class main_screen(tk.Frame):
             self.doc_expire.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
             self.doc_trainer.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
             self.doc_note.itemconfig(self.idx + 1, {"bg": "#E9DAC1"})
-        else:
-            self.idx = 0
 
         if self.idx > 23:
             lower = self.idx - 23
+            upper = self.idx
             self.focus_box = event.widget
-            self.show_list(lower, self.idx)
+            self.show_list(lower, upper)
         self.show_selected()
 
     def selection_stop(self, event):
-        self.display_document_window()
+        if event.keysym == 'Return':
+            self.display_document_window()
 
     def fill_users_lists(self, name):
-        upper = 24
+        upper = 23
         lower = 0
         self.show_items = {}
         self.search_document.set("----------------")
@@ -428,10 +436,10 @@ class main_screen(tk.Frame):
         self.show_list(lower, upper)
         self.doc_no.select_set(0)
         self.idx = int(self.doc_no.curselection()[0])
-        self.doc_note.bind('<Down>', self.OnEntryDown)
-        self.doc_note.bind('<Up>', self.OnEntryUp)
-        self.doc_note.bind('<Return>', self.selection_stop)
-        self.doc_note.focus_set()
+        self.doc_id.bind('<Down>', self.OnEntryDown)
+        self.doc_id.bind('<Up>', self.OnEntryUp)
+        self.doc_id.bind('<KeyRelease>', self.selection_stop)
+        self.doc_id.focus_set()
         self.show_selected()
 
     def show_list(self, lower, upper):
@@ -505,7 +513,7 @@ class main_screen(tk.Frame):
         ##############################################################
         # Fill the lists with document data from the document filter #
         ##############################################################
-        upper = 24
+        upper = 23
         lower = 0
         index = 10
         self.show_items = {}
@@ -525,10 +533,10 @@ class main_screen(tk.Frame):
         self.show_list(lower, upper)
         self.doc_no.select_set(0)
         self.idx = int(self.doc_no.curselection()[0])
-        self.doc_note.bind('<Down>', self.OnEntryDown)
-        self.doc_note.bind('<Up>', self.OnEntryUp)
-        self.doc_note.bind('<Return>', self.selection_stop)
-        self.doc_note.focus_set()
+        self.doc_id.bind('<Down>', self.OnEntryDown)
+        self.doc_id.bind('<Up>', self.OnEntryUp)
+        self.doc_id.bind('<KeyRelease>', self.selection_stop)
+        self.doc_id.focus_set()
         self.show_selected()
 
     def update_system(self):

@@ -113,6 +113,7 @@ class show_document_window(tk.Frame):
 
     def refresh_window(self):
         self.time.set(TR.get_date_now())
+        self.data.clear()
         self.data.extend(INT.extend_interface())
         self.doc_no.set(self.data[0])
         self.doc_name.set(self.data[1])
